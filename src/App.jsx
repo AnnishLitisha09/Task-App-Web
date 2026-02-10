@@ -29,6 +29,9 @@ function App() {
     localStorage.setItem('userRole', userData.role);
     localStorage.setItem('userTitle', userData.title);
     localStorage.setItem('userScope', userData.scope);
+    if (userData.token) {
+      localStorage.setItem('token', userData.token);
+    }
     setUser(userData);
   };
 

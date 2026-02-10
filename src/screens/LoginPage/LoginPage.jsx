@@ -36,8 +36,9 @@ const LoginPage = ({ onLoginSuccess }) => {
             localStorage.setItem('userRole', user.role);
             localStorage.setItem('userTitle', user.title);
             localStorage.setItem('userScope', user.scope);
+            localStorage.setItem('token', 'mock_admin_token'); // Mock token for test account
 
-            onLoginSuccess(user);
+            onLoginSuccess({ ...user, email: trimmedEmail });
         } else {
             showErrorMessage('Invalid credentials. Use student, faculty, hod, incharge, or principal emails.');
         }
@@ -45,7 +46,7 @@ const LoginPage = ({ onLoginSuccess }) => {
 
     const handleGoogleSuccess = async (credentialResponse) => {
         try {
-            const response = await fetch('https://h6sp3f89-3002.inc1.devtunnels.ms/api/auth/google', {
+            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/google`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -57,12 +58,12 @@ const LoginPage = ({ onLoginSuccess }) => {
 
             if (response.ok) {
                 const data = await response.json();
-                // Map backend response to our user state
                 const userData = {
                     email: data.email,
-                    role: data.role || 'admin', // Enforcing admin for testing if backend doesn't return it yet
+                    role: data.role || 'admin',
                     title: data.name || data.title || 'Institutional Admin',
-                    scope: data.scope || 'full'
+                    scope: data.scope || 'full',
+                    token: data.token // Include the token from backend
                 };
 
                 onLoginSuccess(userData);

@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import * as XLSX from 'xlsx';
+import api from '../../../utils/api';
 import CreateUserModal from '../../../components/UI/CreateUserModal/CreateUserModal';
 import DeleteConfirmModal from '../../../components/UI/DeleteConfirmModal/DeleteConfirmModal';
 import ViewUserModal from '../../../components/UI/ViewUserModal/ViewUserModal';
 import {
     Search, UserPlus, FileSpreadsheet, Filter, Eye,
-    Edit3, UserMinus, Users, UserCircle, ShieldCheck, ChevronDown, Upload
+    Edit3, UserMinus, Users, UserCircle, ShieldCheck, ChevronDown, Upload, CheckCircle2
 } from 'lucide-react';
 import './UsersPage.css';
 
@@ -15,6 +16,8 @@ const UsersPage = () => {
     const [activeTab, setActiveTab] = useState('all');
     const [statusFilter, setStatusFilter] = useState('all');
     const [deptFilter, setDeptFilter] = useState('all');
+    const [departments, setDepartments] = useState([]);
+    const [venues, setVenues] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
@@ -23,38 +26,114 @@ const UsersPage = () => {
     const [isViewOpen, setIsViewOpen] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
-    // Mock Stats
+    // Toast State
+    const [showToast, setShowToast] = useState(false);
+    const [toastMsg, setToastMsg] = useState('');
+
+    const [usersList, setUsersList] = useState([]);
+    const [apiCounts, setApiCounts] = useState(null);
+    const [isUsersLoading, setIsUsersLoading] = useState(true);
+
+    // Fetch Resources
+    React.useEffect(() => {
+        const fetchResources = async () => {
+            try {
+                const [depts, vns] = await Promise.all([
+                    api('/resources/departments'),
+                    api('/resources/venues')
+                ]);
+                setDepartments(depts);
+                setVenues(vns);
+            } catch (err) {
+                console.error('Failed to fetch resources:', err);
+            }
+        };
+
+        const fetchUsers = async () => {
+            setIsUsersLoading(true);
+            try {
+                const response = await api('/users/dashboard/all');
+
+                if (response && response.users) {
+                    // Mapping/Flattening Logic
+                    const mappedUsers = response.users.map(u => {
+                        const info = u.student_info || u.faculty_info || u.staff_info || u.role_user_info || {};
+                        return {
+                            ...u,
+                            ...info, // Spread info to get IDs like department_id
+                            name: info.name || (u.role === 'admin' ? 'Admin' : 'Unknown'),
+                            email: info.email || 'N/A',
+                            dept: info.department_name || (u.role_assignments?.[0]?.department) || 'N/A',
+                            regNo: info.reg_no || 'N/A',
+                            score: parseFloat(info.score || 0),
+                            penalty: parseFloat(info.penalty || 0),
+                            year: info.year || 'N/A',
+                            designation: info.designation || 'N/A'
+                        };
+                    });
+                    setUsersList(mappedUsers);
+                }
+
+                if (response && response.counts) {
+                    setApiCounts(response.counts);
+                }
+            } catch (err) {
+                console.error('Failed to fetch users:', err);
+            } finally {
+                setIsUsersLoading(false);
+            }
+        };
+
+        fetchResources();
+        fetchUsers();
+    }, []);
+
+    // Stats linked to API counts
     const stats = [
-        { label: 'Total Users', value: '1,380', icon: Users, color: '#6366f1' },
-        { label: 'Active Students', value: '1,284', icon: UserCircle, color: '#10b981' },
-        { label: 'Faculty Members', value: '84', icon: ShieldCheck, color: '#f59e0b' },
-        { label: 'Role Admins', value: '12', icon: ShieldCheck, color: '#3b82f6' },
+        {
+            label: 'Total Users',
+            value: apiCounts?.total_active_users?.toString() || usersList.length.toString(),
+            icon: Users,
+            color: '#6366f1'
+        },
+        {
+            label: 'Students',
+            value: apiCounts?.students?.toString() || usersList.filter(u => u.role === 'student').length.toString(),
+            icon: UserCircle,
+            color: '#10b981'
+        },
+        {
+            label: 'Faculty Members',
+            value: apiCounts?.faculty?.toString() || usersList.filter(u => u.role === 'faculty').length.toString(),
+            icon: ShieldCheck,
+            color: '#f59e0b'
+        },
+        {
+            label: 'Role Users',
+            value: apiCounts?.role_users?.toString() || usersList.filter(u => u.role === 'role-user').length.toString(),
+            icon: ShieldCheck,
+            color: '#3b82f6'
+        },
     ];
 
-    // Mock Data (Expanded)
-    const [usersList, setUsersList] = useState([
-        { id: 1, name: 'Arun Kumar', category: 'student', dept: 'CSE', status: 'Active', score: 850, penalty: 0, year: '3rd', email: 'arun.k@inst.edu', regNo: '2021CSE001', advisor: 'Dr. Ramesh' },
-        { id: 2, name: 'Dr. Sarah Smith', category: 'faculty', dept: 'Biotech', status: 'Active', score: 980, penalty: 10, year: 'N/A', email: 'sarah.s@inst.edu', regNo: 'FAC102' },
-        { id: 3, name: 'John Doe', category: 'role-user', dept: 'Admin', status: 'Pending', score: 0, penalty: 0, year: 'N/A', email: 'john.d@inst.edu', role: 'HOD', scope: 'infrastructure', venue: 'main_auditorium' },
-        { id: 4, name: 'Robert Wilson', category: 'staff', dept: 'Transport', status: 'Active', score: 720, penalty: 5, year: 'N/A', email: 'robert.w@inst.edu', designation: 'transport', regNo: 'STF990' },
-    ]);
-
-    // Unique Departments for dropdown
-    const departments = ['all', ...new Set(usersList.map(u => u.dept))];
+    // UI Departments for filter dropdown
+    const filterDepartments = ['all', ...new Set(usersList.map(u => u.dept))];
 
     // Filtering Logic
     const filteredUsers = usersList.filter(user => {
-        const matchesCategory = activeTab === 'all' ||
-            (activeTab === 'authority' ? user.category === 'role-user' : user.category === activeTab);
+        if (!user) return false;
 
-        const matchesStatus = statusFilter === 'all' || user.status.toLowerCase() === statusFilter.toLowerCase();
+        const matchesCategory = activeTab === 'all' ||
+            (activeTab === 'authority' ? user.role === 'role-user' : user.role === activeTab);
+
+        const matchesStatus = statusFilter === 'all' || (user.status || '').toLowerCase() === statusFilter.toLowerCase();
 
         const matchesDept = deptFilter === 'all' || user.dept === deptFilter;
 
         const matchesSearch =
-            user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            user.regNo?.toLowerCase().includes(searchTerm.toLowerCase());
+            (user.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (user.email || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (user.regNo || '').toLowerCase().includes(searchTerm.toLowerCase());
 
         return matchesCategory && matchesStatus && matchesDept && matchesSearch;
     });
@@ -96,34 +175,34 @@ const UsersPage = () => {
         setIsDeleteOpen(false);
     };
 
-    const handleBulkUpload = (event) => {
+    const [isBulkLoading, setIsBulkLoading] = useState(false);
+
+    const handleBulkUpload = async (event) => {
         const file = event.target.files[0];
         if (!file) return;
 
+        setIsBulkLoading(true);
         const reader = new FileReader();
-        reader.onload = (e) => {
-            const data = new Uint8Array(e.target.result);
-            const workbook = XLSX.read(data, { type: 'array' });
-            const sheetName = workbook.SheetNames[0];
-            const worksheet = workbook.Sheets[sheetName];
-            const jsonData = XLSX.utils.sheet_to_json(worksheet);
+        reader.onload = async (e) => {
+            try {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const sheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[sheetName];
+                const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
-            const newUsers = jsonData.map((row, index) => ({
-                id: Date.now() + index,
-                name: row.Name || 'Unknown',
-                email: row.Email || '',
-                category: (row.Category || 'student').toLowerCase(),
-                dept: row.Department || 'General',
-                status: 'Active',
-                score: row.Score || 0,
-                penalty: row.Penalty || 0,
-                year: row.Year || 'N/A',
-                regNo: row.RegID || row.RegistrationID || '',
-                advisor: row.Advisor || ''
-            }));
+                const result = await api('/users/bulk-create', {
+                    method: 'POST',
+                    body: { users: jsonData }
+                });
 
-            setUsersList(prev => [...prev, ...newUsers]);
-            alert(`Successfully uploaded ${newUsers.length} users!`);
+                alert(`Successfully uploaded ${result.count || jsonData.length} users!`);
+            } catch (err) {
+                console.error('Bulk upload error:', err);
+                alert(`Error: ${err.message}`);
+            } finally {
+                setIsBulkLoading(false);
+            }
         };
         reader.readAsArrayBuffer(file);
     };
@@ -231,9 +310,10 @@ const UsersPage = () => {
                             value={deptFilter}
                             onChange={(e) => setDeptFilter(e.target.value)}
                         >
+                            <option value="all">All Departments</option>
                             {departments.map(dept => (
-                                <option key={dept} value={dept}>
-                                    {dept === 'all' ? 'All Departments' : dept}
+                                <option key={dept.id} value={dept.name}>
+                                    {dept.name}
                                 </option>
                             ))}
                         </select>
@@ -259,68 +339,81 @@ const UsersPage = () => {
             </div>
 
             <div className="users-table-wrapper">
-                <table className="users-table">
-                    <thead>
-                        <tr>
-                            <th>User Name</th>
-                            <th>Category</th>
-                            <th>Department</th>
-                            <th>Year</th>
-                            <th>Credit Score</th>
-                            <th>Penalty</th>
-                            <th>Status</th>
-                            <th className="text-right">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {filteredUsers.map((user) => (
-                            <tr key={user.id}>
-                                <td>
-                                    <div className="user-info-cell">
-                                        <div className="user-avatar-text">{user.name.charAt(0)}</div>
-                                        <div>
-                                            <span className="user-name">{user.name}</span>
-                                            <span className="user-email">{user.email}</span>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <span className={`cat - badge ${user.category} `}>
-                                        {user.category}
-                                    </span>
-                                </td>
-                                <td>{user.dept}</td>
-                                <td>{user.year}</td>
-                                <td>
-                                    <span className={user.score > 0 ? 'score-text' : ''}>
-                                        {user.score}
-                                    </span>
-                                </td>
-                                <td>
-                                    <span className={user.penalty > 0 ? 'penalty-text' : ''}>
-                                        {user.penalty}
-                                    </span>
-                                </td>
-                                <td>
-                                    <span className={`status - pill ${user.status.toLowerCase()} `}>
-                                        {user.status}
-                                    </span>
-                                </td>
-                                <td className="text-right">
-                                    <div className="action-btns">
-                                        <button title="View" onClick={() => handleView(user)}><Eye size={16} /></button>
-                                        <button title="Edit" onClick={() => handleEdit(user)}><Edit3 size={16} /></button>
-                                        <button title="Delete" className="delete-btn" onClick={() => handleDeleteClick(user)}><UserMinus size={16} /></button>
-                                    </div>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-                {filteredUsers.length === 0 && (
-                    <div className="no-users-hint">
-                        No users found matching your search and filter criteria.
+                {isUsersLoading ? (
+                    <div className="table-loader-container">
+                        <div className="loader-spinner"></div>
+                        <p>Fetching user directory...</p>
                     </div>
+                ) : (
+                    <>
+                        <table className="users-table">
+                            <thead>
+                                <tr>
+                                    <th>User Name</th>
+                                    <th>Category</th>
+                                    <th>Department</th>
+                                    <th>Year / Role</th>
+                                    <th>Credit Score</th>
+                                    <th>Penalty</th>
+                                    <th>Status</th>
+                                    <th className="text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {filteredUsers.map((user) => (
+                                    <tr key={user.id || Math.random()}>
+                                        <td>
+                                            <div className="user-info-cell">
+                                                <div className="user-avatar-text">{(user.name || 'U').charAt(0)}</div>
+                                                <div>
+                                                    <span className="user-name">{user.name || 'Unknown'}</span>
+                                                    <span className="user-email">{user.email || 'N/A'}</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span className={`cat-badge ${user.role || 'student'}`}>
+                                                {user.role || 'student'}
+                                            </span>
+                                        </td>
+                                        <td>{user.dept || 'N/A'}</td>
+                                        <td>
+                                            {user.role === 'student' ? (user.year || 'N/A') :
+                                                (user.role === 'staff' ? (user.designation || 'N/A') :
+                                                    (user.role === 'role-user' ? (user.role_assignments?.[0]?.role || 'N/A') : 'N/A'))}
+                                        </td>
+                                        <td>
+                                            <span className={(user.score || 0) > 0 ? 'score-text' : ''}>
+                                                {user.score || 0}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span className={(user.penalty || 0) > 0 ? 'penalty-text' : ''}>
+                                                {user.penalty || 0}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span className={`status-pill ${(user.status || 'active').toLowerCase()}`}>
+                                                {user.status || 'Active'}
+                                            </span>
+                                        </td>
+                                        <td className="text-right">
+                                            <div className="action-btns">
+                                                <button title="View" onClick={() => handleView(user)}><Eye size={16} /></button>
+                                                <button title="Edit" onClick={() => handleEdit(user)}><Edit3 size={16} /></button>
+                                                <button title="Delete" className="delete-btn" onClick={() => handleDeleteClick(user)}><UserMinus size={16} /></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                        {filteredUsers.length === 0 && (
+                            <div className="no-users-hint">
+                                No users found matching your search and filter criteria.
+                            </div>
+                        )}
+                    </>
                 )}
             </div>
 
@@ -329,11 +422,31 @@ const UsersPage = () => {
                 onClose={() => setIsModalOpen(false)}
                 isEdit={isEditMode}
                 userData={selectedUser}
+                departments={departments}
+                venues={venues}
                 onSuccess={(data) => {
+                    // Success Toast
+                    setToastMsg(isEditMode ? 'User updated successfully!' : 'User created successfully!');
+                    setShowToast(true);
+                    setTimeout(() => setShowToast(false), 3000);
+
+                    // Mapping backend data to match table fields
+                    const mappedUser = {
+                        ...data,
+                        name: data.name || 'New User',
+                        email: data.email || 'N/A',
+                        role: data.role || data.category || 'student',
+                        dept: data.dept || data.department_name || 'General',
+                        status: data.status || 'Active',
+                        score: data.score || 0,
+                        penalty: data.penalty || 0,
+                        year: data.year || 'N/A'
+                    };
+
                     if (isEditMode) {
-                        setUsersList(prev => prev.map(u => u.id === data.id ? data : u));
+                        setUsersList(prev => prev.map(u => u.id === mappedUser.id ? mappedUser : u));
                     } else {
-                        setUsersList(prev => [...prev, { ...data, id: Date.now(), status: 'Active', score: 0, penalty: 0 }]);
+                        setUsersList(prev => [mappedUser, ...prev]);
                     }
                 }}
             />
@@ -353,6 +466,20 @@ const UsersPage = () => {
                     onConfirm={handleDeleteConfirm}
                 />
             )}
+            {/* Simple Toast UI */}
+            <AnimatePresence>
+                {showToast && (
+                    <motion.div
+                        className="quick-toast"
+                        initial={{ opacity: 0, x: 50, scale: 0.9 }}
+                        animate={{ opacity: 1, x: 0, scale: 1 }}
+                        exit={{ opacity: 0, x: 20, scale: 0.9 }}
+                    >
+                        <CheckCircle2 size={18} />
+                        {toastMsg}
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </motion.div>
     );
 };

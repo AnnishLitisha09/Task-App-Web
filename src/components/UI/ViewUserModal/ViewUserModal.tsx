@@ -13,6 +13,9 @@ interface ViewUserModalProps {
 const ViewUserModal: React.FC<ViewUserModalProps> = ({ isOpen, onClose, user, onEdit }) => {
     if (!user) return null;
 
+    const userRole = user.role || user.category || 'student';
+    const userName = user.name || 'Unknown User';
+
     const renderDetail = (icon: any, label: string, value: string) => (
         <div className="detail-item">
             <div className="detail-icon">{React.createElement(icon, { size: 18 })}</div>
@@ -35,10 +38,10 @@ const ViewUserModal: React.FC<ViewUserModalProps> = ({ isOpen, onClose, user, on
                     >
                         <div className="view-card-header">
                             <div className="view-user-primary">
-                                <div className="view-avatar-lg">{user.name.charAt(0)}</div>
+                                <div className="view-avatar-lg">{userName.charAt(0)}</div>
                                 <div>
-                                    <h2>{user.name}</h2>
-                                    <span className={`cat-badge ${user.category}`}>{user.category.toUpperCase()}</span>
+                                    <h2>{userName}</h2>
+                                    <span className={`cat-badge ${userRole}`}>{(userRole).toUpperCase()}</span>
                                 </div>
                             </div>
                             <button className="close-x-btn" onClick={onClose}><X size={20} /></button>
@@ -50,17 +53,17 @@ const ViewUserModal: React.FC<ViewUserModalProps> = ({ isOpen, onClose, user, on
                                 {renderDetail(Shield, "Registration / Employee ID", user.regNo)}
                                 {renderDetail(MapPin, "Department", user.dept)}
 
-                                {user.category === 'student' && (
+                                {userRole === 'student' && (
                                     <>
                                         {renderDetail(GraduationCap, "Current Year", user.year)}
                                         {renderDetail(Shield, "Faculty Advisor", user.advisor)}
                                     </>
                                 )}
-                                {user.category === 'staff' && renderDetail(Briefcase, "Designation", user.designation)}
+                                {userRole === 'staff' && renderDetail(Briefcase, "Designation", user.designation)}
 
-                                {user.category === 'role-user' && (
+                                {userRole === 'role-user' && (
                                     <>
-                                        {renderDetail(Shield, "Authority Role", user.role)}
+                                        {renderDetail(Shield, "Authority Role", user.role_name || user.role)}
                                         {renderDetail(MapPin, "Scope", user.scope)}
                                         {user.venue && renderDetail(MapPin, "Target Venue", user.venue)}
                                     </>
@@ -70,15 +73,15 @@ const ViewUserModal: React.FC<ViewUserModalProps> = ({ isOpen, onClose, user, on
                             <div className="stats-mini-row">
                                 <div className="mini-stat">
                                     <span>Credit Score</span>
-                                    <h4 className="score-text">{user.score}</h4>
+                                    <h4 className="score-text">{user.score || 0}</h4>
                                 </div>
                                 <div className="mini-stat">
                                     <span>Penalties</span>
-                                    <h4 className="penalty-text">{user.penalty}</h4>
+                                    <h4 className="penalty-text">{user.penalty || 0}</h4>
                                 </div>
                                 <div className="mini-stat">
                                     <span>Status</span>
-                                    <h4 className={user.status.toLowerCase()}>{user.status}</h4>
+                                    <h4 className={(user.status || 'active').toLowerCase()}>{user.status || 'Active'}</h4>
                                 </div>
                             </div>
                         </div>
