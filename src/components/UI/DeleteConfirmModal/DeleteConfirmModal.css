@@ -1,0 +1,82 @@
+.confirm-card {
+    background: white;
+    width: 400px;
+    padding: 2rem;
+    border-radius: 24px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    border: 1px solid #f1f5f9;
+}
+
+.confirm-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+}
+
+.alert-icon-bg {
+    width: 48px;
+    height: 48px;
+    background: #fef2f2;
+    border-radius: 14px;
+    display: grid;
+    place-items: center;
+}
+
+.confirm-body h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #1e293b;
+}
+
+.confirm-body p {
+    margin: 0;
+    font-size: 0.95rem;
+    color: #64748b;
+    line-height: 1.5;
+}
+
+.confirm-body p strong {
+    color: #1e293b;
+}
+
+.confirm-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 2rem;
+}
+
+.confirm-actions button {
+    flex: 1;
+    padding: 12px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.cancel-pill-btn {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #64748b;
+}
+
+.cancel-pill-btn:hover {
+    background: #f1f5f9;
+    color: #1e293b;
+}
+
+.delete-pill-btn {
+    background: #ef4444;
+    border: none;
+    color: white;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+
+.delete-pill-btn:hover {
+    background: #dc2626;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(239, 68, 68, 0.3);
+}

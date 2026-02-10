@@ -1,0 +1,101 @@
+/* Shared UI component styles */
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.input-group label {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+    color: var(--text-heading);
+    opacity: 0.5;
+}
+
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.03);
+}
+
+.input-icon {
+    position: absolute;
+    left: 20px;
+    color: var(--primary-color);
+    opacity: 0.7;
+}
+
+.input-wrapper input {
+    width: 100%;
+    padding: 20px 20px 20px 52px;
+    background: var(--input-fill);
+    border: 1px solid var(--input-border);
+    border-radius: 16px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-heading);
+    transition: all 0.2s ease;
+}
+
+.input-wrapper input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    border-width: 1.5px;
+    background: var(--white);
+}
+
+.password-toggle {
+    position: absolute;
+    right: 16px;
+    background: none;
+    color: var(--text-body);
+    opacity: 0.6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+}
+
+.custom-button {
+    width: 100%;
+    height: 60px;
+    border-radius: 16px;
+    font-size: 16px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    transition: all 0.2s ease;
+}
+
+.custom-button.primary {
+    background: var(--primary-color);
+    color: white;
+    box-shadow: 0 10px 20px var(--primary-glow);
+}
+
+.custom-button.secondary {
+    background: var(--white);
+    border: 1px solid var(--input-border);
+    color: var(--text-heading);
+}
+
+.logo-box {
+    width: 80px;
+    height: 80px;
+    background: var(--white);
+    border-radius: 24px;
+    border: 1px solid var(--input-border);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo-icon {
+    color: var(--primary-color);
+}

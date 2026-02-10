@@ -1,0 +1,71 @@
+:root {
+  --primary-color: #2d62ed;
+  --primary-glow: rgba(45, 98, 237, 0.25);
+  --text-heading: #1a1c1e;
+  --text-body: #42474e;
+  --input-fill: #f8fafc;
+  --input-border: #e2e8f0;
+  --white: #ffffff;
+  --error: #ff5252;
+
+  font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: var(--text-body);
+  background-color: var(--white);
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--text-heading);
+  line-height: 1.1;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+}
+
+input {
+  font-family: inherit;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Enforcing Light Theme as requested */
+    --text-heading: #1a1c1e;
+    --text-body: #42474e;
+    --input-fill: #f8fafc;
+    --input-border: #e2e8f0;
+    --white: #ffffff;
+  }
+}

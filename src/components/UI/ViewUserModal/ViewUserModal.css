@@ -1,0 +1,155 @@
+.view-card {
+    background: white;
+    width: 500px;
+    border-radius: 28px;
+    overflow: hidden;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    display: flex;
+    flex-direction: column;
+}
+
+.view-card-header {
+    padding: 2rem;
+    background: #fafbff;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.view-user-primary {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.view-avatar-lg {
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    color: white;
+    border-radius: 20px;
+    display: grid;
+    place-items: center;
+    font-size: 1.5rem;
+    font-weight: 800;
+}
+
+.view-user-primary h2 {
+    margin: 0 0 0.25rem 0;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #1e293b;
+}
+
+.view-card-body {
+    padding: 2rem;
+    flex: 1;
+}
+
+.details-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.detail-icon {
+    width: 36px;
+    height: 36px;
+    background: #f8fafc;
+    color: #6366f1;
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+}
+
+.detail-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.detail-label {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.detail-value {
+    font-size: 1rem;
+    color: #334155;
+    font-weight: 600;
+}
+
+.stats-mini-row {
+    display: flex;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: #f8fafc;
+    border-radius: 16px;
+    border: 1px solid #f1f5f9;
+}
+
+.mini-stat {
+    flex: 1;
+    text-align: center;
+}
+
+.mini-stat span {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #94a3b8;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.mini-stat h4 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 800;
+}
+
+.mini-stat h4.active {
+    color: #10b981;
+}
+
+.mini-stat h4.pending {
+    color: #f59e0b;
+}
+
+.view-card-footer {
+    padding: 1.5rem 2rem;
+    background: #fafbff;
+    border-top: 1px solid #f1f5f9;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.primary-pill-btn {
+    background: #6366f1;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.primary-pill-btn:hover {
+    background: #4f46e5;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+}
