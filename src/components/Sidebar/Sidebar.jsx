@@ -17,7 +17,6 @@ const navItems = [
     { id: 'tasks', icon: ClipboardList, label: 'Tasks' },
     { id: 'scoreboard', icon: Trophy, label: 'Scoreboard' },
     { id: 'coupons', icon: Ticket, label: 'Coupons' },
-    { id: 'logs', icon: History, label: 'System Logs' },
 ];
 
 const Sidebar = ({ onLogout, isOpen, onClose, activeTab, setActiveTab, userTitle }) => {

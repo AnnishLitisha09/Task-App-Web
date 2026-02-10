@@ -3,6 +3,7 @@ import Sidebar from '../../../components/Sidebar/Sidebar';
 import AdminDashboard from '../Dashboard/Dashboard';
 import UsersPage from '../Users/UsersPage';
 import DepartmentsPage from '../Departments/DepartmentsPage';
+import InfrastructurePage from '../Infrastructure/InfrastructurePage';
 import { Edit2, Bell, Menu, X } from 'lucide-react';
 import './AdminLayout.css';
 
@@ -25,6 +26,8 @@ const AdminLayout = ({ user, onLogout }) => {
                 return <div className="placeholder-view"><h2>Authority Settings</h2><p>Manage roles and permissions.</p></div>;
             case 'Departments':
                 return <DepartmentsPage />;
+            case 'Infrastructure':
+                return <InfrastructurePage />;
             // Add other cases as you build the pages
             default:
                 return <div className="placeholder-view"><h2>Coming Soon</h2><p>Page is under construction.</p></div>;
