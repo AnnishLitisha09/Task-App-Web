@@ -134,125 +134,146 @@
     margin: 0;
 }
 
-.panel-action-btn {
+.export-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     background: #f8fafc;
     border: 1px solid #e2e8f0;
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-size: 0.8rem;
+    padding: 10px 18px;
+    border-radius: 12px;
+    font-size: 0.85rem;
     font-weight: 700;
     color: #475569;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.panel-action-btn:hover {
-    background: #f1f5f9;
+.export-btn:hover {
+    background: #ffffff;
     color: #6366f1;
     border-color: #6366f1;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
+    transform: translateY(-1px);
 }
 
-/* --- Alerts Table --- */
-.alerts-table {
-    display: flex;
-    flex-direction: column;
+/* --- Governance Table --- */
+.gov-table-wrapper {
+    padding: 1rem 1.5rem 2.5rem;
     overflow-x: auto;
 }
 
-.table-header,
-.table-row {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr;
-    align-items: center;
-    padding: 1rem 2rem;
-    gap: 1.5rem;
-    border-bottom: 1px solid #f1f5f9;
+.gov-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 8px;
 }
 
-.table-header {
-    background: #f8fafc;
+.gov-table th {
+    padding: 12px 16px;
+    text-align: left;
     font-size: 0.75rem;
     font-weight: 700;
-    color: #64748b;
+    color: #94a3b8;
     text-transform: uppercase;
     letter-spacing: 0.05em;
 }
 
-.table-row {
-    padding: 1.25rem 2rem;
-    transition: background-color 0.2s ease;
+.gov-table tbody tr {
+    background: #ffffff;
+    transition: all 0.2s ease;
 }
 
-.table-row:hover {
-    background: #fcfdfe;
+.gov-table tbody tr:hover {
+    background: #f8fafc;
 }
 
-.alert-main-info {
+.gov-table td {
+    padding: 16px;
+    vertical-align: middle;
+    border-top: 1px solid #f1f5f9;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.gov-table td:first-child {
+    border-left: 1px solid #f1f5f9;
+    border-top-left-radius: 12px;
+    border-bottom-left-radius: 12px;
+}
+
+.gov-table td:last-child {
+    border-right: 1px solid #f1f5f9;
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 12px;
+}
+
+.alert-cell {
     display: flex;
     align-items: center;
-    gap: 1.25rem;
-    min-width: 0;
+    gap: 14px;
 }
 
-.alert-details strong {
-    font-size: 1rem;
-    color: #0f172a;
-    display: block;
+.alert-cell-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.alert-cell-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.alert-title {
+    font-size: 0.95rem;
     font-weight: 700;
+    color: #0f172a;
 }
 
-.alert-details p {
-    font-size: 0.85rem;
+.alert-desc {
+    font-size: 0.8rem;
     color: #64748b;
-    margin: 4px 0 0 0;
+    margin-top: 2px;
 }
 
-.severity-pill {
+.sev-badge {
     padding: 4px 12px;
     border-radius: 100px;
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     font-weight: 700;
     text-transform: uppercase;
     display: inline-flex;
-    justify-content: center;
 }
 
-.severity-pill.critical {
-    background: #fee2e2;
-    color: #b91c1c;
-}
-
-.severity-pill.high {
-    background: #ffedd5;
-    color: #9a3412;
-}
-
-.severity-pill.medium {
-    background: #f0f9ff;
-    color: #0369a1;
-}
-
-.alert-status-text {
-    font-size: 0.9rem;
-    color: #475569;
+.time-col {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #94a3b8;
+    font-size: 0.8rem;
     font-weight: 600;
 }
 
-.resolve-button {
-    background: #1e293b;
-    color: white;
+.resolve-btn {
+    background: #f1f5f9;
+    color: #475569;
     border: none;
-    padding: 8px 18px;
-    border-radius: 10px;
-    font-size: 0.85rem;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 0.8rem;
     font-weight: 700;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: all 0.2s;
 }
 
-.resolve-button:hover {
+.resolve-btn:hover {
     background: #6366f1;
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    color: white;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
 }
 
 /* --- Responsive Adjustments --- */

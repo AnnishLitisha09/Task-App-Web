@@ -16,10 +16,8 @@ const DepartmentModal: React.FC<DepartmentModalProps> = ({
     isOpen, onClose, deptData, mode, onSuccess
 }) => {
     const [deptName, setDeptName] = useState('');
-    const [facultySearch, setFacultySearch] = useState('');
     const [selectedFaculty, setSelectedFaculty] = useState<any>(null);
     const [facultyList, setFacultyList] = useState<any[]>([]);
-    const [showFacultyDropdown, setShowFacultyDropdown] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [isFacultyLoading, setIsFacultyLoading] = useState(false);
     const [error, setError] = useState('');
@@ -28,17 +26,15 @@ const DepartmentModal: React.FC<DepartmentModalProps> = ({
         if (isOpen) {
             if (deptData) {
                 setDeptName(deptData.name || '');
-                if (deptData.hod_id) {
-                    setSelectedFaculty({ id: deptData.hod_id, name: deptData.hod_name || deptData.hod?.name });
-                    setFacultySearch(deptData.hod_name || deptData.hod?.name || '');
+                const hid = deptData.user_id || deptData.hod?.id || deptData.hod?.user_id;
+                if (hid) {
+                    setSelectedFaculty({ id: hid, name: deptData.hod_name || deptData.hod?.name });
                 } else {
                     setSelectedFaculty(null);
-                    setFacultySearch('');
                 }
             } else {
                 setDeptName('');
                 setSelectedFaculty(null);
-                setFacultySearch('');
             }
             fetchFaculty();
         }
@@ -47,32 +43,23 @@ const DepartmentModal: React.FC<DepartmentModalProps> = ({
     const fetchFaculty = async () => {
         setIsFacultyLoading(true);
         try {
-            // Fetch users with faculty role for HOD selection
-            const response = await api('/users/dashboard/all');
-            const allUsers = Array.isArray(response) ? response : (response.users || []);
-            const facultyUsers = allUsers.filter((u: any) => u.role === 'faculty');
+            // Fetch users with HOD role for selection
+            const response = await api('/users/hods');
+            const hodsList = Array.isArray(response) ? response : (response.hods || []);
 
-            // Map to include info from nested info objects
-            const simplifiedFaculty = facultyUsers.map((u: any) => {
-                const info = u.faculty_info || {};
-                return {
-                    id: u.id,
-                    name: info.name || 'Unknown Faculty',
-                    reg_no: info.reg_no || 'N/A'
-                };
-            });
+            // Map to simplified format for dropdown
+            const simplifiedFaculty = hodsList.map((h: any) => ({
+                id: h.id || h.user_id,
+                name: h.name || 'Unknown HOD',
+                reg_no: h.department_name || 'HOD'
+            }));
             setFacultyList(simplifiedFaculty);
         } catch (err) {
-            console.error('Failed to fetch faculty:', err);
+            console.error('Failed to fetch hods:', err);
         } finally {
             setIsFacultyLoading(false);
         }
     };
-
-    const filteredFaculty = facultyList.filter(f =>
-        f.name.toLowerCase().includes(facultySearch.toLowerCase()) ||
-        f.reg_no.toLowerCase().includes(facultySearch.toLowerCase())
-    );
 
     const handleSubmit = async () => {
         if (!deptName && mode !== 'assign') {
@@ -87,16 +74,16 @@ const DepartmentModal: React.FC<DepartmentModalProps> = ({
                 await api('/resources/departments', {
                     method: 'POST',
                     body: {
-                        name: deptName,
-                        hod_id: selectedFaculty?.id || null
+                        name: deptName
                     }
                 });
             } else if (mode === 'edit' || mode === 'assign') {
-                await api(`/resources/departments/${deptData.id}`, {
+                const did = deptData.id || deptData.department_id;
+                await api(`/resources/departments/${did}`, {
                     method: 'PUT',
                     body: {
                         name: deptName,
-                        hod_id: selectedFaculty?.id || null
+                        user_id: selectedFaculty?.id || null
                     }
                 });
             }
@@ -172,58 +159,27 @@ const DepartmentModal: React.FC<DepartmentModalProps> = ({
                                 <label>Headed By (HOD)</label>
                                 <div className="search-wrapper">
                                     <div className="search-input-box">
-                                        <Search size={18} className="search-icon-sm" />
-                                        <input
-                                            type="text"
-                                            className="modern-input"
-                                            placeholder="Search faculty by name or ID..."
-                                            value={facultySearch}
+                                        <select
+                                            className="modern-select"
+                                            value={selectedFaculty?.id?.toString() || ''}
                                             onChange={(e) => {
-                                                setFacultySearch(e.target.value);
-                                                setShowFacultyDropdown(true);
+                                                const val = e.target.value;
+                                                const faculty = facultyList.find(f => f.id.toString() === val);
+                                                setSelectedFaculty(faculty || null);
                                             }}
-                                            onFocus={() => setShowFacultyDropdown(true)}
-                                        />
+                                        >
+                                            <option value="">Select HOD...</option>
+                                            {facultyList.map(faculty => (
+                                                <option key={faculty.id} value={faculty.id.toString()}>
+                                                    {faculty.name} ({faculty.reg_no})
+                                                </option>
+                                            ))}
+                                        </select>
                                         {isFacultyLoading && <div className="spinner-mini"></div>}
                                     </div>
                                 </div>
                                 <span className="field-helper">The primary authority figure for this department.</span>
 
-                                <AnimatePresence>
-                                    {showFacultyDropdown && facultySearch && (
-                                        <motion.div
-                                            className="dropdown-panel"
-                                            initial={{ opacity: 0, y: -10 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            exit={{ opacity: 0, y: -10 }}
-                                        >
-                                            {filteredFaculty.length > 0 ? (
-                                                filteredFaculty.map(faculty => (
-                                                    <div
-                                                        key={faculty.id}
-                                                        className={`dropdown-item ${selectedFaculty?.id === faculty.id ? 'selected' : ''}`}
-                                                        onClick={() => {
-                                                            setSelectedFaculty(faculty);
-                                                            setFacultySearch(faculty.name);
-                                                            setShowFacultyDropdown(false);
-                                                        }}
-                                                    >
-                                                        <div className="faculty-avatar">
-                                                            {faculty.name.charAt(0)}
-                                                        </div>
-                                                        <div className="faculty-info">
-                                                            <span className="fn-name">{faculty.name}</span>
-                                                            <span className="fn-id">{faculty.reg_no}</span>
-                                                        </div>
-                                                        {selectedFaculty?.id === faculty.id && <Check size={16} className="check-icon" />}
-                                                    </div>
-                                                ))
-                                            ) : (
-                                                <div className="no-result">No faculty members found.</div>
-                                            )}
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
                             </div>
                         </div>
 

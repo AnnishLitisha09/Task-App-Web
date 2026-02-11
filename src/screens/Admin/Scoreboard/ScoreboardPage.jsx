@@ -1,62 +1,96 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Trophy, Crown, Calendar, Search, Users,
     Award, Medal, ChevronLeft, ChevronRight
 } from 'lucide-react';
-
-// --- CONFIGURATION & MOCK DATA ---
-const departments = ['Engineering', 'Design', 'Marketing', 'Sales', 'HR', 'Finance'];
-const years = ['1st Year', '2nd Year', '3rd Year', '4th Year'];
-const avatars = ['AJ', 'BS', 'CW', 'DB', 'ED', 'SM', 'JW', 'EC', 'ML', 'AU', 'RK', 'TP'];
-
-const generateMockData = (type, count) => {
-    return Array.from({ length: count }, (_, i) => {
-        const questions = Math.floor(Math.random() * 50 + 50);
-        const baseScore = 1200 - (i * 15) - Math.floor(Math.random() * 100);
-        const penalty = Math.floor(Math.random() * 20);
-        return {
-            id: `${type}-${i + 1}`,
-            name: type === 'student' ? `Student ${i + 1}` : `Faculty ${i + 1}`,
-            dept: departments[i % departments.length],
-            year: type === 'student' ? years[i % years.length] : 'N/A',
-            score: baseScore,
-            questions,
-            penalty,
-            totalScore: (baseScore - penalty),
-            avatar: avatars[i % avatars.length],
-            type
-        };
-    }).sort((a, b) => b.totalScore - a.totalScore)
-        .map((item, index) => ({ ...item, rank: index + 1 }));
-};
+import api from '../../../utils/api';
 
 const ScoreboardPage = () => {
     const [activeTab, setActiveTab] = useState('students');
     const [searchQuery, setSearchQuery] = useState('');
     const [deptFilter, setDeptFilter] = useState('All Departments');
     const [yearFilter, setYearFilter] = useState('All Years');
+    const [isLoading, setIsLoading] = useState(true);
+    const [departments, setDepartments] = useState([]);
 
-    // Pagination State
+    // Leaderboard Data State
+    const [studentLeaderboard, setStudentLeaderboard] = useState([]);
+    const [facultyLeaderboard, setFacultyLeaderboard] = useState([]);
+    const [stats, setStats] = useState({
+        total_students: 0,
+        student_top_score: 0,
+        total_faculty: 0,
+        faculty_top_score: 0
+    });
+
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 8; // Optimized for typical screen height
+    const itemsPerPage = 8;
 
-    // Generate data for both tabs
-    const studentData = useMemo(() => generateMockData('student', 50), []);
-    const facultyData = useMemo(() => generateMockData('faculty', 30), []);
+    useEffect(() => {
+        fetchLeaderboards();
+        fetchDepartments();
+    }, []);
+
+    const fetchDepartments = async () => {
+        try {
+            const data = await api('/resources/departments');
+            const list = Array.isArray(data) ? data : (data.departments || []);
+            setDepartments(list.map(d => d.name));
+        } catch (err) {
+            console.error('Failed to fetch departments:', err);
+        }
+    };
+
+    const fetchLeaderboards = async () => {
+        setIsLoading(true);
+        try {
+            const [studentRes, facultyRes] = await Promise.all([
+                api('/users/dashboard/students/leaderboard'),
+                api('/users/dashboard/faculty/leaderboard')
+            ]);
+
+            if (studentRes.success) {
+                setStudentLeaderboard(studentRes.leaderboard.map((u, i) => ({
+                    ...u,
+                    rank: i + 1,
+                    avatar: u.name.split(' ').map(n => n[0]).join('').toUpperCase()
+                })));
+                setStats(prev => ({
+                    ...prev,
+                    total_students: studentRes.total_students,
+                    student_top_score: studentRes.top_score
+                }));
+            }
+
+            if (facultyRes.success) {
+                setFacultyLeaderboard(facultyRes.leaderboard.map((u, i) => ({
+                    ...u,
+                    rank: i + 1,
+                    avatar: u.name.split(' ').map(n => n[0]).join('').toUpperCase()
+                })));
+                setStats(prev => ({
+                    ...prev,
+                    total_faculty: facultyRes.total_faculty,
+                    faculty_top_score: facultyRes.top_score
+                }));
+            }
+        } catch (err) {
+            console.error('Failed to fetch leaderboards:', err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     // Get current active data
-    const currentData = activeTab === 'students' ? studentData : facultyData;
+    const currentData = activeTab === 'students' ? studentLeaderboard : facultyLeaderboard;
 
     // Filter Logic
     const filteredData = useMemo(() => {
-        // Reset page on filter change
-        if (currentPage !== 1) setCurrentPage(1);
-
         return currentData.filter(user => {
             const matchesSearch = user.name.toLowerCase().includes(searchQuery.toLowerCase());
-            const matchesDept = deptFilter === 'All Departments' || user.dept === deptFilter;
-            const matchesYear = activeTab === 'faculty' || yearFilter === 'All Years' || user.year === yearFilter;
+            const matchesDept = deptFilter === 'All Departments' || user.department === deptFilter;
+            const matchesYear = activeTab === 'faculty' || yearFilter === 'All Years' || (user.year && user.year.toString() === yearFilter.split(' ')[0]);
             return matchesSearch && matchesDept && matchesYear;
         });
     }, [searchQuery, deptFilter, yearFilter, currentData, activeTab]);
@@ -133,7 +167,10 @@ const ScoreboardPage = () => {
                                 onChange={(e) => setYearFilter(e.target.value)}
                             >
                                 <option>All Years</option>
-                                {years.map(y => <option key={y} value={y}>{y}</option>)}
+                                <option value="1">1st Year</option>
+                                <option value="2">2nd Year</option>
+                                <option value="3">3rd Year</option>
+                                <option value="4">4th Year</option>
                             </select>
                         )}
                     </div>
@@ -172,18 +209,18 @@ const ScoreboardPage = () => {
                                             </div>
                                             <div>
                                                 <div className="text-sm font-medium text-slate-900">{user.name}</div>
-                                                <div className="text-[10px] text-slate-400">{user.type === 'student' ? user.year : 'Faculty Member'}</div>
+                                                <div className="text-[10px] text-slate-400">{activeTab === 'students' ? `${user.year}${['st', 'nd', 'rd', 'th'][(user.year - 1) % 10] || 'th'} Year` : (user.type || 'Faculty Member')}</div>
                                             </div>
                                         </div>
                                         <div className="col-span-3 text-xs text-slate-500 font-medium">
-                                            <span className="bg-slate-100 px-2 py-1 rounded-md">{user.dept}</span>
+                                            <span className="bg-slate-100 px-2 py-1 rounded-md">{user.department}</span>
                                         </div>
                                         <div className="col-span-2 text-center">
                                             <div className="text-xs font-semibold text-slate-700">{user.score}</div>
                                             <div className="text-[9px] text-rose-400">-{user.penalty} pen</div>
                                         </div>
                                         <div className="col-span-2 text-right font-bold text-indigo-600 text-sm">
-                                            {user.totalScore}
+                                            {user.total_score}
                                         </div>
                                     </motion.div>
                                 ))}
@@ -229,7 +266,7 @@ const ScoreboardPage = () => {
                             <Crown size={18} className="text-yellow-500" /> Top Performers
                         </h2>
 
-                        <div className="flex items-end justify-center gap-3 h-40 mb-2">
+                        <div className="flex items-end justify-center gap-3 h-60 mb-2">
                             {topThree[1] && <PodiumStep user={topThree[1]} rank={2} color="bg-slate-100" height="h-24" />}
                             {topThree[0] && <PodiumStep user={topThree[0]} rank={1} color="bg-indigo-100" height="h-36" isGold />}
                             {topThree[2] && <PodiumStep user={topThree[2]} rank={3} color="bg-orange-50" height="h-16" />}
@@ -241,13 +278,13 @@ const ScoreboardPage = () => {
                         <StatCard
                             icon={<Users size={18} className="text-indigo-600" />}
                             label={`Total ${activeTab === 'students' ? 'Students' : 'Faculty'}`}
-                            value={currentData.length}
+                            value={activeTab === 'students' ? stats.total_students : stats.total_faculty}
                             bg="bg-indigo-50"
                         />
                         <StatCard
                             icon={<Award size={18} className="text-emerald-600" />}
                             label="Top Score"
-                            value={currentData[0]?.totalScore || 0}
+                            value={activeTab === 'students' ? stats.student_top_score : stats.faculty_top_score}
                             bg="bg-emerald-50"
                         />
                     </div>
@@ -280,7 +317,7 @@ const PodiumStep = ({ user, rank, color, height, isGold }) => (
         </div>
         <div className="mt-2 text-center">
             <div className="text-[10px] font-bold text-slate-700 truncate w-full">{user.name}</div>
-            <div className="text-[9px] font-semibold text-indigo-500">{user.totalScore}</div>
+            <div className="text-[9px] font-semibold text-indigo-500">{user.total_score}</div>
         </div>
     </div>
 );

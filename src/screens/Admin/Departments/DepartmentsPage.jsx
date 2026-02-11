@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import api from '../../../utils/api';
 import DepartmentModal from '../../../components/UI/DepartmentModal/DepartmentModal';
+import DeleteConfirmModal from '../../../components/UI/DeleteConfirmModal/DeleteConfirmModal';
 import './DepartmentsPage.css';
 
 const DepartmentsPage = () => {
@@ -54,6 +55,27 @@ const DepartmentsPage = () => {
         setIsModalOpen(true);
     };
 
+    const handleDeleteClick = (dept) => {
+        setSelectedDept(dept);
+        setIsDeleteOpen(true);
+    };
+
+    const handleDeleteConfirm = async () => {
+        if (!selectedDept) return;
+        try {
+            const did = selectedDept.id || selectedDept.department_id;
+            await api(`/resources/departments/${did}`, { method: 'DELETE' });
+            setDepartments(prev => prev.filter(d => (d.id || d.department_id) !== did));
+        } catch (err) {
+            console.error('Failed to delete department:', err);
+        } finally {
+            setIsDeleteOpen(false);
+            setSelectedDept(null);
+        }
+    };
+
+    const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+
     const filteredDepartments = departments.filter(dept =>
         (dept.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
         (dept.hod_name || dept.hod?.name || '').toLowerCase().includes(searchTerm.toLowerCase())
@@ -62,7 +84,7 @@ const DepartmentsPage = () => {
     const stats = [
         { label: 'Total Departments', value: departments.length, icon: Building2, color: '#6366f1' },
         { label: 'Total Faculty', value: departments.reduce((acc, d) => acc + (d.faculty_count || 0), 0), icon: Users, color: '#10b981' },
-        { label: 'Assigned HODs', value: departments.filter(d => d.hod_id || d.hod).length, icon: UserCheck, color: '#f59e0b' },
+        { label: 'Assigned HODs', value: departments.filter(d => d.user_id || d.hod_name || d.hod).length, icon: UserCheck, color: '#f59e0b' },
     ];
 
     return (
@@ -151,6 +173,9 @@ const DepartmentsPage = () => {
                                     <button onClick={(e) => { e.stopPropagation(); handleEdit(dept); }} title="Edit">
                                         <Edit2 size={16} />
                                     </button>
+                                    <button onClick={(e) => { e.stopPropagation(); handleDeleteClick(dept); }} title="Delete" className="delete-btn">
+                                        <Trash2 size={16} />
+                                    </button>
                                 </div>
                             </div>
                             <div className="dept-card-body">
@@ -171,7 +196,7 @@ const DepartmentsPage = () => {
                             <div className="dept-card-footer">
                                 <button className="assign-btn" onClick={(e) => { e.stopPropagation(); handleAssignHOD(dept); }}>
                                     <UserPlus size={16} />
-                                    <span>{dept.hod_id ? 'Change HOD' : 'Assign HOD'}</span>
+                                    <span>{dept.user_id ? 'Change HOD' : 'Assign HOD'}</span>
                                 </button>
                             </div>
                         </motion.div>
@@ -213,7 +238,7 @@ const DepartmentsPage = () => {
                                         <div className="action-btns">
                                             <button onClick={() => handleEdit(dept)} title="Edit Division"><Edit2 size={16} /></button>
                                             <button onClick={() => handleAssignHOD(dept)} title="Assign Authority"><UserPlus size={16} /></button>
-                                            <button className="delete-btn"><Trash2 size={16} /></button>
+                                            <button onClick={() => handleDeleteClick(dept)} className="delete-btn"><Trash2 size={16} /></button>
                                         </div>
                                     </td>
                                 </tr>
@@ -232,6 +257,17 @@ const DepartmentsPage = () => {
                     fetchDepartments();
                     setIsModalOpen(false);
                 }}
+            />
+
+            <DeleteConfirmModal
+                isOpen={isDeleteOpen}
+                onClose={() => setIsDeleteOpen(false)}
+                onConfirm={handleDeleteConfirm}
+                title="Delete Department?"
+                confirmText="Delete Division"
+                message={
+                    <>Are you sure you want to remove the <strong>{selectedDept?.name}</strong>? This will permanently remove the department and its administrative associations.</>
+                }
             />
         </motion.div>
     );

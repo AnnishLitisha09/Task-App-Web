@@ -29,10 +29,8 @@ const VenueModal: React.FC<VenueModalProps> = ({
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [location, setLocation] = useState('');
     const [description, setDescription] = useState('');
-    const [inchargeSearch, setInchargeSearch] = useState('');
     const [selectedIncharge, setSelectedIncharge] = useState<any>(null);
     const [facultyList, setFacultyList] = useState<any[]>([]);
-    const [showFacultyDropdown, setShowFacultyDropdown] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [isFacultyLoading, setIsFacultyLoading] = useState(false);
     const [error, setError] = useState('');
@@ -58,14 +56,19 @@ const VenueModal: React.FC<VenueModalProps> = ({
 
                 const incharge = venueData.incharge || venueData.owner;
                 if (incharge) {
-                    setSelectedIncharge({ id: incharge.id || incharge.user_id, name: incharge.name });
-                    setInchargeSearch(incharge.name || '');
-                } else if (venueData.owner_id) {
-                    setSelectedIncharge({ id: venueData.owner_id, name: venueData.owner_name });
-                    setInchargeSearch(venueData.owner_name || '');
+                    setSelectedIncharge({
+                        id: incharge.id || incharge.user_id,
+                        name: incharge.name,
+                        role: incharge.role || incharge.role_name
+                    });
+                } else if (venueData.user_id) {
+                    setSelectedIncharge({
+                        id: venueData.user_id,
+                        name: venueData.user_name || venueData.owner_name,
+                        role: venueData.role || venueData.role_name
+                    });
                 } else {
                     setSelectedIncharge(null);
-                    setInchargeSearch('');
                 }
             } else {
                 setName('');
@@ -75,7 +78,6 @@ const VenueModal: React.FC<VenueModalProps> = ({
                 setLocation('');
                 setDescription('');
                 setSelectedIncharge(null);
-                setInchargeSearch('');
             }
             setError('');
             fetchFaculty();
@@ -85,31 +87,22 @@ const VenueModal: React.FC<VenueModalProps> = ({
     const fetchFaculty = async () => {
         setIsFacultyLoading(true);
         try {
-            const response = await api('/users/dashboard/all');
-            const allUsers = Array.isArray(response) ? response : (response.users || []);
-            const allowedUsers = allUsers.filter((u: any) => u.role === 'faculty' || u.role === 'role-user');
+            const response = await api('/users/incharges');
+            const incList = Array.isArray(response) ? response : (response.incharges || []);
 
-            const simplifiedList = allowedUsers.map((u: any) => {
-                const info = u.faculty_info || u.role_user_info || {};
-                return {
-                    id: u.id,
-                    name: info.name || 'Unknown User',
-                    reg_no: info.reg_no || 'N/A',
-                    role: u.role
-                };
-            });
+            const simplifiedList = incList.map((i: any) => ({
+                id: i.id || i.user_id,
+                name: i.name || 'Unknown User',
+                reg_no: i.venue_name || 'Incharge',
+                role: i.role || 'Incharge'
+            }));
             setFacultyList(simplifiedList);
         } catch (err) {
-            console.error('Failed to fetch faculty:', err);
+            console.error('Failed to fetch incharges:', err);
         } finally {
             setIsFacultyLoading(false);
         }
     };
-
-    const filteredIncharges = facultyList.filter(f =>
-        f.name.toLowerCase().includes(inchargeSearch.toLowerCase()) ||
-        f.reg_no.toLowerCase().includes(inchargeSearch.toLowerCase())
-    );
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -141,8 +134,11 @@ const VenueModal: React.FC<VenueModalProps> = ({
                 formData.append('image', imageFile);
             }
             if (selectedIncharge?.id) {
-                formData.append('owner_id', selectedIncharge.id);
+                formData.append('user_id', selectedIncharge.id.toString());
+                // Use existing role or default to VENUE_INCHARGE as per context
+                formData.append('role_name', selectedIncharge.role || 'VENUE_INCHARGE');
             }
+
 
             if (mode === 'create') {
                 await api('/resources/venues', {
@@ -223,7 +219,6 @@ const VenueModal: React.FC<VenueModalProps> = ({
                                     <label>Venue Type</label>
                                     <div className="search-wrapper">
                                         <div className="search-input-box">
-                                            <Box size={18} className="search-icon-sm" />
                                             <select
                                                 className="modern-select"
                                                 value={type}
@@ -303,58 +298,27 @@ const VenueModal: React.FC<VenueModalProps> = ({
                                 <label>Assign Incharge (Owner)</label>
                                 <div className="search-wrapper">
                                     <div className="search-input-box">
-                                        <Search size={18} className="search-icon-sm" />
-                                        <input
-                                            type="text"
-                                            className="modern-input"
-                                            placeholder="Search faculty or role-user..."
-                                            value={inchargeSearch}
+                                        <select
+                                            className="modern-select"
+                                            value={selectedIncharge?.id?.toString() || ''}
                                             onChange={(e) => {
-                                                setInchargeSearch(e.target.value);
-                                                setShowFacultyDropdown(true);
+                                                const val = e.target.value;
+                                                const person = facultyList.find(f => f.id.toString() === val);
+                                                setSelectedIncharge(person || null);
                                             }}
-                                            onFocus={() => setShowFacultyDropdown(true)}
-                                        />
+                                        >
+                                            <option value="">Select Incharge...</option>
+                                            {facultyList.map(person => (
+                                                <option key={person.id} value={person.id.toString()}>
+                                                    {person.name} ({person.reg_no})
+                                                </option>
+                                            ))}
+                                        </select>
                                         {isFacultyLoading && <div className="spinner-mini"></div>}
                                     </div>
                                 </div>
                                 <span className="field-helper">The primary official responsible for this venue.</span>
 
-                                <AnimatePresence>
-                                    {showFacultyDropdown && inchargeSearch && (
-                                        <motion.div
-                                            className="dropdown-panel"
-                                            initial={{ opacity: 0, y: -10 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            exit={{ opacity: 0, y: -10 }}
-                                        >
-                                            {filteredIncharges.length > 0 ? (
-                                                filteredIncharges.map(person => (
-                                                    <div
-                                                        key={person.id}
-                                                        className={`dropdown-item ${selectedIncharge?.id === person.id ? 'selected' : ''}`}
-                                                        onClick={() => {
-                                                            setSelectedIncharge(person);
-                                                            setInchargeSearch(person.name);
-                                                            setShowFacultyDropdown(false);
-                                                        }}
-                                                    >
-                                                        <div className="faculty-avatar">
-                                                            {person.name.charAt(0)}
-                                                        </div>
-                                                        <div className="faculty-info">
-                                                            <span className="fn-name">{person.name}</span>
-                                                            <span className="fn-id">{person.reg_no} • {person.role}</span>
-                                                        </div>
-                                                        {selectedIncharge?.id === person.id && <Check size={16} className="check-icon" />}
-                                                    </div>
-                                                ))
-                                            ) : (
-                                                <div className="no-result">No eligible users found.</div>
-                                            )}
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
                             </div>
                         </div>
 

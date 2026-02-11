@@ -197,6 +197,7 @@
     position: relative;
     display: flex;
     align-items: center;
+    gap: 8px;
 }
 
 .f-icon {
@@ -219,6 +220,7 @@
     color: #1e293b;
     outline: none;
     transition: all 0.2s;
+    gap: 8px;
 }
 
 .input-with-icon textarea {
@@ -232,6 +234,7 @@
     resize: none;
     outline: none;
     transition: all 0.2s;
+    gap: 8px;
 }
 
 .input-with-icon .f-icon {
@@ -241,11 +244,13 @@
     transform: translateY(-50%);
     color: #94a3b8;
     pointer-events: none;
+    gap: 8px;
 }
 
 .input-with-icon.textarea-box .f-icon {
     top: 1.15rem;
     transform: none;
+    gap: 8px;
 }
 
 .form-group select {
@@ -261,6 +266,7 @@
     font-size: 0.95rem;
     resize: none;
     outline: none;
+    gap: 8px;
 }
 
 .input-with-icon input:focus,

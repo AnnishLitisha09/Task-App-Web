@@ -70,7 +70,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
             setFacultyId(userData.faculty_id || '');
             setDesignation(userData.designation || '');
             setVenueId(userData.venue_id || '');
-            setRoleName(userData.role_assignments?.[0]?.role || userData.role_name || '');
+            setRoleName(userData.role_assignments?.[0]?.role || userData.roleName || '');
             setFacultyType(userData.type || userData.faculty_type || 'Professor');
 
             if (userData.faculty_info?.name || userData.advisor_name) {
@@ -173,7 +173,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                     endpoint = '/users/role-user';
                     payload = {
                         ...payload,
-                        role_name: roleName,
+                        roleName: roleName,
                         department_id: parsedDeptId,
                         venue_id: parsedVenueId
                     };

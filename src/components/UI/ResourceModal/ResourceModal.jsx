@@ -4,15 +4,8 @@ import {
     X, Check, Search, AlertCircle, Info,
     Box, AlignLeft, UserPlus, Monitor, PenTool
 } from 'lucide-react';
+import api from '../../../utils/api';
 import './ResourceModal.css';
-
-// Mock Data for Assignees (since we don't have API connected yet or complex hook setup)
-const MOCK_USERS = [
-    { id: 'u1', name: 'John Doe', reg_no: 'FAC001', role: 'Faculty' },
-    { id: 'u2', name: 'Jane Smith', reg_no: 'STF002', role: 'Staff' },
-    { id: 'u3', name: 'Dr. Alan Grant', reg_no: 'HOD003', role: 'Role User' },
-    { id: 'u4', name: 'Alice Cooper', reg_no: 'FAC004', role: 'Faculty' },
-];
 
 const ResourceModal = ({
     isOpen, onClose, resourceData, mode, onSuccess
@@ -22,22 +15,33 @@ const ResourceModal = ({
     const [details, setDetails] = useState('');
     const [inchargeSearch, setInchargeSearch] = useState('');
     const [selectedIncharge, setSelectedIncharge] = useState(null);
+    const [facultyList, setFacultyList] = useState([]);
     const [showFacultyDropdown, setShowFacultyDropdown] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [isFacultyLoading, setIsFacultyLoading] = useState(false);
     const [error, setError] = useState('');
 
     useEffect(() => {
         if (isOpen) {
             if (resourceData) {
                 setName(resourceData.name || '');
-                setDetails(resourceData.details || '');
-                if (resourceData.assignedTo && resourceData.assignedTo !== '-') {
-                    // Start with basic string matching for mock data
-                    const assigneeName = resourceData.assignedTo;
-                    setInchargeSearch(assigneeName);
-                    // Try to find in mock users
-                    const found = MOCK_USERS.find(u => assigneeName.includes(u.name));
-                    setSelectedIncharge(found || { id: 'generic', name: assigneeName, role: 'User' });
+                setDetails(resourceData.description || resourceData.details || '');
+
+                const incharge = resourceData.incharge || resourceData.owner;
+                if (incharge) {
+                    setSelectedIncharge({
+                        id: incharge.id || incharge.user_id,
+                        name: incharge.name,
+                        role: incharge.role || incharge.role_name
+                    });
+                    setInchargeSearch(incharge.name);
+                } else if (resourceData.user_id) {
+                    setSelectedIncharge({
+                        id: resourceData.user_id,
+                        name: resourceData.user_name || resourceData.owner_name || 'Assigned User',
+                        role: resourceData.role || resourceData.role_name
+                    });
+                    setInchargeSearch(resourceData.user_name || resourceData.owner_name || 'Assigned User');
                 } else {
                     setSelectedIncharge(null);
                     setInchargeSearch('');
@@ -49,12 +53,31 @@ const ResourceModal = ({
                 setInchargeSearch('');
             }
             setError('');
+            fetchFaculty();
         }
     }, [isOpen, resourceData]);
 
-    const filteredUsers = MOCK_USERS.filter(u =>
+    const fetchFaculty = async () => {
+        setIsFacultyLoading(true);
+        try {
+            const response = await api('/users/incharges');
+            const incList = Array.isArray(response) ? response : (response.incharges || []);
+            setFacultyList(incList.map(u => ({
+                id: u.id || u.user_id,
+                name: u.name,
+                reg_no: u.reg_no || u.id || u.user_id,
+                role: u.role || 'Incharge'
+            })));
+        } catch (err) {
+            console.error('Failed to fetch incharges:', err);
+        } finally {
+            setIsFacultyLoading(false);
+        }
+    };
+
+    const filteredUsers = facultyList.filter(u =>
         u.name.toLowerCase().includes(inchargeSearch.toLowerCase()) ||
-        u.reg_no.toLowerCase().includes(inchargeSearch.toLowerCase())
+        u.reg_no.toString().toLowerCase().includes(inchargeSearch.toLowerCase())
     );
 
     const handleSubmit = async () => {
@@ -64,16 +87,32 @@ const ResourceModal = ({
         }
 
         setIsLoading(true);
-        // Simulate API call
-        setTimeout(() => {
-            setIsLoading(false);
-            const data = {
+        setError('');
+        try {
+            const payload = {
                 name,
-                details,
-                assignedTo: selectedIncharge ? `${selectedIncharge.name} (${selectedIncharge.role})` : '-'
+                description: details,
+                user_id: selectedIncharge?.id || null
             };
-            onSuccess(data);
-        }, 600);
+
+            if (mode === 'create') {
+                await api('/resources', {
+                    method: 'POST',
+                    body: payload
+                });
+            } else {
+                const rid = resourceData.id || resourceData.resource_id;
+                await api(`/resources/${rid}`, {
+                    method: 'PUT',
+                    body: payload
+                });
+            }
+            onSuccess();
+        } catch (err) {
+            setError(err.message || 'Operation failed');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     if (!isOpen) return null;

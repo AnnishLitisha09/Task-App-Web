@@ -4,31 +4,41 @@ import {
     Search, Plus, Box, User, Monitor,
     LayoutGrid, List, MoreVertical, Edit2, UserPlus, CheckCircle2, Clock, XCircle
 } from 'lucide-react';
+import api from '../../../utils/api';
 import ResourceModal from '../../../components/UI/ResourceModal/ResourceModal';
-
-// --- MOCK DATA ---
-const initialResources = [
-    { id: '1', name: 'Dell XPS 15', status: 'Assigned', assignedTo: 'John Doe (Faculty)', details: 'Service Tag: XYZ123' },
-    { id: '2', name: 'School Bus 04', status: 'Available', assignedTo: '-', details: 'Route: North Campus' },
-    { id: '3', name: 'Projector A1', status: 'Available', assignedTo: '-', details: 'Room 304' },
-    { id: '4', name: 'MacBook Pro M2', status: 'Assigned', assignedTo: 'Jane Smith (Staff)', details: 'Service Tag: ABC789' },
-    { id: '5', name: 'Lab Kit 01', status: 'Maintenance', assignedTo: '-', details: 'Physics Lab' },
-    { id: '6', name: 'Conference Room B', status: 'Available', assignedTo: '-', details: '2nd Floor, Main Building' },
-];
+import DeleteConfirmModal from '../../../components/UI/DeleteConfirmModal/DeleteConfirmModal';
 
 const ResourcesPage = () => {
-    const [resources, setResources] = useState(initialResources);
+    const [resources, setResources] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'table'
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [modalMode, setModalMode] = useState('create');
     const [selectedResource, setSelectedResource] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+
+    React.useEffect(() => {
+        fetchResources();
+    }, []);
+
+    const fetchResources = async () => {
+        setIsLoading(true);
+        try {
+            const data = await api('/resources');
+            setResources(Array.isArray(data) ? data : (data.resources || []));
+        } catch (err) {
+            console.error('Failed to fetch resources:', err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     // Filter Logic
     const filteredResources = useMemo(() => {
         return resources.filter(res => {
-            const matchesSearch = res.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                res.assignedTo.toLowerCase().includes(searchQuery.toLowerCase());
+            const matchesSearch = (res.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+                (res.assigned_to_name || res.user_name || '').toLowerCase().includes(searchQuery.toLowerCase());
             return matchesSearch;
         });
     }, [resources, searchQuery]);
@@ -52,27 +62,28 @@ const ResourcesPage = () => {
         setIsModalOpen(true);
     };
 
-    const handleModalSuccess = (data) => {
-        if (modalMode === 'create') {
-            const newRes = {
-                id: Date.now().toString(),
-                ...data,
-                status: data.assignedTo !== '-' ? 'Assigned' : 'Available'
-            };
-            setResources(prev => [newRes, ...prev]);
-        } else {
-            // Update existing
-            setResources(prev => prev.map(r => {
-                if (r.id === selectedResource.id) {
-                    const updated = { ...r, ...data };
-                    // Auto update status based on assignment
-                    if (data.assignedTo !== '-' && updated.status === 'Available') updated.status = 'Assigned';
-                    if (data.assignedTo === '-' && updated.status === 'Assigned') updated.status = 'Available';
-                    return updated;
-                }
-                return r;
-            }));
+    const handleDeleteClick = (e, resource) => {
+        e.stopPropagation();
+        setSelectedResource(resource);
+        setIsDeleteOpen(true);
+    };
+
+    const handleDeleteConfirm = async () => {
+        if (!selectedResource) return;
+        try {
+            const rid = selectedResource.id || selectedResource.resource_id;
+            await api(`/resources/${rid}`, { method: 'DELETE' });
+            setResources(prev => prev.filter(r => (r.id || r.resource_id) !== rid));
+        } catch (err) {
+            console.error('Failed to delete resource:', err);
+        } finally {
+            setIsDeleteOpen(false);
+            setSelectedResource(null);
         }
+    };
+
+    const handleModalSuccess = () => {
+        fetchResources();
         setIsModalOpen(false);
     };
 
@@ -165,24 +176,32 @@ const ResourcesPage = () => {
                                         <StatusBadge status={res.status} />
                                     </div>
 
-                                    <h3 className="text-lg font-bold text-slate-800 line-clamp-1 mb-1 group-hover:text-indigo-600 transition-colors">{res.name}</h3>
+                                    <h3 className="text-lg font-bold text-slate-800 line-clamp-1 mb-1 group-hover:text-indigo-600 transition-colors uppercase">{res.name}</h3>
                                     <p className="text-xs text-slate-500 mb-4 line-clamp-2 min-h-[2.5em] leading-relaxed">
-                                        {res.details}
+                                        {res.description || res.details || 'No description provided.'}
                                     </p>
 
                                     <div className="mt-auto pt-4 border-t border-slate-100 space-y-3">
                                         <div className="flex items-center gap-2 text-xs">
-                                            <User size={14} className={res.assignedTo !== '-' ? "text-indigo-500" : "text-slate-300"} />
-                                            <span className={res.assignedTo !== '-' ? "font-medium text-slate-700" : "text-slate-400 italic"}>
-                                                {res.assignedTo !== '-' ? res.assignedTo : 'Unassigned'}
+                                            <User size={14} className={(res.assigned_to_name || res.user_name) ? "text-indigo-500" : "text-slate-300"} />
+                                            <span className={(res.assigned_to_name || res.user_name) ? "font-medium text-slate-700" : "text-slate-400 italic"}>
+                                                {res.assigned_to_name || res.user_name || 'Unassigned'}
                                             </span>
                                         </div>
-                                        <button
-                                            onClick={(e) => { e.stopPropagation(); handleAssign(res); }}
-                                            className="w-full py-2 rounded-lg border border-slate-200 text-xs font-semibold text-slate-500 hover:bg-slate-50 hover:text-indigo-600 hover:border-indigo-200 transition-all flex items-center justify-center gap-2"
-                                        >
-                                            <UserPlus size={14} /> {res.assignedTo === '-' ? 'Assign Incharge' : 'Manage Assignment'}
-                                        </button>
+                                        <div className="flex gap-2">
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); handleAssign(res); }}
+                                                className="flex-1 py-2 rounded-lg border border-slate-200 text-xs font-semibold text-slate-500 hover:bg-slate-50 hover:text-indigo-600 hover:border-indigo-200 transition-all flex items-center justify-center gap-2"
+                                            >
+                                                <UserPlus size={14} /> {(res.assigned_to_name || res.user_name) ? 'Change Incharge' : 'Assign Incharge'}
+                                            </button>
+                                            <button
+                                                onClick={(e) => handleDeleteClick(e, res)}
+                                                className="p-2 rounded-lg border border-slate-200 text-slate-400 hover:text-red-500 hover:bg-red-50 hover:border-red-100 transition-all"
+                                            >
+                                                <XCircle size={16} />
+                                            </button>
+                                        </div>
                                     </div>
                                 </motion.div>
                             ))}
@@ -210,12 +229,12 @@ const ResourcesPage = () => {
                                                 <span className="text-sm font-semibold text-slate-800">{res.name}</span>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 text-xs text-slate-500 max-w-[200px] truncate">{res.details}</td>
-                                        <td className="px-6 py-4"><StatusBadge status={res.status} /></td>
+                                        <td className="px-6 py-4 text-xs text-slate-500 max-w-[200px] truncate">{res.description || res.details || '-'}</td>
+                                        <td className="px-6 py-4"><StatusBadge status={(res.assigned_to_name || res.user_name) ? 'Assigned' : 'Available'} /></td>
                                         <td className="px-6 py-4">
                                             <div className="text-xs flex items-center gap-2">
-                                                <span className={res.assignedTo !== '-' ? "font-medium text-slate-700" : "text-slate-400 italic"}>
-                                                    {res.assignedTo}
+                                                <span className={(res.assigned_to_name || res.user_name) ? "font-medium text-slate-700" : "text-slate-400 italic"}>
+                                                    {res.assigned_to_name || res.user_name || 'Unassigned'}
                                                 </span>
                                             </div>
                                         </td>
@@ -223,6 +242,7 @@ const ResourcesPage = () => {
                                             <div className="flex justify-end gap-2">
                                                 <button onClick={() => handleEdit(res)} className="p-1.5 text-slate-400 hover:text-indigo-600 rounded-lg hover:bg-indigo-50"><Edit2 size={16} /></button>
                                                 <button onClick={() => handleAssign(res)} className="p-1.5 text-slate-400 hover:text-indigo-600 rounded-lg hover:bg-indigo-50"><UserPlus size={16} /></button>
+                                                <button onClick={(e) => handleDeleteClick(e, res)} className="p-1.5 text-slate-400 hover:text-red-500 rounded-lg hover:bg-red-50"><XCircle size={16} /></button>
                                             </div>
                                         </td>
                                     </tr>
@@ -240,6 +260,14 @@ const ResourcesPage = () => {
                 resourceData={selectedResource}
                 mode={modalMode}
                 onSuccess={handleModalSuccess}
+            />
+
+            <DeleteConfirmModal
+                isOpen={isDeleteOpen}
+                onClose={() => setIsDeleteOpen(false)}
+                onConfirm={handleDeleteConfirm}
+                title="Delete Resource"
+                message={`Are you sure you want to delete "${selectedResource?.name}"? This action cannot be undone.`}
             />
         </div>
     );

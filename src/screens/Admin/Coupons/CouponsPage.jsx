@@ -11,6 +11,11 @@ const THEME_COLOR = '#6366f1';
 
 const CouponsPage = () => {
     const [coupons, setCoupons] = useState([]);
+    const [couponStats, setCouponStats] = useState({
+        active_coupons: 0,
+        inactive_coupons: 0,
+        total_issued: 0
+    });
     const [isLoading, setIsLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -34,8 +39,17 @@ const CouponsPage = () => {
     const fetchCoupons = async () => {
         setIsLoading(true);
         try {
-            const data = await api('/coupons');
-            setCoupons(data || []);
+            const response = await api('/coupons');
+            if (response.success) {
+                setCoupons(response.coupons || []);
+                setCouponStats(response.stats || {
+                    active_coupons: 0,
+                    inactive_coupons: 0,
+                    total_issued: 0
+                });
+            } else {
+                setCoupons(Array.isArray(response) ? response : []);
+            }
         } catch (err) {
             console.error('Failed to fetch coupons:', err);
             triggerToast('error', 'Failed to load coupons');
@@ -167,7 +181,7 @@ const CouponsPage = () => {
                     </div>
                     <div className="stat-content">
                         <p>Active Coupons</p>
-                        <h4>{coupons.filter(c => c.remaining_count > 0).length}</h4>
+                        <h4>{couponStats.active_coupons}</h4>
                     </div>
                 </div>
                 <div className="stat-card">
@@ -176,7 +190,7 @@ const CouponsPage = () => {
                     </div>
                     <div className="stat-content">
                         <p>Total Issued</p>
-                        <h4>{coupons.reduce((sum, c) => sum + (c.totalCount - c.remaining_count), 0)}</h4>
+                        <h4>{couponStats.total_issued}</h4>
                     </div>
                 </div>
             </div>

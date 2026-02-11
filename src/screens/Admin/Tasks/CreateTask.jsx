@@ -126,7 +126,7 @@ const CreateTask = ({ onCancel, onSuccess }) => {
             <div className="form-group full">
                 <label>TASK TITLE</label>
                 <div className="input-with-icon">
-                    <Target size={20} className="f-icon" />
+                    {/* <Target size={20} className="f-icon" /> */}
                     <input
                         placeholder="e.g. Annual Audit Report"
                         value={taskData.title}
@@ -203,7 +203,7 @@ const CreateTask = ({ onCancel, onSuccess }) => {
                 <div className="form-group">
                     <label>VENUE / LOCATION</label>
                     <div className="input-with-icon">
-                        <MapPin size={20} className="f-icon" />
+                        {/* <MapPin size={20} className="f-icon" /> */}
                         <select value={taskData.locationId} onChange={(e) => handleInputChange('locationId', e.target.value)}>
                             <option>Main Hall</option>
                             <option>Lab 101</option>

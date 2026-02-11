@@ -221,7 +221,7 @@ const InfrastructurePage = () => {
                             <div className="venue-card-footer">
                                 <button className="assign-btn" onClick={(e) => { e.stopPropagation(); handleAssignIncharge(venue); }}>
                                     <UserPlus size={16} />
-                                    <span>{(venue.incharge || venue.owner_id) ? 'Change Incharge' : 'Assign Incharge'}</span>
+                                    <span>{(venue.incharge || venue.user_id) ? 'Change Incharge' : 'Assign Incharge'}</span>
                                 </button>
                             </div>
                         </motion.div>
