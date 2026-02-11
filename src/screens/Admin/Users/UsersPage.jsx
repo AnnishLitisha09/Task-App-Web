@@ -504,6 +504,8 @@ const UsersPage = () => {
                     onClose={() => setIsDeleteOpen(false)}
                     userName={selectedUser.name}
                     onConfirm={handleDeleteConfirm}
+                    title="Delete User?"
+                    confirmText="Delete User"
                 />
             )}
             {/* Simple Toast UI */}

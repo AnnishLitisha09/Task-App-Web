@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from '../../../components/Sidebar/Sidebar';
 import AdminDashboard from '../Dashboard/Dashboard';
 import UsersPage from '../Users/UsersPage';
@@ -10,15 +10,38 @@ import ResourcesPage from '../Resources/ResourcesPage';
 import CoupenPage from '../Coupons/CouponsPage';
 import AuthorityPage from '../Authority/AuthorityPage';
 import { Edit2, Bell, Menu, X } from 'lucide-react';
+import api from '../../../utils/api';
 import './AdminLayout.css';
 
-const AdminLayout = ({ user, onLogout }) => {
-    // 1. Lifted state: This controls what is shown in the content area
+const AdminLayout = ({ user: initialUser, onLogout }) => {
     const [activeTab, setActiveTab] = useState('Dashboard');
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [user, setUser] = useState(initialUser);
+
+    useEffect(() => {
+        fetchProfile();
+    }, []);
+
+    const fetchProfile = async () => {
+        try {
+            const data = await api('/users/me');
+            // Mapping the provided format: { role, profile: { name, email }, ... }
+            setUser({
+                id: data.user_id,
+                role: data.role,
+                name: data.profile?.name || 'Admin',
+                email: data.profile?.email,
+                avatar: data.profile?.avatar // in case it exists later
+            });
+        } catch (err) {
+            console.error('Failed to fetch profile:', err);
+        }
+    };
 
     const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
     const closeSidebar = () => setIsSidebarOpen(false);
+
+    const displayName = user.name || user.title || 'Admin User';
 
     // 2. Logic to switch components based on activeTab
     const renderContent = () => {
@@ -45,7 +68,6 @@ const AdminLayout = ({ user, onLogout }) => {
                 return <div className="placeholder-view"><h2>Coming Soon</h2><p>Page is under construction.</p></div>;
         }
     };
-    // ... rest of file (standard render)
 
 
     return (
@@ -58,7 +80,8 @@ const AdminLayout = ({ user, onLogout }) => {
                     closeSidebar();
                 }}
                 onLogout={onLogout}
-                userTitle={user.title}
+                userTitle={displayName}
+                userRole={user.role}
                 isOpen={isSidebarOpen}
                 onClose={closeSidebar}
             />
@@ -84,7 +107,7 @@ const AdminLayout = ({ user, onLogout }) => {
 
                         <div className="user-profile-summary">
                             <div className="summary-text">
-                                <span className="summary-name">{user.title}</span>
+                                <span className="summary-name">{displayName}</span>
                                 <button className="edit-profile-trigger">
                                     <Edit2 size={10} />
                                     Manage Profile
@@ -92,7 +115,7 @@ const AdminLayout = ({ user, onLogout }) => {
                             </div>
                             <div className="summary-avatar">
                                 <img
-                                    src={`https://ui-avatars.com/api/?name=${user.title}&background=6366f1&color=fff&bold=true&rounded=true`}
+                                    src={user.avatar || `https://ui-avatars.com/api/?name=${displayName}&background=6366f1&color=fff&bold=true&rounded=true`}
                                     alt="User"
                                 />
                             </div>

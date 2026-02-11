@@ -19,7 +19,7 @@ const navItems = [
     { id: 'coupons', icon: Ticket, label: 'Coupons' },
 ];
 
-const Sidebar = ({ onLogout, isOpen, onClose, activeTab, setActiveTab, userTitle }) => {
+const Sidebar = ({ onLogout, isOpen, onClose, activeTab, setActiveTab, userTitle, userRole }) => {
     // Note: activeTab and setActiveTab are now passed from Layout to keep them in sync
 
     return (
@@ -69,7 +69,7 @@ const Sidebar = ({ onLogout, isOpen, onClose, activeTab, setActiveTab, userTitle
                         <div className="avatar-mini">{userTitle ? userTitle.substring(0, 2).toUpperCase() : 'AD'}</div>
                         <div className="user-info">
                             <span className="user-name">{userTitle || 'Admin User'}</span>
-                            <span className="user-role">Super Admin</span>
+                            <span className="user-role">{userRole || 'Super Admin'}</span>
                         </div>
                     </button>
                     <button className="logout-button" onClick={onLogout}>

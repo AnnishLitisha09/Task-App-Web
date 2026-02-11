@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import api from '../../../utils/api';
 import VenueModal from '../../../components/UI/VenueModal/VenueModal';
+import DeleteConfirmModal from '../../../components/UI/DeleteConfirmModal/DeleteConfirmModal';
 import './InfrastructurePage.css';
 
 const InfrastructurePage = () => {
@@ -15,6 +16,7 @@ const InfrastructurePage = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [viewMode, setViewMode] = useState('grid');
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [selectedVenue, setSelectedVenue] = useState(null);
     const [modalMode, setModalMode] = useState('create');
 
@@ -25,9 +27,10 @@ const InfrastructurePage = () => {
     const fetchVenues = async () => {
         setIsLoading(true);
         try {
-            // Assuming this endpoint returns { venues: [{ id, name, type, location, description, owner_name, status }] }
             const response = await api('/resources/venues');
-            setVenues(Array.isArray(response) ? response : (response.venues || []));
+            const data = Array.isArray(response) ? response : (response.venues || []);
+            // Normalize ID field
+            setVenues(data.map(v => ({ ...v, id: v.id || v.venue_id })));
         } catch (err) {
             console.error('Failed to fetch venues:', err);
         } finally {
@@ -53,17 +56,44 @@ const InfrastructurePage = () => {
         setIsModalOpen(true);
     };
 
+    const handleDeleteClick = (venue) => {
+        setSelectedVenue(venue);
+        setIsDeleteOpen(true);
+    };
+
+    const handleDeleteConfirm = async () => {
+        if (!selectedVenue) return;
+        try {
+            await api(`/resources/venues/${selectedVenue.id}`, { method: 'DELETE' });
+            setVenues(prev => prev.filter(v => v.id !== selectedVenue.id));
+        } catch (err) {
+            console.error('Failed to delete venue:', err);
+            // Optionally add toast here if available in this page's context
+        } finally {
+            setIsDeleteOpen(false);
+            setSelectedVenue(null);
+        }
+    };
+
     const filteredVenues = venues.filter(venue =>
         (venue.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (venue.owner_name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (venue.type || '').toLowerCase().includes(searchTerm.toLowerCase())
+        (venue.incharge?.name || venue.owner_name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (venue.venue_type || venue.type || '').toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const stats = [
         { label: 'Total Venues', value: venues.length, icon: MapPin, color: '#6366f1' },
-        { label: 'Available Now', value: venues.filter(v => v.status === 'available').length, icon: CheckCircle2, color: '#10b981' },
+        { label: 'Available Now', value: venues.filter(v => (v.status || 'available') === 'available').length, icon: CheckCircle2, color: '#10b981' },
         { label: 'Under Maintenance', value: venues.filter(v => v.status === 'maintenance').length, icon: Clock, color: '#f59e0b' },
     ];
+
+    const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+    const getImageUrl = (url) => {
+        if (!url) return null;
+        if (url.startsWith('http')) return url;
+        return `${BASE_URL}${url}`;
+    };
 
     return (
         <motion.div
@@ -145,8 +175,8 @@ const InfrastructurePage = () => {
                         >
                             <div className="venue-card-header">
                                 <div className="venue-image-container">
-                                    {venue.image ? (
-                                        <img src={venue.image} alt={venue.name} className="venue-card-img" />
+                                    {(venue.image_url || venue.image) ? (
+                                        <img src={getImageUrl(venue.image_url || venue.image)} alt={venue.name} className="venue-card-img" />
                                     ) : (
                                         <div className="venue-image-placeholder">
                                             <MapPin size={24} />
@@ -156,6 +186,9 @@ const InfrastructurePage = () => {
                                 <div className="venue-actions">
                                     <button onClick={(e) => { e.stopPropagation(); handleEdit(venue); }} title="Edit">
                                         <Edit2 size={16} />
+                                    </button>
+                                    <button onClick={(e) => { e.stopPropagation(); handleDeleteClick(venue); }} title="Delete" className="delete-btn">
+                                        <Trash2 size={16} />
                                     </button>
                                 </div>
                             </div>
@@ -171,7 +204,7 @@ const InfrastructurePage = () => {
                                 <div className="venue-meta">
                                     <div className="meta-item">
                                         <Box size={14} />
-                                        <span>{venue.type || 'General'}</span>
+                                        <span>{venue.venue_type || venue.type || 'General'}</span>
                                     </div>
                                     <div className="meta-item location-info">
                                         <MapPin size={14} />
@@ -179,8 +212,8 @@ const InfrastructurePage = () => {
                                     </div>
                                     <div className="meta-item">
                                         <UserCheck size={14} />
-                                        <span className={venue.owner_name ? 'assigned' : 'unassigned'}>
-                                            {venue.owner_name || 'Unassigned'}
+                                        <span className={(venue.incharge?.name || venue.owner_name) ? 'assigned' : 'unassigned'}>
+                                            {venue.incharge?.name || venue.owner_name || 'Unassigned'}
                                         </span>
                                     </div>
                                 </div>
@@ -188,7 +221,7 @@ const InfrastructurePage = () => {
                             <div className="venue-card-footer">
                                 <button className="assign-btn" onClick={(e) => { e.stopPropagation(); handleAssignIncharge(venue); }}>
                                     <UserPlus size={16} />
-                                    <span>{venue.owner_id ? 'Change Incharge' : 'Assign Incharge'}</span>
+                                    <span>{(venue.incharge || venue.owner_id) ? 'Change Incharge' : 'Assign Incharge'}</span>
                                 </button>
                             </div>
                         </motion.div>
@@ -212,7 +245,7 @@ const InfrastructurePage = () => {
                                     <td>
                                         <div className="venue-name-cell">
                                             <div className="venue-table-img">
-                                                {venue.image ? <img src={venue.image} alt="" /> : <span>{venue.name.substring(0, 2).toUpperCase()}</span>}
+                                                {(venue.image_url || venue.image) ? <img src={getImageUrl(venue.image_url || venue.image)} alt="" /> : <span>{venue.name.substring(0, 2).toUpperCase()}</span>}
                                             </div>
                                             <div className="venue-info-text">
                                                 <span className="v-name">{venue.name}</span>
@@ -245,7 +278,7 @@ const InfrastructurePage = () => {
                                         <div className="action-btns">
                                             <button onClick={() => handleEdit(venue)} title="Edit Venue"><Edit2 size={16} /></button>
                                             <button onClick={() => handleAssignIncharge(venue)} title="Assign Authority"><UserPlus size={16} /></button>
-                                            <button className="delete-btn"><Trash2 size={16} /></button>
+                                            <button onClick={() => handleDeleteClick(venue)} className="delete-btn" title="Delete Venue"><Trash2 size={16} /></button>
                                         </div>
                                     </td>
                                 </tr>
@@ -264,6 +297,17 @@ const InfrastructurePage = () => {
                     fetchVenues();
                     setIsModalOpen(false);
                 }}
+            />
+
+            <DeleteConfirmModal
+                isOpen={isDeleteOpen}
+                onClose={() => setIsDeleteOpen(false)}
+                onConfirm={handleDeleteConfirm}
+                title="Delete Venue?"
+                confirmText="Delete Venue"
+                message={
+                    <>Are you sure you want to remove <strong>{selectedVenue?.name}</strong>? This action will permanently remove the venue from the institutional infrastructure.</>
+                }
             />
         </motion.div>
     );

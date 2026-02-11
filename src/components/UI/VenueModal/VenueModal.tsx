@@ -8,6 +8,8 @@ import {
 import api from '../../../utils/api';
 import './VenueModal.css';
 
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 interface VenueModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -16,14 +18,15 @@ interface VenueModalProps {
     onSuccess: () => void;
 }
 
-const venueTypes = ['Classroom', 'Laboratory', 'Auditorium', 'Conference Room', 'Office', 'Sports Ground', 'Other'];
+const venueTypes = ['Class', 'Laboratory', 'Auditorium', 'Conference Room', 'Others'];
 
 const VenueModal: React.FC<VenueModalProps> = ({
     isOpen, onClose, venueData, mode, onSuccess
 }) => {
     const [name, setName] = useState('');
-    const [type, setType] = useState('Classroom');
-    const [image, setImage] = useState('');
+    const [type, setType] = useState('Class');
+    const [imagePreview, setImagePreview] = useState('');
+    const [imageFile, setImageFile] = useState<File | null>(null);
     const [location, setLocation] = useState('');
     const [description, setDescription] = useState('');
     const [inchargeSearch, setInchargeSearch] = useState('');
@@ -38,11 +41,26 @@ const VenueModal: React.FC<VenueModalProps> = ({
         if (isOpen) {
             if (venueData) {
                 setName(venueData.name || '');
-                setType(venueData.type || 'Classroom');
-                setImage(venueData.image || '');
+                // Find matching type regardless of case
+                const matchedType = venueTypes.find(t => t.toLowerCase() === (venueData.venue_type || '').toLowerCase());
+                setType(matchedType || venueTypes[0]);
+
+                // Handle image URL
+                let img = venueData.image_url || venueData.image || '';
+                if (img && img.startsWith('/') && !img.startsWith('http')) {
+                    img = `${BASE_URL}${img}`;
+                }
+                setImagePreview(img);
+                setImageFile(null);
+
                 setLocation(venueData.location || '');
                 setDescription(venueData.description || '');
-                if (venueData.owner_id) {
+
+                const incharge = venueData.incharge || venueData.owner;
+                if (incharge) {
+                    setSelectedIncharge({ id: incharge.id || incharge.user_id, name: incharge.name });
+                    setInchargeSearch(incharge.name || '');
+                } else if (venueData.owner_id) {
                     setSelectedIncharge({ id: venueData.owner_id, name: venueData.owner_name });
                     setInchargeSearch(venueData.owner_name || '');
                 } else {
@@ -51,8 +69,9 @@ const VenueModal: React.FC<VenueModalProps> = ({
                 }
             } else {
                 setName('');
-                setType('Classroom');
-                setImage('');
+                setType(venueTypes[0]);
+                setImagePreview('');
+                setImageFile(null);
                 setLocation('');
                 setDescription('');
                 setSelectedIncharge(null);
@@ -95,9 +114,10 @@ const VenueModal: React.FC<VenueModalProps> = ({
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
+            setImageFile(file);
             const reader = new FileReader();
             reader.onloadend = () => {
-                setImage(reader.result as string);
+                setImagePreview(reader.result as string);
             };
             reader.readAsDataURL(file);
         }
@@ -112,24 +132,28 @@ const VenueModal: React.FC<VenueModalProps> = ({
         setIsLoading(true);
         setError('');
         try {
-            const payload = {
-                name,
-                type,
-                image,
-                location,
-                description,
-                owner_id: selectedIncharge?.id || null
-            };
+            const formData = new FormData();
+            formData.append('name', name);
+            formData.append('venue_type', type.toLowerCase()); // Backend expects venue_type
+            formData.append('location', location);
+            formData.append('description', description);
+            if (imageFile) {
+                formData.append('image', imageFile);
+            }
+            if (selectedIncharge?.id) {
+                formData.append('owner_id', selectedIncharge.id);
+            }
 
             if (mode === 'create') {
                 await api('/resources/venues', {
                     method: 'POST',
-                    body: payload
+                    body: formData
                 });
             } else {
-                await api(`/resources/venues/${venueData.id}`, {
+                const vid = venueData.id || venueData.venue_id;
+                await api(`/resources/venues/${vid}`, {
                     method: 'PUT',
-                    body: payload
+                    body: formData
                 });
             }
             onSuccess();
@@ -233,10 +257,10 @@ const VenueModal: React.FC<VenueModalProps> = ({
                             <div className="form-group">
                                 <label>Venue Image</label>
                                 <div className="image-upload-wrapper">
-                                    {image ? (
+                                    {imagePreview ? (
                                         <div className="image-preview-box">
-                                            <img src={image} alt="Preview" />
-                                            <button className="remove-img" onClick={() => setImage('')}>
+                                            <img src={imagePreview} alt="Preview" />
+                                            <button className="remove-img" onClick={() => { setImagePreview(''); setImageFile(null); }}>
                                                 <Trash2 size={14} />
                                             </button>
                                         </div>

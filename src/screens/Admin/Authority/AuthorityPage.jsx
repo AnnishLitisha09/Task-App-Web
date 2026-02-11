@@ -222,6 +222,11 @@ const AuthorityPage = () => {
                     onClose={() => setIsDeleteOpen(false)}
                     userName={selectedAuthority.name}
                     onConfirm={handleDeleteConfirm}
+                    title="Revoke Authority?"
+                    confirmText="Revoke"
+                    message={
+                        <>Are you sure you want to revoke authority from <strong>{selectedAuthority.name}</strong>? They will lose all administrative privileges for <strong>{selectedAuthority.scope_name}</strong> immediately.</>
+                    }
                 />
             )}
         </motion.div>

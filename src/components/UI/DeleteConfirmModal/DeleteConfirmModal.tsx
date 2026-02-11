@@ -7,10 +7,21 @@ interface DeleteConfirmModalProps {
     isOpen: boolean;
     onClose: () => void;
     onConfirm: () => void;
-    userName: string;
+    userName?: string;
+    title?: string;
+    message?: string;
+    confirmText?: string;
 }
 
-const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({ isOpen, onClose, onConfirm, userName }) => {
+const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
+    isOpen,
+    onClose,
+    onConfirm,
+    userName,
+    title = "Delete?",
+    message,
+    confirmText = "Delete"
+}) => {
     return (
         <AnimatePresence>
             {isOpen && (
@@ -31,14 +42,18 @@ const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({ isOpen, onClose
                         </div>
 
                         <div className="confirm-body">
-                            <h3>Delete User?</h3>
-                            <p>Are you sure you want to remove <strong>{userName}</strong>? This action cannot be undone and will revoke all access immediately.</p>
+                            <h3>{title}</h3>
+                            <p>
+                                {message || (
+                                    <>Are you sure you want to remove <strong>{userName}</strong>? This action cannot be undone and will revoke all access immediately.</>
+                                )}
+                            </p>
                         </div>
 
                         <div className="confirm-actions">
                             <button className="cancel-pill-btn" onClick={onClose}>Cancel</button>
                             <button className="delete-pill-btn" onClick={() => { onConfirm(); onClose(); }}>
-                                Delete User
+                                {confirmText}
                             </button>
                         </div>
                     </motion.div>

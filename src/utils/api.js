@@ -4,9 +4,13 @@ const api = async (endpoint, options = {}) => {
     const token = localStorage.getItem('token');
 
     const headers = {
-        'Content-Type': 'application/json',
         ...options.headers,
     };
+
+    // Only set Content-Type to application/json if body is not FormData
+    if (!(options.body instanceof FormData)) {
+        headers['Content-Type'] = 'application/json';
+    }
 
     if (token) {
         headers['Authorization'] = `Bearer ${token}`;
