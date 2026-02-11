@@ -22,11 +22,18 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-* {
-  box-sizing: border-box;
+html,
+body {
   margin: 0;
   padding: 0;
 }
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 
 body {
   min-height: 100vh;
@@ -69,3 +76,5 @@ input {
     --white: #ffffff;
   }
 }
+
+@import "tailwindcss";

@@ -4,6 +4,9 @@ import AdminDashboard from '../Dashboard/Dashboard';
 import UsersPage from '../Users/UsersPage';
 import DepartmentsPage from '../Departments/DepartmentsPage';
 import InfrastructurePage from '../Infrastructure/InfrastructurePage';
+import TasksPage from '../Tasks/TasksPage';
+import ScoreboardPage from '../Scoreboard/ScoreboardPage';
+import CoupenPage from '../Coupons/CouponsPage';
 import { Edit2, Bell, Menu, X } from 'lucide-react';
 import './AdminLayout.css';
 
@@ -28,7 +31,12 @@ const AdminLayout = ({ user, onLogout }) => {
                 return <DepartmentsPage />;
             case 'Infrastructure':
                 return <InfrastructurePage />;
-            // Add other cases as you build the pages
+            case 'Directives':
+                return <TasksPage />;
+            case 'Scoreboard':
+                return <ScoreboardPage />;
+            case 'Coupons':
+                return <CoupenPage />;
             default:
                 return <div className="placeholder-view"><h2>Coming Soon</h2><p>Page is under construction.</p></div>;
         }

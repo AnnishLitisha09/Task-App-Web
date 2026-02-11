@@ -14,9 +14,10 @@ const navItems = [
     { id: 'departments', icon: Building2, label: 'Departments' },
     { id: 'infrastructure', icon: MapPin, label: 'Infrastructure' },
     { id: 'resources', icon: Box, label: 'Resources' },
-    { id: 'tasks', icon: ClipboardList, label: 'Tasks' },
+    { id: 'tasks', icon: ClipboardList, label: 'Directives' },
     { id: 'scoreboard', icon: Trophy, label: 'Scoreboard' },
     { id: 'coupons', icon: Ticket, label: 'Coupons' },
+    { id: 'logs', icon: History, label: 'System Logs' },
 ];
 
 const Sidebar = ({ onLogout, isOpen, onClose, activeTab, setActiveTab, userTitle }) => {

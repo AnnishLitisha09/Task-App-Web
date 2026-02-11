@@ -67,12 +67,13 @@ const AdminDashboard = () => {
                     <button className="panel-action-btn">Export Report</button>
                 </div>
 
+                {/* ... inside the governance-container section ... */}
                 <div className="alerts-table">
                     <div className="table-header">
                         <span>Issue Detail</span>
                         <span>Severity</span>
                         <span>Status</span>
-                        <span className="text-right">Action</span>
+                        <span className="text-right">Action</span> {/* Added class here */}
                     </div>
                     {alerts.map((alert) => (
                         <motion.div
@@ -89,19 +90,21 @@ const AdminDashboard = () => {
                                     <p>{alert.detail}</p>
                                 </div>
                             </div>
+
                             <div className="alert-severity">
                                 <span className="severity-pill" style={{ backgroundColor: `${alert.color}10`, color: alert.color }}>
                                     {alert.status}
                                 </span>
                             </div>
+
                             <div className="alert-status-text">Requires Attention</div>
-                            <div className="alert-actions">
+
+                            <div className="alert-actions text-right"> {/* Added class here */}
                                 <button className="resolve-button">Resolve Issue</button>
                             </div>
                         </motion.div>
                     ))}
-                </div>
-            </section>
+                </div>            </section>
         </div>
     );
 };
