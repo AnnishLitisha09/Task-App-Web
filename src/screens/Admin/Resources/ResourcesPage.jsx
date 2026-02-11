@@ -101,7 +101,7 @@ const ResourcesPage = () => {
                     ))}
                 </div>
 
-                <div className="flex justify-between items-center">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div>
                         <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Resource Management</h1>
                         <p className="text-xs text-slate-400 mt-1 uppercase tracking-wider font-medium">Manage & Assign Assets</p>

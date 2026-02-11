@@ -152,8 +152,8 @@ const VenueModal: React.FC<VenueModalProps> = ({
                     exit={{ opacity: 0, scale: 0.98, y: 10 }}
                 >
                     <div className="modal-header">
-                        <div className="header-title-box">
-                            <div className="header-icon">
+                        <div className="header-info">
+                            <div className="icon-badge">
                                 {mode === 'assign' ? <UserPlus size={20} /> : <MapPin size={20} />}
                             </div>
                             <div>
@@ -166,7 +166,7 @@ const VenueModal: React.FC<VenueModalProps> = ({
                                 </p>
                             </div>
                         </div>
-                        <button className="close-btn" onClick={onClose}><X size={20} /></button>
+                        <button className="close-x-btn" onClick={onClose}><X size={20} /></button>
                     </div>
 
                     <div className="modal-body">
@@ -181,43 +181,52 @@ const VenueModal: React.FC<VenueModalProps> = ({
                             <div className="form-row">
                                 <div className="form-group">
                                     <label>Venue Name</label>
-                                    <div className={`input-with-icon ${mode === 'assign' ? 'readonly' : ''}`}>
-                                        <Building size={18} className="field-icon" />
-                                        <input
-                                            type="text"
-                                            placeholder="e.g. Einstein Seminar Hall"
-                                            value={name}
-                                            onChange={(e) => setName(e.target.value)}
-                                            readOnly={mode === 'assign'}
-                                        />
+                                    <div className="search-wrapper">
+                                        <div className="search-input-box">
+                                            <Building size={18} className="search-icon-sm" />
+                                            <input
+                                                type="text"
+                                                className="modern-input"
+                                                placeholder="e.g. Einstein Seminar Hall"
+                                                value={name}
+                                                onChange={(e) => setName(e.target.value)}
+                                                readOnly={mode === 'assign'}
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                                 <div className="form-group">
                                     <label>Venue Type</label>
-                                    <div className={`input-with-icon ${mode === 'assign' ? 'readonly' : ''}`}>
-                                        <Box size={18} className="field-icon" />
-                                        <select
-                                            value={type}
-                                            onChange={(e) => setType(e.target.value)}
-                                            disabled={mode === 'assign'}
-                                        >
-                                            {venueTypes.map(t => <option key={t} value={t}>{t}</option>)}
-                                        </select>
+                                    <div className="search-wrapper">
+                                        <div className="search-input-box">
+                                            <Box size={18} className="search-icon-sm" />
+                                            <select
+                                                className="modern-select"
+                                                value={type}
+                                                onChange={(e) => setType(e.target.value)}
+                                                disabled={mode === 'assign'}
+                                            >
+                                                {venueTypes.map(t => <option key={t} value={t}>{t}</option>)}
+                                            </select>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
                             <div className="form-group">
                                 <label>Location / Floor</label>
-                                <div className={`input-with-icon ${mode === 'assign' ? 'readonly' : ''}`}>
-                                    <MapPin size={18} className="field-icon" />
-                                    <input
-                                        type="text"
-                                        placeholder="e.g. Block A, 2nd Floor"
-                                        value={location}
-                                        onChange={(e) => setLocation(e.target.value)}
-                                        readOnly={mode === 'assign'}
-                                    />
+                                <div className="search-wrapper">
+                                    <div className="search-input-box">
+                                        <MapPin size={18} className="search-icon-sm" />
+                                        <input
+                                            type="text"
+                                            className="modern-input"
+                                            placeholder="e.g. Block A, 2nd Floor"
+                                            value={location}
+                                            onChange={(e) => setLocation(e.target.value)}
+                                            readOnly={mode === 'assign'}
+                                        />
+                                    </div>
                                 </div>
                             </div>
 
@@ -251,40 +260,46 @@ const VenueModal: React.FC<VenueModalProps> = ({
 
                             <div className="form-group">
                                 <label>Brief Description</label>
-                                <div className="input-with-icon textarea-group">
-                                    <AlignLeft size={18} className="field-icon" />
-                                    <textarea
-                                        placeholder="Add details about capacity, equipment, etc..."
-                                        value={description}
-                                        onChange={(e) => setDescription(e.target.value)}
-                                        rows={3}
-                                    />
+                                <div className="search-wrapper">
+                                    <div className="search-input-box">
+                                        <AlignLeft size={18} className="search-icon-sm" />
+                                        <textarea
+                                            className="modern-input"
+                                            placeholder="Add details about capacity, equipment, etc..."
+                                            value={description}
+                                            onChange={(e) => setDescription(e.target.value)}
+                                            rows={3}
+                                        />
+                                    </div>
                                 </div>
                             </div>
 
                             {/* Incharge Assignment */}
                             <div className="form-group">
                                 <label>Assign Incharge (Owner)</label>
-                                <div className="input-with-icon searchable">
-                                    <Search size={18} className="field-icon" />
-                                    <input
-                                        type="text"
-                                        placeholder="Search faculty or role-user..."
-                                        value={inchargeSearch}
-                                        onChange={(e) => {
-                                            setInchargeSearch(e.target.value);
-                                            setShowFacultyDropdown(true);
-                                        }}
-                                        onFocus={() => setShowFacultyDropdown(true)}
-                                    />
-                                    {isFacultyLoading && <div className="spinner-mini"></div>}
+                                <div className="search-wrapper">
+                                    <div className="search-input-box">
+                                        <Search size={18} className="search-icon-sm" />
+                                        <input
+                                            type="text"
+                                            className="modern-input"
+                                            placeholder="Search faculty or role-user..."
+                                            value={inchargeSearch}
+                                            onChange={(e) => {
+                                                setInchargeSearch(e.target.value);
+                                                setShowFacultyDropdown(true);
+                                            }}
+                                            onFocus={() => setShowFacultyDropdown(true)}
+                                        />
+                                        {isFacultyLoading && <div className="spinner-mini"></div>}
+                                    </div>
                                 </div>
                                 <span className="field-helper">The primary official responsible for this venue.</span>
 
                                 <AnimatePresence>
                                     {showFacultyDropdown && inchargeSearch && (
                                         <motion.div
-                                            className="faculty-dropdown"
+                                            className="dropdown-panel"
                                             initial={{ opacity: 0, y: -10 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             exit={{ opacity: 0, y: -10 }}
@@ -293,7 +308,7 @@ const VenueModal: React.FC<VenueModalProps> = ({
                                                 filteredIncharges.map(person => (
                                                     <div
                                                         key={person.id}
-                                                        className={`faculty-option ${selectedIncharge?.id === person.id ? 'selected' : ''}`}
+                                                        className={`dropdown-item ${selectedIncharge?.id === person.id ? 'selected' : ''}`}
                                                         onClick={() => {
                                                             setSelectedIncharge(person);
                                                             setInchargeSearch(person.name);
@@ -328,9 +343,9 @@ const VenueModal: React.FC<VenueModalProps> = ({
                     </div>
 
                     <div className="modal-footer">
-                        <button className="cancel-pill" onClick={onClose}>Discard</button>
+                        <button className="secondary-btn" onClick={onClose}>Discard</button>
                         <button
-                            className="submit-pill"
+                            className="primary-btn"
                             onClick={handleSubmit}
                             disabled={isLoading}
                         >

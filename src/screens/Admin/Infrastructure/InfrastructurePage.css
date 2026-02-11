@@ -2,6 +2,8 @@
     padding: 24px;
     height: 100%;
     overflow-y: auto;
+    background: #f8fafc;
+    min-height: 100vh;
 }
 
 /* Stats Styling */
@@ -19,8 +21,14 @@
     display: flex;
     align-items: center;
     gap: 16px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.01);
-    border: 1px solid rgba(226, 232, 240, 0.4);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    y: -4px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
 
 .stat-icon {
@@ -34,14 +42,16 @@
 
 .stat-info .stat-label {
     display: block;
-    font-size: 0.85rem;
-    color: #64748b;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
     margin-bottom: 4px;
 }
 
 .stat-info .stat-value {
     font-size: 1.5rem;
-    font-weight: 700;
+    font-weight: 800;
     color: #1e293b;
     margin: 0;
 }
@@ -73,17 +83,17 @@
     width: 100%;
     padding: 10px 12px 10px 40px;
     border-radius: 10px;
-    border: 1px solid rgba(226, 232, 240, 0.6);
+    border: 1px solid #e2e8f0;
     font-size: 0.9rem;
     transition: all 0.2s;
     background: white;
     color: #1e293b;
+    outline: none;
 }
 
 .search-box input:focus {
-    outline: none;
-    border-color: rgba(99, 102, 241, 0.4);
-    box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.2);
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
 }
 
 /* Action Group */
@@ -95,28 +105,26 @@
 
 .view-toggle {
     display: flex;
-    background: #eef2ff;
+    background: #f1f5f9;
     padding: 4px;
-    border-radius: 12px;
-    border: 1px solid rgba(99, 102, 241, 0.1);
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
 }
 
 .view-toggle button {
     padding: 8px 12px;
-    border-radius: 10px;
-    color: #6366f1;
-    transition: all 0.2s;
+    border-radius: 8px;
+    color: #64748b;
     background: transparent;
     border: none;
     cursor: pointer;
     display: flex;
-    align-items: center;
 }
 
 .view-toggle button.active {
-    background: #6366f1;
-    color: white;
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+    background: white;
+    color: #6366f1;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .primary-btn {
@@ -127,55 +135,37 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    font-weight: 500;
-    transition: all 0.2s;
+    font-weight: 700;
     border: none;
     cursor: pointer;
-}
-
-.primary-btn:hover {
-    background: #4f46e5;
-    transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
 }
 
 /* Grid Layout */
 .venue-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
     gap: 24px;
 }
 
 .venue-card {
     background: white;
     border-radius: 20px;
-    padding: 0;
-    border: 1px solid rgba(226, 232, 240, 0.4);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
-    display: flex;
-    flex-direction: column;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    cursor: pointer;
-    position: relative;
+    border: 1px solid #e2e8f0;
     overflow: hidden;
-    background: linear-gradient(135deg, #fff 0%, #fbfcfe 100%);
+    transition: all 0.3s ease;
+    cursor: pointer;
 }
 
 .venue-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 25px 50px -12px rgba(99, 102, 241, 0.1);
-    border-color: rgba(99, 102, 241, 0.2);
+    transform: translateY(-5px);
+    border-color: #6366f1;
+    box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.1);
 }
 
 .venue-card-header {
+    height: 180px;
     position: relative;
-    height: 190px;
-    width: 100%;
-}
-
-.venue-image-container {
-    width: 100%;
-    height: 100%;
     background: #f1f5f9;
 }
 
@@ -183,64 +173,34 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.5s ease;
-}
-
-.venue-card:hover .venue-card-img {
-    transform: scale(1.05);
 }
 
 .venue-image-placeholder {
     width: 100%;
     height: 100%;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
     color: #94a3b8;
-    background: #f8fafc;
-    gap: 8px;
 }
 
 .venue-actions {
     position: absolute;
     top: 12px;
     right: 12px;
-    z-index: 2;
-    display: flex;
-    gap: 8px;
-    opacity: 0;
-    transform: translateY(-5px);
-    transition: all 0.3s ease;
-}
-
-.venue-card:hover .venue-actions {
-    opacity: 1;
-    transform: translateY(0);
 }
 
 .venue-actions button {
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(8px);
-    color: #475569;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
     padding: 8px;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    transition: all 0.2s;
-    border: 1px solid rgba(255, 255, 255, 0.5);
+    color: #64748b;
     cursor: pointer;
 }
 
-.venue-actions button:hover {
-    background: #fff;
-    color: #6366f1;
-    transform: scale(1.1);
-    border-color: rgba(99, 102, 241, 0.3);
-}
-
 .venue-card-body {
-    padding: 24px;
-    flex: 1;
+    padding: 1.5rem;
 }
 
 .venue-title-row {
@@ -251,26 +211,21 @@
 }
 
 .venue-card-body h3 {
-    font-size: 1.15rem;
+    font-size: 1.2rem;
     font-weight: 800;
     color: #1e293b;
     margin: 0;
-    letter-spacing: -0.01em;
 }
 
 .status-tag {
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 0.68rem;
-    font-weight: 800;
-    background: #fff;
-    padding: 4px 10px;
-    border-radius: 20px;
-    border: 1px solid rgba(226, 232, 240, 0.8);
+    font-size: 0.7rem;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.03em;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    padding: 4px 10px;
+    border-radius: 100px;
 }
 
 .status-dot {
@@ -280,101 +235,94 @@
 }
 
 .status-tag.available {
-    color: #059669;
+    background: #dcfce7;
+    color: #15803d;
 }
 
 .status-tag.available .status-dot {
-    background: #10b981;
+    background: #15803d;
 }
 
 .status-tag.maintenance {
-    color: #b45309;
+    background: #fef9c3;
+    color: #854d0e;
 }
 
 .status-tag.maintenance .status-dot {
-    background: #f59e0b;
+    background: #854d0e;
 }
 
 .status-tag.occupied {
-    color: #dc2626;
+    background: #fee2e2;
+    color: #b91c1c;
 }
 
 .status-tag.occupied .status-dot {
-    background: #ef4444;
+    background: #b91c1c;
 }
 
 .venue-card-desc {
-    font-size: 0.88rem;
+    font-size: 0.85rem;
     color: #64748b;
     line-height: 1.5;
-    margin-bottom: 20px;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    line-clamp: 2;
-    overflow: hidden;
-    min-height: 2.6em;
+    margin-bottom: 1.25rem;
 }
 
 .venue-meta {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
 }
 
 .meta-item {
     display: flex;
     align-items: center;
-    gap: 8px;
-    color: #64748b;
+    gap: 10px;
     font-size: 0.85rem;
+    color: #64748b;
+}
+
+.meta-item svg {
+    color: #94a3b8;
 }
 
 .meta-item .assigned {
+    font-weight: 700;
     color: #1e293b;
-    font-weight: 500;
 }
 
 .meta-item .unassigned {
-    color: #94a3b8;
     font-style: italic;
+    color: #94a3b8;
 }
 
 .venue-card-footer {
-    margin-top: 24px;
-    padding-top: 20px;
-    border-top: 1px solid rgba(226, 232, 240, 0.5);
+    padding: 1.25rem 1.5rem;
+    border-top: 1px solid #f1f5f9;
+    background: #fafafa;
 }
 
 .assign-btn {
     width: 100%;
-    background: white;
-    color: #6366f1;
     padding: 10px;
     border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    background: white;
+    color: #6366f1;
+    font-weight: 700;
+    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    font-weight: 500;
-    border: 1px solid rgba(226, 232, 240, 0.8);
-    transition: all 0.2s;
-    cursor: pointer;
 }
 
-.assign-btn:hover {
-    background: #f8fafc;
-    border-color: #cbd5e1;
-    transform: scale(0.98);
-}
-
-/* Table Design */
+/* Table Styling */
 .table-container {
     background: white;
-    border-radius: 24px;
-    border: 1px solid rgba(226, 232, 240, 0.4);
+    border-radius: 20px;
+    border: 1px solid #e2e8f0;
     overflow: hidden;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.02), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
 }
 
 .custom-table {
@@ -383,46 +331,38 @@
 }
 
 .custom-table th {
-    background: #fbfcfe;
-    padding: 20px;
+    background: #f8fafc;
+    padding: 16px 20px;
     text-align: left;
-    font-size: 0.72rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #64748b;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: #94a3b8;
-    font-weight: 800;
-    border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+    border-bottom: 1px solid #f1f5f9;
 }
 
 .custom-table td {
-    padding: 18px 20px;
-    border-top: 1px solid #f8fafc;
-    color: #475569;
-    font-size: 0.92rem;
-    transition: all 0.2s ease;
-}
-
-.custom-table tr:hover td {
-    background: #fbfcfe;
-    color: #1e293b;
+    padding: 16px 20px;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 0.9rem;
+    color: #334155;
 }
 
 .venue-name-cell {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 1rem;
 }
 
 .venue-table-img {
     width: 44px;
     height: 44px;
-    background: #f8fafc;
     border-radius: 10px;
+    background: #f1f5f9;
     overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid rgba(226, 232, 240, 0.6);
 }
 
 .venue-table-img img {
@@ -431,25 +371,38 @@
     object-fit: cover;
 }
 
-.venue-table-img span {
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: #6366f1;
+.venue-info-text {
+    display: flex;
+    flex-direction: column;
 }
 
-.v-loc-sub {
-    font-size: 0.8rem;
+.v-name {
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.v-desc-inline {
+    font-size: 0.75rem;
     color: #94a3b8;
 }
 
-.location-cell .v-type {
-    display: block;
-    font-weight: 500;
+.v-loc-sub {
+    font-size: 0.75rem;
+    color: #64748b;
+}
+
+.location-cell {
+    display: flex;
+    flex-direction: column;
+}
+
+.v-type {
+    font-weight: 600;
     color: #6366f1;
     font-size: 0.85rem;
 }
 
-.location-cell .v-loc {
+.v-loc {
     font-size: 0.8rem;
     color: #64748b;
 }
@@ -457,33 +410,33 @@
 .status-pill {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 4px 10px;
-    border-radius: 20px;
+    gap: 8px;
+    padding: 4px 12px;
+    border-radius: 100px;
     font-size: 0.75rem;
     font-weight: 700;
 }
 
 .status-pill.available {
-    background: #ecfdf5;
-    color: #059669;
+    background: #dcfce7;
+    color: #15803d;
 }
 
 .status-pill.maintenance {
-    background: #fffbeb;
-    color: #b45309;
+    background: #fef9c3;
+    color: #854d0e;
 }
 
 .status-pill.occupied {
-    background: #fef2f2;
-    color: #dc2626;
+    background: #fee2e2;
+    color: #b91c1c;
 }
 
 .owner-badge {
     padding: 4px 10px;
     border-radius: 8px;
     font-size: 0.85rem;
-    font-weight: 500;
+    font-weight: 600;
 }
 
 .owner-badge.active {
@@ -503,62 +456,40 @@
 }
 
 .action-btns button {
-    padding: 8px;
-    border-radius: 10px;
-    color: #6366f1;
-    background: #f5f3ff;
-    transition: all 0.2s;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    background: white;
+    color: #64748b;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: none;
     cursor: pointer;
 }
 
-.action-btns button:hover {
-    background: #6366f1;
-    color: white;
-    transform: translateY(-1px);
-}
-
-.action-btns .delete-btn {
-    color: #ef4444;
-    background: #fef2f2;
-}
-
 .action-btns .delete-btn:hover {
-    background: #ef4444;
-    color: white;
+    background: #fef2f2;
+    color: #ef4444;
+    border-color: #fee2e2;
 }
 
-/* Loading State */
 .loading-container {
+    padding: 4rem;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    min-height: 400px;
-    gap: 16px;
+    gap: 1rem;
     color: #64748b;
 }
 
 .spinner {
     width: 40px;
     height: 40px;
-    border: 3px solid rgba(226, 232, 240, 0.8);
+    border: 3px solid #f1f5f9;
     border-top: 3px solid #6366f1;
     border-radius: 50%;
     animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
-
-    100% {
-        transform: rotate(360deg);
-    }
 }
 
 @media (max-width: 768px) {

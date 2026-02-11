@@ -2,7 +2,6 @@
     display: flex;
     min-height: 100vh;
     background: #ffffff;
-    /* Removed the fdfdfd tint */
 }
 
 .admin-main {
@@ -10,12 +9,10 @@
     display: flex;
     flex-direction: column;
     min-width: 0;
-    /* Prevents flex items from overflowing */
 }
 
 .admin-header {
     height: 72px;
-    /* Slightly more compact height */
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(8px);
     border-bottom: 1px solid #f1f5f9;
@@ -28,7 +25,6 @@
     z-index: 90;
 }
 
-/* Mobile Menu Toggle */
 .mobile-menu-toggle {
     display: none;
     background: transparent;
@@ -37,23 +33,6 @@
     cursor: pointer;
     padding: 8px;
     margin-right: 12px;
-}
-
-.system-status {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 13px;
-    font-weight: 600;
-    color: #64748b;
-}
-
-.status-dot {
-    width: 8px;
-    height: 8px;
-    background: #10b981;
-    border-radius: 50%;
-    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
 }
 
 .header-right {
@@ -95,7 +74,6 @@
     background: #e2e8f0;
 }
 
-/* Profile Styles */
 .user-profile-summary {
     display: flex;
     align-items: center;
@@ -135,32 +113,12 @@
     border: 2px solid #f8fafc;
 }
 
-/* Content Area */
 .admin-content {
     padding: 40px;
     flex: 1;
     display: flex;
     flex-direction: column;
-}
-
-.welcome-hero {
-    margin-top: 10vh;
-    text-align: center;
-    width: 100%;
-}
-
-.welcome-hero h1 {
-    font-size: 28px;
-    font-weight: 800;
-    color: #0f172a;
-    letter-spacing: -0.5px;
-}
-
-.welcome-hero p {
-    color: #64748b;
-    font-size: 16px;
-    max-width: 500px;
-    margin: 12px auto;
+    min-width: 0;
 }
 
 @media (max-width: 1024px) {
@@ -178,7 +136,39 @@
 }
 
 @media (max-width: 768px) {
+    .admin-header {
+        height: 64px;
+        padding: 0 16px;
+    }
+
+    .tab-title {
+        font-size: 1.1rem;
+    }
+
     .summary-text {
+        display: none;
+    }
+
+    .header-right {
+        gap: 12px;
+    }
+
+    .summary-avatar img {
+        width: 34px;
+        height: 34px;
+    }
+
+    .admin-content {
+        padding: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-divider {
+        display: none;
+    }
+
+    .icon-notification-btn {
         display: none;
     }
 }

@@ -88,8 +88,8 @@ const ResourceModal = ({
                     exit={{ opacity: 0, scale: 0.98, y: 10 }}
                 >
                     <div className="modal-header">
-                        <div className="header-title-box">
-                            <div className="header-icon">
+                        <div className="header-info">
+                            <div className="icon-badge">
                                 {mode === 'assign' ? <UserPlus size={20} /> : <Box size={20} />}
                             </div>
                             <div>
@@ -102,7 +102,7 @@ const ResourceModal = ({
                                 </p>
                             </div>
                         </div>
-                        <button className="close-btn" onClick={onClose}><X size={20} /></button>
+                        <button className="close-x-btn" onClick={onClose}><X size={20} /></button>
                     </div>
 
                     <div className="modal-body">
@@ -117,55 +117,64 @@ const ResourceModal = ({
                             {/* Name Field */}
                             <div className="form-group">
                                 <label>Resource Name</label>
-                                <div className={`input-with-icon ${mode === 'assign' ? 'readonly' : ''}`}>
-                                    <Monitor size={18} className="field-icon" />
-                                    <input
-                                        type="text"
-                                        placeholder="e.g. Dell XPS 15, Projector A1"
-                                        value={name}
-                                        onChange={(e) => setName(e.target.value)}
-                                        readOnly={mode === 'assign'}
-                                    />
+                                <div className="search-wrapper">
+                                    <div className="search-input-box">
+                                        <Monitor size={18} className="search-icon-sm" />
+                                        <input
+                                            type="text"
+                                            className="modern-input"
+                                            placeholder="e.g. Dell XPS 15, Projector A1"
+                                            value={name}
+                                            onChange={(e) => setName(e.target.value)}
+                                            readOnly={mode === 'assign'}
+                                        />
+                                    </div>
                                 </div>
                             </div>
 
                             {/* Details Field */}
                             <div className="form-group">
                                 <label>Details / Description</label>
-                                <div className={`input-with-icon textarea-group ${mode === 'assign' ? 'readonly' : ''}`}>
-                                    <AlignLeft size={18} className="field-icon" />
-                                    <textarea
-                                        placeholder="Add details about specifications, location, service tag..."
-                                        value={details}
-                                        onChange={(e) => setDetails(e.target.value)}
-                                        rows={3}
-                                        readOnly={mode === 'assign'}
-                                    />
+                                <div className="search-wrapper">
+                                    <div className="search-input-box">
+                                        <AlignLeft size={18} className="search-icon-sm" />
+                                        <textarea
+                                            className="modern-textarea"
+                                            placeholder="Add details about specifications, location, service tag..."
+                                            value={details}
+                                            onChange={(e) => setDetails(e.target.value)}
+                                            rows={3}
+                                            readOnly={mode === 'assign'}
+                                        />
+                                    </div>
                                 </div>
                             </div>
 
                             {/* Assignment Field */}
                             <div className="form-group">
                                 <label>Assign To (Staff/Role User)</label>
-                                <div className={`input-with-icon searchable`}>
-                                    <Search size={18} className="field-icon" />
-                                    <input
-                                        type="text"
-                                        placeholder="Search user..."
-                                        value={inchargeSearch}
-                                        onChange={(e) => {
-                                            setInchargeSearch(e.target.value);
-                                            setShowFacultyDropdown(true);
-                                        }}
-                                        onFocus={() => setShowFacultyDropdown(true)}
-                                    />
+                                <div className="search-wrapper">
+                                    <div className="search-input-box">
+                                        <Search size={18} className="search-icon-sm" />
+                                        <input
+                                            type="text"
+                                            className="modern-input"
+                                            placeholder="Search user..."
+                                            value={inchargeSearch}
+                                            onChange={(e) => {
+                                                setInchargeSearch(e.target.value);
+                                                setShowFacultyDropdown(true);
+                                            }}
+                                            onFocus={() => setShowFacultyDropdown(true)}
+                                        />
+                                    </div>
                                 </div>
                                 <span className="field-helper">Person responsible for this asset.</span>
 
                                 <AnimatePresence>
                                     {showFacultyDropdown && inchargeSearch && (
                                         <motion.div
-                                            className="faculty-dropdown"
+                                            className="dropdown-panel"
                                             initial={{ opacity: 0, y: -10 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             exit={{ opacity: 0, y: -10 }}
@@ -174,7 +183,7 @@ const ResourceModal = ({
                                                 filteredUsers.map(user => (
                                                     <div
                                                         key={user.id}
-                                                        className={`faculty-option ${selectedIncharge?.id === user.id ? 'selected' : ''}`}
+                                                        className={`dropdown-item ${selectedIncharge?.id === user.id ? 'selected' : ''}`}
                                                         onClick={() => {
                                                             setSelectedIncharge(user);
                                                             setInchargeSearch(user.name);
@@ -209,9 +218,9 @@ const ResourceModal = ({
                     </div>
 
                     <div className="modal-footer">
-                        <button className="cancel-pill" onClick={onClose}>Discard</button>
+                        <button className="secondary-btn" onClick={onClose}>Discard</button>
                         <button
-                            className="submit-pill"
+                            className="primary-btn"
                             onClick={handleSubmit}
                             disabled={isLoading}
                         >

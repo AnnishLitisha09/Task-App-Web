@@ -120,8 +120,8 @@ const DepartmentModal: React.FC<DepartmentModalProps> = ({
                     exit={{ opacity: 0, scale: 0.95, y: 20 }}
                 >
                     <div className="modal-header">
-                        <div className="header-title-box">
-                            <div className="header-icon">
+                        <div className="header-info">
+                            <div className="icon-badge">
                                 {mode === 'assign' ? <UserPlus size={20} /> : <Building2 size={20} />}
                             </div>
                             <div>
@@ -134,7 +134,7 @@ const DepartmentModal: React.FC<DepartmentModalProps> = ({
                                 </p>
                             </div>
                         </div>
-                        <button className="close-btn" onClick={onClose}><X size={20} /></button>
+                        <button className="close-x-btn" onClick={onClose}><X size={20} /></button>
                     </div>
 
                     <div className="modal-body">
@@ -149,15 +149,18 @@ const DepartmentModal: React.FC<DepartmentModalProps> = ({
                             {/* Dept Name - Visible in all modes, editable in create/edit */}
                             <div className="form-group">
                                 <label>Department Name</label>
-                                <div className={`input-with-icon ${mode === 'assign' ? 'readonly' : ''}`}>
-                                    <Building2 size={18} className="field-icon" />
-                                    <input
-                                        type="text"
-                                        placeholder="e.g. Computer Science and Engineering"
-                                        value={deptName}
-                                        onChange={(e) => setDeptName(e.target.value)}
-                                        readOnly={mode === 'assign'}
-                                    />
+                                <div className={`search-wrapper ${mode === 'assign' ? 'readonly' : ''}`}>
+                                    <div className="search-input-box">
+                                        <Building2 size={18} className="search-icon-sm" />
+                                        <input
+                                            type="text"
+                                            className={`modern-input ${mode === 'assign' ? 'readonly-field' : ''}`}
+                                            placeholder="e.g. Computer Science and Engineering"
+                                            value={deptName}
+                                            onChange={(e) => setDeptName(e.target.value)}
+                                            readOnly={mode === 'assign'}
+                                        />
+                                    </div>
                                 </div>
                                 <span className="field-helper">
                                     {mode === 'assign' ? 'The department receiving a new authority figure.' : 'Official name for the institutional division.'}
@@ -167,26 +170,29 @@ const DepartmentModal: React.FC<DepartmentModalProps> = ({
                             {/* HOD Assignment */}
                             <div className="form-group">
                                 <label>Headed By (HOD)</label>
-                                <div className="input-with-icon searchable">
-                                    <Search size={18} className="field-icon" />
-                                    <input
-                                        type="text"
-                                        placeholder="Search faculty by name or ID..."
-                                        value={facultySearch}
-                                        onChange={(e) => {
-                                            setFacultySearch(e.target.value);
-                                            setShowFacultyDropdown(true);
-                                        }}
-                                        onFocus={() => setShowFacultyDropdown(true)}
-                                    />
-                                    {isFacultyLoading && <div className="spinner-mini"></div>}
+                                <div className="search-wrapper">
+                                    <div className="search-input-box">
+                                        <Search size={18} className="search-icon-sm" />
+                                        <input
+                                            type="text"
+                                            className="modern-input"
+                                            placeholder="Search faculty by name or ID..."
+                                            value={facultySearch}
+                                            onChange={(e) => {
+                                                setFacultySearch(e.target.value);
+                                                setShowFacultyDropdown(true);
+                                            }}
+                                            onFocus={() => setShowFacultyDropdown(true)}
+                                        />
+                                        {isFacultyLoading && <div className="spinner-mini"></div>}
+                                    </div>
                                 </div>
                                 <span className="field-helper">The primary authority figure for this department.</span>
 
                                 <AnimatePresence>
                                     {showFacultyDropdown && facultySearch && (
                                         <motion.div
-                                            className="faculty-dropdown"
+                                            className="dropdown-panel"
                                             initial={{ opacity: 0, y: -10 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             exit={{ opacity: 0, y: -10 }}
@@ -195,7 +201,7 @@ const DepartmentModal: React.FC<DepartmentModalProps> = ({
                                                 filteredFaculty.map(faculty => (
                                                     <div
                                                         key={faculty.id}
-                                                        className={`faculty-option ${selectedFaculty?.id === faculty.id ? 'selected' : ''}`}
+                                                        className={`dropdown-item ${selectedFaculty?.id === faculty.id ? 'selected' : ''}`}
                                                         onClick={() => {
                                                             setSelectedFaculty(faculty);
                                                             setFacultySearch(faculty.name);
@@ -230,9 +236,9 @@ const DepartmentModal: React.FC<DepartmentModalProps> = ({
                     </div>
 
                     <div className="modal-footer">
-                        <button className="cancel-pill" onClick={onClose}>Cancel</button>
+                        <button className="secondary-btn" onClick={onClose}>Cancel</button>
                         <button
-                            className="submit-pill"
+                            className="primary-btn"
                             onClick={handleSubmit}
                             disabled={isLoading}
                         >
