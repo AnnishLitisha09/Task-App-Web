@@ -1,0 +1,125 @@
+/* Light-themed Authority Modals */
+
+.authority-advanced-modal.light-theme {
+    background: #ffffff !important;
+    border-radius: 32px !important;
+    overflow: hidden !important;
+    box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.15) !important;
+    margin: auto !important;
+    /* Center if in a flex container */
+}
+
+/* Ensure overlay centers content */
+.modal-overlay {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 2rem !important;
+}
+
+.user-context-strip {
+    background: #f5f3ff;
+    border: 1px solid #e0e7ff;
+    transition: all 0.2s;
+}
+
+.form-group select {
+    background-color: white !important;
+    border: 1.5px solid #e2e8f0 !important;
+    border-radius: 12px !important;
+    padding: 12px 16px 12px 42px !important;
+    font-size: 0.9rem !important;
+    font-weight: 600 !important;
+    color: #1e293b !important;
+    width: 100% !important;
+    appearance: none !important;
+    transition: all 0.2s !important;
+}
+
+.form-group select:focus {
+    border-color: #6366f1 !important;
+    outline: none !important;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1) !important;
+}
+
+.input-with-icon {
+    position: relative;
+}
+
+.field-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    z-index: 10;
+}
+
+.preview-item {
+    background: white;
+    border: 1px solid #f1f5f9;
+    border-radius: 16px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.preview-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.status-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: #f1f5f9;
+    color: #64748b;
+    border: 1px solid #e2e8f0;
+    transition: all 0.2s;
+}
+
+.status-pill.active {
+    background: #ecfdf5;
+    color: #10b981;
+    border-color: #a7f3d0;
+}
+
+.status-pill.inactive {
+    background: #fff1f2;
+    color: #e11d48;
+    border-color: #fecdd3;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+/* Bulk and Transfer Modal refinements */
+.resource-modal {
+    background: white !important;
+}
+
+.modal-header h2 {
+    color: #0f172a !important;
+}
+
+.header-subtitle {
+    color: #64748b !important;
+}
+
+.modal-body {
+    background: white !important;
+}
+
+.modal-footer {
+    background: #f8fafc !important;
+    border-top: 1px solid #f1f5f9 !important;
+}

@@ -1,0 +1,168 @@
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+/* refined styles for elegance */
+.resource-modal {
+    background: white;
+    width: 100%;
+    max-width: 520px;
+    /* Slightly narrower */
+    border-radius: 24px;
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(226, 232, 240, 0.6);
+}
+
+.modal-header {
+    padding: 24px 32px;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.4);
+}
+
+.header-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+}
+
+.header-title-box h2 {
+    font-size: 1.15rem;
+    /* Smaller title */
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.header-subtitle {
+    font-size: 0.75rem;
+    /* Smaller subtitle */
+    color: #64748b;
+    margin-top: 2px;
+}
+
+.modal-body {
+    padding: 32px;
+}
+
+.form-group label {
+    font-size: 0.75rem;
+    /* Smaller label */
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: #475569;
+    margin-bottom: 8px;
+}
+
+.form-group .field-helper {
+    font-size: 0.7rem;
+    margin-top: 6px;
+}
+
+.input-with-icon input,
+.input-with-icon select,
+.input-with-icon textarea {
+    padding: 10px 14px 10px 42px;
+    /* Denser padding */
+    font-size: 0.9rem;
+    /* Smaller input text */
+    border-radius: 10px;
+}
+
+.field-icon {
+    width: 16px;
+    height: 16px;
+    left: 14px;
+}
+
+.textarea-group .field-icon {
+    top: 12px;
+}
+
+/* Faculty Dropdown refined */
+.faculty-dropdown {
+    border-radius: 12px;
+    padding: 6px;
+}
+
+.faculty-option {
+    padding: 10px 12px;
+    border-radius: 8px;
+    gap: 10px;
+}
+
+.faculty-avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 0.8rem;
+    border-radius: 10px;
+}
+
+.fn-name {
+    font-size: 0.85rem;
+}
+
+.fn-id {
+    font-size: 0.7rem;
+}
+
+/* Footer refined */
+.modal-footer {
+    padding: 16px 32px 24px 32px;
+    gap: 10px;
+    border-top: none;
+    /* Cleaner look */
+}
+
+.cancel-pill {
+    padding: 10px 20px;
+    font-size: 0.85rem;
+    border-radius: 10px;
+}
+
+.submit-pill {
+    padding: 10px 24px;
+    font-size: 0.85rem;
+    border-radius: 10px;
+}
+
+.submit-pill:hover {
+    background: #4f46e5;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(99, 102, 241, 0.3);
+}
+
+.error-alert {
+    background: #fef2f2;
+    color: #b91c1c;
+    padding: 12px 16px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    margin-bottom: 24px;
+    border: 1px solid #fecaca;
+}
+
+.info-guide {
+    margin-top: 24px;
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    gap: 12px;
+    color: #0369a1;
+    font-size: 0.88rem;
+    line-height: 1.5;
+}

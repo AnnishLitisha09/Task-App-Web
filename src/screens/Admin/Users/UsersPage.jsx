@@ -7,8 +7,11 @@ import DeleteConfirmModal from '../../../components/UI/DeleteConfirmModal/Delete
 import ViewUserModal from '../../../components/UI/ViewUserModal/ViewUserModal';
 import {
     Search, UserPlus, FileSpreadsheet, Filter, Eye,
-    Edit3, UserMinus, Users, UserCircle, ShieldCheck, ChevronDown, Upload, CheckCircle2
+    Edit3, UserMinus, Users, UserCircle, ShieldCheck, ChevronDown, Upload, CheckCircle2,
+    Shield, History, Layers
 } from 'lucide-react';
+import AuthorityModal from '../../../components/UI/AuthorityModal/AuthorityModal';
+import AuthorityTransferModal from '../../../components/UI/AuthorityModal/AuthorityTransferModal';
 import './UsersPage.css';
 
 const UsersPage = () => {
@@ -33,6 +36,11 @@ const UsersPage = () => {
     const [usersList, setUsersList] = useState([]);
     const [apiCounts, setApiCounts] = useState(null);
     const [isUsersLoading, setIsUsersLoading] = useState(true);
+
+    // Authority Modal States
+    const [isAuthorityOpen, setIsAuthorityOpen] = useState(false);
+    const [isTransferOpen, setIsTransferOpen] = useState(false);
+    const [authMode, setAuthMode] = useState('create');
 
     // Fetch Resources
     React.useEffect(() => {
@@ -248,10 +256,6 @@ const UsersPage = () => {
                             onChange={handleBulkUpload}
                         />
                     </label>
-                    <button className="secondary-btn" onClick={handleExportExcel}>
-                        <FileSpreadsheet size={18} />
-                        Export Data
-                    </button>
                     <button className="primary-btn" onClick={handleCreateNew}>
                         <UserPlus size={18} />
                         Create New User
@@ -456,7 +460,43 @@ const UsersPage = () => {
                 onClose={() => setIsViewOpen(false)}
                 user={selectedUser}
                 onEdit={handleEdit}
+                onAssignAuthority={(user) => {
+                    setSelectedUser(user);
+                    setAuthMode('create');
+                    setIsAuthorityOpen(true);
+                }}
+                onTransferAuthority={(user) => {
+                    setSelectedUser(user);
+                    setIsTransferOpen(true);
+                }}
             />
+
+            <AuthorityModal
+                isOpen={isAuthorityOpen}
+                onClose={() => setIsAuthorityOpen(false)}
+                authorityData={authMode === 'edit' ? selectedUser : null}
+                initialUser={authMode === 'create' ? selectedUser : null}
+                mode={authMode}
+                onSuccess={() => {
+                    setIsAuthorityOpen(false);
+                    setToastMsg('Authority assigned successfully!');
+                    setShowToast(true);
+                    setTimeout(() => setShowToast(false), 3000);
+                }}
+            />
+
+            <AuthorityTransferModal
+                isOpen={isTransferOpen}
+                onClose={() => setIsTransferOpen(false)}
+                currentAuthority={selectedUser}
+                onSuccess={() => {
+                    setIsTransferOpen(false);
+                    setToastMsg('Authority transferred successfully!');
+                    setShowToast(true);
+                    setTimeout(() => setShowToast(false), 3000);
+                }}
+            />
+
 
             {selectedUser && (
                 <DeleteConfirmModal

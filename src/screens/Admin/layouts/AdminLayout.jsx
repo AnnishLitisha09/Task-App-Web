@@ -6,7 +6,9 @@ import DepartmentsPage from '../Departments/DepartmentsPage';
 import InfrastructurePage from '../Infrastructure/InfrastructurePage';
 import TasksPage from '../Tasks/TasksPage';
 import ScoreboardPage from '../Scoreboard/ScoreboardPage';
+import ResourcesPage from '../Resources/ResourcesPage';
 import CoupenPage from '../Coupons/CouponsPage';
+import AuthorityPage from '../Authority/AuthorityPage';
 import { Edit2, Bell, Menu, X } from 'lucide-react';
 import './AdminLayout.css';
 
@@ -26,7 +28,7 @@ const AdminLayout = ({ user, onLogout }) => {
             case 'Users':
                 return <UsersPage />;
             case 'Authority':
-                return <div className="placeholder-view"><h2>Authority Settings</h2><p>Manage roles and permissions.</p></div>;
+                return <AuthorityPage />;
             case 'Departments':
                 return <DepartmentsPage />;
             case 'Infrastructure':
@@ -35,12 +37,16 @@ const AdminLayout = ({ user, onLogout }) => {
                 return <TasksPage />;
             case 'Scoreboard':
                 return <ScoreboardPage />;
+            case 'Resources':
+                return <ResourcesPage />;
             case 'Coupons':
                 return <CoupenPage />;
             default:
                 return <div className="placeholder-view"><h2>Coming Soon</h2><p>Page is under construction.</p></div>;
         }
     };
+    // ... rest of file (standard render)
+
 
     return (
         <div className="admin-layout">
