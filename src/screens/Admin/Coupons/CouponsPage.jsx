@@ -216,7 +216,7 @@ const CouponsPage = () => {
             {/* Modal */}
             <AnimatePresence>
                 {isModalOpen && (
-                    <motion.div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[1000] flex items-center justify-center p-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsModalOpen(false)}>
+                    <motion.div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-1000 flex items-center justify-center p-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsModalOpen(false)}>
                         <motion.div className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden" initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} onClick={(e) => e.stopPropagation()}>
                             <div className="flex justify-between items-center px-7 py-5 border-b border-slate-100">
                                 <h2 className="text-base font-extrabold text-slate-900">{selectedCoupon ? 'Edit Coupon' : 'Create New Coupon'}</h2>
@@ -246,7 +246,7 @@ const CouponsPage = () => {
 
             <AnimatePresence>
                 {showToast && (
-                    <motion.div className={`fixed bottom-6 right-6 flex items-center gap-3 px-5 py-3 rounded-2xl text-white font-semibold shadow-2xl z-[2000] ${toastType === 'success' ? 'bg-emerald-500' : 'bg-red-500'}`}
+                    <motion.div className={`fixed bottom-6 right-6 flex items-center gap-3 px-5 py-3 rounded-2xl text-white font-semibold shadow-2xl z-2000 ${toastType === 'success' ? 'bg-emerald-500' : 'bg-red-500'}`}
                         initial={{ opacity: 0, x: 50, scale: 0.9 }} animate={{ opacity: 1, x: 0, scale: 1 }} exit={{ opacity: 0, x: 20, scale: 0.9 }}>
                         {toastType === 'success' ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}{toastMsg}
                     </motion.div>

@@ -59,7 +59,7 @@ const ResourceModal = ({ isOpen, onClose, resourceData, mode, onSuccess }) => {
 
     return (
         <AnimatePresence>
-            <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[1000] flex items-center justify-center p-4">
+            <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-1000 flex items-center justify-center p-4">
                 <motion.div className="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden"
                     initial={{ opacity: 0, scale: 0.98, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.98, y: 10 }}>
                     <div className="flex justify-between items-center px-7 py-5 border-b border-slate-100">

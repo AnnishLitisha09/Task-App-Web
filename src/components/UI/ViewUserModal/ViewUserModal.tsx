@@ -36,7 +36,7 @@ const ViewUserModal: React.FC<ViewUserModalProps> = ({ isOpen, onClose, user, on
     return (
         <AnimatePresence>
             {isOpen && (
-                <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[1000] flex items-center justify-center p-4">
+                <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-1000 flex items-center justify-center p-4">
                     <motion.div
                         className="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden"
                         initial={{ opacity: 0, scale: 0.95, x: 50 }}

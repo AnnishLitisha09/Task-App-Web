@@ -14,7 +14,7 @@ const AuthorityDetailView = ({ isOpen, onClose, authority }) => {
 
     return (
         <AnimatePresence>
-            <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[1000] flex">
+            <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-1000 flex">
                 <div className="flex-1" onClick={onClose} />
                 <motion.div
                     className="bg-white w-full max-w-[500px] h-full flex flex-col shadow-2xl"

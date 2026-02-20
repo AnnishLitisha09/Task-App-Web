@@ -19,7 +19,7 @@ const AuthorityTransferModal = ({ isOpen, onClose, currentAuthority, onSuccess }
 
     return (
         <AnimatePresence>
-            <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[1000] flex items-center justify-center p-4">
+            <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-1000 flex items-center justify-center p-4">
                 <motion.div className="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden"
                     initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}>
                     <div className="flex justify-between items-center px-7 py-5 border-b border-slate-100">
@@ -36,7 +36,7 @@ const AuthorityTransferModal = ({ isOpen, onClose, currentAuthority, onSuccess }
                     <div className="px-7 py-6 space-y-5 max-h-[65vh] overflow-y-auto">
                         {/* Current Authority */}
                         <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl">
-                            <h3 className="text-[10px] uppercase font-bold text-slate-400 mb-3 tracking-[0.1em]">Active Authority</h3>
+                            <h3 className="text-[10px] uppercase font-bold text-slate-400 mb-3 tracking-widest">Active Authority</h3>
                             <div className="flex items-center gap-4">
                                 <div className="w-10 h-10 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold">{currentAuthority.name.charAt(0)}</div>
                                 <div><p className="text-sm font-bold text-slate-900">{currentAuthority.name}</p><p className="text-[11px] text-slate-500">{currentAuthority.role} • {currentAuthority.scope_name}</p></div>

@@ -75,7 +75,7 @@ const AdminDashboard = () => {
             </div>
 
             {/* Governance Panel */}
-            <section className="bg-white rounded-[20px] border border-slate-200 flex-grow flex flex-col overflow-hidden shadow-[0_4px_6px_-1px_rgba(0,0,0,0.05)]">
+            <section className="bg-white rounded-[20px] border border-slate-200 grow flex flex-col overflow-hidden shadow-[0_4px_6px_-1px_rgba(0,0,0,0.05)]">
                 <div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-white">
                     <div className="flex items-center gap-3">
                         <ShieldAlert size={20} className="text-indigo-500" />

@@ -76,7 +76,7 @@ const AdminLayout = ({ user: initialUser, onLogout }) => {
 
             <main className="flex-1 flex flex-col min-w-0">
                 {/* Header */}
-                <header className="h-[72px] bg-white/95 backdrop-blur-sm border-b border-slate-100 px-10 flex items-center justify-between sticky top-0 z-[90] max-lg:px-5 max-md:h-16 max-md:px-4">
+                <header className="h-[72px] bg-white/95 backdrop-blur-sm border-b border-slate-100 px-10 flex items-center justify-between sticky top-0 z-90 max-lg:px-5 max-md:h-16 max-md:px-4">
                     <div className="flex items-center">
                         <button
                             className="hidden max-lg:flex bg-transparent text-slate-500 cursor-pointer p-2 mr-3"
@@ -90,7 +90,7 @@ const AdminLayout = ({ user: initialUser, onLogout }) => {
                     </div>
 
                     <div className="flex items-center gap-5 max-md:gap-3">
-                        <button className="hidden max-[480px]:hidden bg-transparent text-slate-500 cursor-pointer relative p-[5px] grid place-items-center transition-colors hover:text-indigo-500">
+                        <button className="max-[480px]:hidden bg-transparent text-slate-500 cursor-pointer relative p-[5px] grid place-items-center transition-colors hover:text-indigo-500">
                             <Bell size={20} />
                             <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-rose-500 border-2 border-white rounded-full"></span>
                         </button>

@@ -23,12 +23,12 @@ const Sidebar = ({ onLogout, isOpen, onClose, activeTab, setActiveTab, userTitle
         <>
             {isOpen && (
                 <div
-                    className="fixed inset-0 bg-slate-900/40 backdrop-blur-[4px] z-[999] animate-[fadeIn_0.2s_ease-out]"
+                    className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-999 animate-[fadeIn_0.2s_ease-out]"
                     onClick={onClose}
                 />
             )}
             <aside
-                className={`w-[280px] h-screen bg-white border-r border-slate-200 flex flex-col sticky top-0 z-[1000] transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]
+                className={`w-[280px] h-screen bg-white border-r border-slate-200 flex flex-col sticky top-0 z-1000 transition-transform duration-300 ease-in-out
                     max-lg:fixed max-lg:left-0 max-lg:shadow-[20px_0_50px_-10px_rgba(0,0,0,0.1)]
                     ${isOpen ? 'max-lg:translate-x-0' : 'max-lg:-translate-x-full'}
                     max-md:w-[260px]`}
@@ -62,7 +62,7 @@ const Sidebar = ({ onLogout, isOpen, onClose, activeTab, setActiveTab, userTitle
                                         }`}
                                     onClick={() => setActiveTab(item.label)}
                                 >
-                                    <div className="flex items-center gap-3 z-[2]">
+                                    <div className="flex items-center gap-3 z-2">
                                         <item.icon size={20} />
                                         <span className="text-sm font-semibold">{item.label}</span>
                                     </div>

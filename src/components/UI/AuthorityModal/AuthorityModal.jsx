@@ -54,7 +54,7 @@ const AuthorityModal = ({ isOpen, onClose, authorityData, mode, onSuccess, initi
 
     return (
         <AnimatePresence>
-            <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[1000] flex items-center justify-center p-4">
+            <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-1000 flex items-center justify-center p-4">
                 <motion.div className="bg-white w-full max-w-3xl rounded-3xl shadow-2xl overflow-hidden"
                     initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}>
                     <div className="flex justify-between items-center px-8 py-5 border-b border-slate-100">
@@ -132,7 +132,7 @@ const AuthorityModal = ({ isOpen, onClose, authorityData, mode, onSuccess, initi
                             <div>
                                 <div className="p-6 bg-slate-50 border border-slate-200 rounded-2xl relative overflow-hidden">
                                     <div className="absolute top-0 right-0 p-4 opacity-10"><ShieldCheck size={80} /></div>
-                                    <h3 className="text-[10px] font-bold text-indigo-600 uppercase tracking-[0.1em] mb-5 flex items-center gap-2"><Info size={14} />Authority Impact Preview</h3>
+                                    <h3 className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest mb-5 flex items-center gap-2"><Info size={14} />Authority Impact Preview</h3>
                                     <div className="grid grid-cols-2 gap-3 relative z-10">
                                         {[
                                             { label: 'Hierarchy', value: currentHierarchy, cls: 'text-slate-800' },
@@ -147,7 +147,7 @@ const AuthorityModal = ({ isOpen, onClose, authorityData, mode, onSuccess, initi
                                         ))}
                                     </div>
                                     <div className="mt-6">
-                                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] mb-3 block">System Permissions</label>
+                                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 block">System Permissions</label>
                                         <div className="flex flex-wrap gap-1.5">
                                             {currentPermissions.map(perm => (
                                                 <span key={perm} className="px-3 py-1.5 bg-white text-indigo-700 text-[10px] font-bold rounded-lg border border-slate-100 flex items-center gap-1.5 shadow-sm">
