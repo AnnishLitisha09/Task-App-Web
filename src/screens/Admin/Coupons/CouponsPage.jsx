@@ -41,7 +41,7 @@ const CouponsPage = () => {
         try {
             const response = await api('/coupons');
             if (response.success) {
-                setCoupons(response.coupons || []);
+                setCoupons(response.items || response.coupons || []);
                 setCouponStats(response.stats || {
                     active_coupons: 0,
                     inactive_coupons: 0,

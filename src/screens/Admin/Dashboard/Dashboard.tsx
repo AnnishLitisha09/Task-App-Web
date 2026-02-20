@@ -41,7 +41,7 @@ const AdminDashboard = () => {
         { label: 'Total Faculty', value: counts.faculty.toLocaleString(), icon: UserCircle, color: '#10b981' },
         { label: 'Total Staff', value: counts.staff.toLocaleString(), icon: Users, color: '#3b82f6' },
         { label: 'Role Users', value: counts.role_users.toLocaleString(), icon: ShieldCheck, color: '#f59e0b' },
-        { label: 'Active Tasks', value: counts.active_tasks.toLocaleString(), icon: Activity, color: '#8b5cf6' },
+        // { label: 'Active Tasks', value: counts.active_tasks.toLocaleString(), icon: Activity, color: '#8b5cf6' },
     ];
 
     const alerts = [

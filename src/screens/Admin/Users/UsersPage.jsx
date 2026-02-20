@@ -50,8 +50,8 @@ const UsersPage = () => {
                     api('/resources/departments'),
                     api('/resources/venues')
                 ]);
-                setDepartments(depts);
-                setVenues(vns);
+                setDepartments(Array.isArray(depts) ? depts : (depts?.departments || depts?.data || []));
+                setVenues(Array.isArray(vns) ? vns : (vns?.venues || vns?.data || []));
             } catch (err) {
                 console.error('Failed to fetch resources:', err);
             }
