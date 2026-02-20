@@ -2,148 +2,104 @@ import React from 'react';
 import {
     Calendar, MapPin, ShieldCheck,
     ArrowLeft, CheckCircle2, AlertCircle,
-    Clock, School, DoorOpen, Users,
-    QrCode, Camera, FileText, MoreVertical, Star
+    Users, QrCode, Camera, FileText, MoreVertical, Star
 } from 'lucide-react';
-import './TaskDetails.css';
 
 const TaskDetails = ({ task, onBack }) => {
     if (!task) return null;
 
     const isFullyApproved = task.status === 'Completed';
 
-    const getPriorityColor = (priority) => {
-        switch (priority) {
-            case 'Critical': return '#ef4444';
-            case 'High': return '#f59e0b';
-            case 'Medium': return '#6366f1';
-            case 'Low': return '#10b981';
-            default: return '#64748b';
-        }
-    };
-
-    const getMethodIcon = (method) => {
-        switch (method) {
-            case 'QR Scan': return <QrCode size={16} />;
-            case 'Photo': return <Camera size={16} />;
-            case 'Doc Upload': return <FileText size={16} />;
-            default: return <CheckCircle2 size={16} />;
-        }
-    };
+    const getPriorityColor = (p) => ({ Critical: '#ef4444', High: '#f59e0b', Medium: '#6366f1', Low: '#10b981' }[p] || '#64748b');
+    const getMethodIcon = (m) => ({ 'QR Scan': <QrCode size={16} />, 'Photo': <Camera size={16} />, 'Doc Upload': <FileText size={16} /> }[m] || <CheckCircle2 size={16} />);
 
     return (
-        <div className="task-details-page">
+        <div className="p-8 max-w-[1200px] mx-auto animate-[fadeIn_0.4s_ease]">
             {/* Header */}
-            <div className="details-header">
-                <button className="back-btn" onClick={onBack}>
-                    <ArrowLeft size={18} />
-                    <span>Back to Directives</span>
+            <div className="flex justify-between items-center mb-6">
+                <button onClick={onBack} className="flex items-center gap-2 px-5 py-2.5 bg-white border-[1.5px] border-slate-200 rounded-[10px] text-slate-600 font-semibold text-[0.9rem] cursor-pointer transition-all hover:bg-slate-50 hover:border-slate-300">
+                    <ArrowLeft size={18} /><span>Back to Directives</span>
                 </button>
-                <button className="more-btn">
+                <button className="p-2.5 bg-white border-[1.5px] border-slate-200 rounded-[10px] text-slate-500 cursor-pointer transition-all hover:bg-slate-50">
                     <MoreVertical size={18} />
                 </button>
             </div>
 
             {/* Status Banner */}
-            <div className={`status-banner ${isFullyApproved ? 'approved' : 'pending'}`}>
+            <div className={`flex items-center gap-3 px-6 py-4 rounded-xl font-semibold text-[0.9rem] tracking-[0.5px] mb-8 ${isFullyApproved ? 'bg-green-50 text-green-800 border-[1.5px] border-green-300' : 'bg-amber-50 text-amber-800 border-[1.5px] border-amber-200'}`}>
                 {isFullyApproved ? <CheckCircle2 size={20} /> : <AlertCircle size={20} />}
                 <span>{isFullyApproved ? 'FULLY AUTHORIZED' : 'PENDING AUTHORIZATION'}</span>
             </div>
 
             {/* Main Content */}
-            <div className="details-content">
+            <div className="flex flex-col gap-8">
                 {/* Title Section */}
-                <div className="title-section">
-                    <div className="title-badges">
-                        <span className="priority-badge" style={{
-                            backgroundColor: `${getPriorityColor(task.priority)}15`,
-                            color: getPriorityColor(task.priority)
-                        }}>
+                <div className="bg-white p-8 rounded-2xl border-[1.5px] border-slate-200">
+                    <div className="flex gap-3 items-center mb-4">
+                        <span className="px-3.5 py-1.5 rounded-lg text-[0.75rem] font-extrabold tracking-[0.5px]" style={{ backgroundColor: `${getPriorityColor(task.priority)}15`, color: getPriorityColor(task.priority) }}>
                             {task.priority.toUpperCase()}
                         </span>
-                        <div className="due-date">
-                            <Calendar size={14} />
-                            <span>Due {task.dueDate}</span>
+                        <div className="flex items-center gap-1.5 text-[0.85rem] text-slate-500 font-semibold">
+                            <Calendar size={14} /><span>Due {task.dueDate}</span>
                         </div>
                     </div>
-                    <h1>{task.title}</h1>
-                    <p className="task-description">{task.description}</p>
+                    <h1 className="text-[2rem] font-bold text-slate-900 m-0 mb-3 leading-[1.2]">{task.title}</h1>
+                    <p className="text-base text-slate-500 leading-relaxed m-0">{task.description}</p>
                 </div>
 
                 {/* Info Grid */}
-                <div className="info-grid">
-                    <div className="info-card">
-                        <div className="info-icon" style={{ backgroundColor: '#6366f115', color: '#6366f1' }}>
-                            <MapPin size={20} />
+                <div className="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-5">
+                    {[
+                        { icon: MapPin, color: '#6366f1', label: 'Location', value: task.location },
+                        { icon: Users, color: '#10b981', label: 'Assignees', value: `${task.assignees} Members` },
+                        { icon: Star, color: '#f59e0b', label: 'Score', value: `${task.score} Points` },
+                    ].map((card, i) => (
+                        <div key={i} className="bg-white p-6 rounded-xl border-[1.5px] border-slate-200 flex items-center gap-4">
+                            <div className="w-[52px] h-[52px] rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: `${card.color}15`, color: card.color }}>
+                                <card.icon size={20} />
+                            </div>
+                            <div className="flex flex-col">
+                                <span className="text-[0.8rem] text-slate-400 font-semibold mb-1 uppercase tracking-[0.5px]">{card.label}</span>
+                                <span className="text-[1.1rem] text-slate-900 font-semibold">{card.value}</span>
+                            </div>
                         </div>
-                        <div className="info-content">
-                            <span className="info-label">Location</span>
-                            <span className="info-value">{task.location}</span>
-                        </div>
-                    </div>
-                    <div className="info-card">
-                        <div className="info-icon" style={{ backgroundColor: '#10b98115', color: '#10b981' }}>
-                            <Users size={20} />
-                        </div>
-                        <div className="info-content">
-                            <span className="info-label">Assignees</span>
-                            <span className="info-value">{task.assignees} Members</span>
-                        </div>
-                    </div>
-                    <div className="info-card">
-                        <div className="info-icon" style={{ backgroundColor: '#f59e0b15', color: '#f59e0b' }}>
-                            <Star size={20} />
-                        </div>
-                        <div className="info-content">
-                            <span className="info-label">Score</span>
-                            <span className="info-value">{task.score} Points</span>
-                        </div>
-                    </div>
+                    ))}
                 </div>
 
-                {/* Two Column Layout */}
-                <div className="details-grid">
-                    {/* Left Column */}
-                    <div className="details-column">
+                {/* Two-Column */}
+                <div className="grid grid-cols-2 gap-6 max-lg:grid-cols-1">
+                    <div className="flex flex-col gap-6">
                         {/* Execution Proof */}
-                        <div className="section-card">
-                            <h2 className="section-title">Execution Proof Requirements</h2>
-                            <div className="proof-list">
-                                {
-                                    task.methods.map((method, i) => (
-                                        <div key={i} className="proof-item">
-                                            <div className="proof-icon-box">
-                                                {getMethodIcon(method)}
-                                            </div>
-                                            <span className="proof-name">{method}</span>
-                                            <span className="mandatory-tag">MANDATORY</span>
-                                        </div>
-                                    ))
-                                }
+                        <div className="bg-white p-7 rounded-2xl border-[1.5px] border-slate-200">
+                            <h2 className="text-[1.1rem] font-extrabold text-slate-900 m-0 mb-5">Execution Proof Requirements</h2>
+                            <div className="flex flex-col gap-3">
+                                {task.methods.map((method, i) => (
+                                    <div key={i} className="flex items-center gap-3 p-3.5 bg-slate-50 rounded-xl border border-slate-200">
+                                        <div className="w-9 h-9 rounded-[10px] bg-white border-[1.5px] border-slate-200 flex items-center justify-center text-indigo-500">{getMethodIcon(method)}</div>
+                                        <span className="flex-1 font-bold text-slate-600 text-[0.9rem]">{method}</span>
+                                        <span className="px-2.5 py-1 bg-amber-100 text-amber-800 rounded-md text-[0.7rem] font-extrabold tracking-[0.5px]">MANDATORY</span>
+                                    </div>
+                                ))}
                             </div>
                         </div>
 
                         {/* Assignees */}
-                        <div className="section-card">
-                            <h2 className="section-title">Assigned Members</h2>
-                            <div className="assignees-list">
-                                {
-                                    [
-                                        { name: 'Alex Rivera', role: 'Lead', color: '#6366f1' },
-                                        { name: 'Sarah Chen', role: 'Member', color: '#10b981' },
-                                        { name: 'James Wilson', role: 'Member', color: '#f59e0b' }
-                                    ].map((person, i) => (
-                                        <div key={i} className="assignee-item">
-                                            <div className="assignee-avatar" style={{ backgroundColor: `${person.color}15`, color: person.color }}>
-                                                {person.name[0]}
-                                            </div>
-                                            <div className="assignee-info">
-                                                <span className="assignee-name">{person.name}</span>
-                                                <span className="assignee-role">{person.role}</span>
-                                            </div>
+                        <div className="bg-white p-7 rounded-2xl border-[1.5px] border-slate-200">
+                            <h2 className="text-[1.1rem] font-extrabold text-slate-900 m-0 mb-5">Assigned Members</h2>
+                            <div className="flex flex-col gap-3">
+                                {[
+                                    { name: 'Alex Rivera', role: 'Lead', color: '#6366f1' },
+                                    { name: 'Sarah Chen', role: 'Member', color: '#10b981' },
+                                    { name: 'James Wilson', role: 'Member', color: '#f59e0b' },
+                                ].map((person, i) => (
+                                    <div key={i} className="flex items-center gap-3.5 p-3.5 bg-slate-50 rounded-xl border border-slate-200">
+                                        <div className="w-11 h-11 rounded-xl flex items-center justify-center font-black text-[1.1rem]" style={{ backgroundColor: `${person.color}15`, color: person.color }}>{person.name[0]}</div>
+                                        <div className="flex flex-col">
+                                            <span className="font-extrabold text-slate-900 text-[0.95rem]">{person.name}</span>
+                                            <span className="text-[0.8rem] text-slate-500 font-semibold uppercase tracking-[0.5px]">{person.role}</span>
                                         </div>
-                                    ))
-                                }
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     </div>

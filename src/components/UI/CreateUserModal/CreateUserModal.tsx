@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ChevronRight, Check, UserPlus, Search as SearchIcon, AlertCircle } from 'lucide-react';
 import api from '../../../utils/api';
-import './CreateUserModal.css';
+// import './CreateUserModal.css';
 
 interface CreateUserModalProps {
     isOpen: boolean;
@@ -25,7 +25,9 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
     const [advisorSearch, setAdvisorSearch] = useState('');
     const [showAdvisorDropdown, setShowAdvisorDropdown] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [isFetchingFaculty, setIsFetchingFaculty] = useState(false);
     const [error, setError] = useState('');
+    const [facultyList, setFacultyList] = useState<{ id: string | number; name: string }[]>([]);
 
     // Field States for API
     const [regNo, setRegNo] = useState('');
@@ -39,22 +41,40 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
     const [roleName, setRoleName] = useState('');
     const [facultyType, setFacultyType] = useState('Professor');
 
-    // Mock Faculty List for Dropdown
-    const facultyList = [
-        { id: 'FAC101', name: 'Dr. John Wick' },
-        { id: 'FAC102', name: 'Dr. Sarah Smith' },
-        { id: 'FAC103', name: 'Prof. Robert Wilson' },
-        { id: 'FAC104', name: 'Dr. Emily Brown' },
-        { id: 'FAC105', name: 'Prof. Michael Chen' },
-    ];
+    // Fetch Faculty List
+    useEffect(() => {
+        if (isOpen) {
+            fetchFaculty();
+        }
+    }, [isOpen]);
+
+    const fetchFaculty = async () => {
+        setIsFetchingFaculty(true);
+        try {
+            const response = await api('/users/dashboard/all');
+            if (response?.users) {
+                const faculty = response.users
+                    .filter((u: any) => u.role === 'faculty')
+                    .map((u: any) => ({
+                        id: u.faculty_info?.faculty_id || u.faculty_info?.id || u.id,
+                        name: u.faculty_info?.name || 'Unknown Faculty'
+                    }));
+                setFacultyList(faculty);
+            }
+        } catch (err) {
+            console.error('Failed to fetch faculty list:', err);
+        } finally {
+            setIsFetchingFaculty(false);
+        }
+    };
 
     const filteredFaculty = facultyList.filter(f =>
         f.name.toLowerCase().includes(advisorSearch.toLowerCase()) ||
-        f.id.toLowerCase().includes(advisorSearch.toLowerCase())
+        String(f.id).toLowerCase().includes(advisorSearch.toLowerCase())
     );
 
     // Pre-fill data when editing
-    React.useEffect(() => {
+    useEffect(() => {
         if (isEdit && userData && isOpen) {
             const role = userData.role || userData.category || '';
             setCategory(role);
@@ -252,12 +272,18 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                                 </div>
                                 {showAdvisorDropdown && (
                                     <div className="dropdown-panel">
-                                        {filteredFaculty.map(f => (
-                                            <div key={f.id} className="dropdown-item" onClick={() => { setFacultyId(f.id); setAdvisorSearch(`${f.name} (${f.id})`); setShowAdvisorDropdown(false); }}>
-                                                <span className="item-name">{f.name}</span>
-                                                <span className="item-id">{f.id}</span>
-                                            </div>
-                                        ))}
+                                        {isFetchingFaculty ? (
+                                            <div className="dropdown-loading">Fetching faculty...</div>
+                                        ) : filteredFaculty.length > 0 ? (
+                                            filteredFaculty.map(f => (
+                                                <div key={f.id} className="dropdown-item" onClick={() => { setFacultyId(f.id); setAdvisorSearch(`${f.name} (${f.id})`); setShowAdvisorDropdown(false); }}>
+                                                    <span className="item-name">{f.name}</span>
+                                                    <span className="item-id">{f.id}</span>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <div className="dropdown-no-results">No faculty found</div>
+                                        )}
                                     </div>
                                 )}
                             </div>

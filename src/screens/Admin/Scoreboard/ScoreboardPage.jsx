@@ -5,6 +5,7 @@ import {
     Award, Medal, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import api from '../../../utils/api';
+import Pagination from '../../../components/UI/Pagination/Pagination';
 
 const ScoreboardPage = () => {
     const [activeTab, setActiveTab] = useState('students');
@@ -25,7 +26,7 @@ const ScoreboardPage = () => {
     });
 
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 8;
+    const [itemsPerPage, setItemsPerPage] = useState(10);
 
     useEffect(() => {
         fetchLeaderboards();
@@ -82,6 +83,11 @@ const ScoreboardPage = () => {
         }
     };
 
+    // Reset pagination on filter change
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchQuery, deptFilter, yearFilter, activeTab]);
+
     // Get current active data
     const currentData = activeTab === 'students' ? studentLeaderboard : facultyLeaderboard;
 
@@ -104,28 +110,28 @@ const ScoreboardPage = () => {
     return (
         <div className="h-full flex flex-col bg-white overflow-hidden font-sans text-slate-600">
             {/* --- HEADER SECTION --- */}
-            <div className="flex-none px-8 pt-6 pb-4">
-                <header className="flex justify-between items-end mb-6">
+            <div className="flex-none px-8 pt-6 pb-4 max-md:px-4">
+                <header className="flex justify-between items-end mb-6 max-md:flex-col max-md:items-stretch max-md:gap-4">
                     <div>
                         <div className="flex items-center gap-2 text-indigo-500 text-[10px] uppercase tracking-[0.3em] mb-2 font-medium">
                             <Calendar size={12} /> Academic Session 2026
                         </div>
-                        <h1 className="text-3xl font-light text-slate-900 tracking-tight">
+                        <h1 className="text-3xl font-light text-slate-900 tracking-tight max-md:text-2xl">
                             Performance <span className="font-semibold">Scoreboard</span>
                         </h1>
                     </div>
 
                     {/* TABS */}
-                    <div className="bg-slate-50 p-1 rounded-xl border border-slate-200 shadow-sm flex gap-1">
+                    <div className="bg-slate-50 p-1 rounded-xl border border-slate-200 shadow-sm flex gap-1 max-md:w-full">
                         <button
                             onClick={() => { setActiveTab('students'); setDeptFilter('All Departments'); setYearFilter('All Years'); }}
-                            className={`px-6 py-2 rounded-lg text-sm font-semibold transition-all ${activeTab === 'students' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                            className={`px-6 py-2 rounded-lg text-sm font-semibold transition-all flex-1 ${activeTab === 'students' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
                         >
                             Students
                         </button>
                         <button
                             onClick={() => { setActiveTab('faculty'); setDeptFilter('All Departments'); }}
-                            className={`px-6 py-2 rounded-lg text-sm font-semibold transition-all ${activeTab === 'faculty' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                            className={`px-6 py-2 rounded-lg text-sm font-semibold transition-all flex-1 ${activeTab === 'faculty' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
                         >
                             Faculty
                         </button>
@@ -134,12 +140,12 @@ const ScoreboardPage = () => {
             </div>
 
             {/* --- DASHBOARD CONTENT --- */}
-            <div className="flex-1 min-h-0 px-8 pb-8 grid grid-cols-12 gap-6">
+            <div className="flex-1 min-h-0 px-8 pb-8 grid grid-cols-12 gap-6 max-md:px-4 max-md:flex max-md:flex-col">
 
                 {/* --- LEFT PANEL: TABLE (65%) --- */}
-                <div className="col-span-12 lg:col-span-8 flex flex-col bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+                <div className="col-span-12 lg:col-span-8 flex flex-col bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden min-h-[400px]">
                     {/* Toolbar */}
-                    <div className="flex-none p-4 border-b border-slate-100 flex gap-3 bg-white z-10">
+                    <div className="flex-none p-4 border-b border-slate-100 flex gap-3 bg-white z-10 max-md:flex-col">
                         <div className="relative flex-1">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" size={14} />
                             <input
@@ -151,117 +157,106 @@ const ScoreboardPage = () => {
                             />
                         </div>
 
-                        <select
-                            className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-indigo-300 text-slate-600 cursor-pointer"
-                            value={deptFilter}
-                            onChange={(e) => setDeptFilter(e.target.value)}
-                        >
-                            <option>All Departments</option>
-                            {departments.map(d => <option key={d} value={d}>{d}</option>)}
-                        </select>
-
-                        {activeTab === 'students' && (
+                        <div className="flex gap-2 max-md:grid max-md:grid-cols-2">
                             <select
-                                className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-indigo-300 text-slate-600 cursor-pointer"
-                                value={yearFilter}
-                                onChange={(e) => setYearFilter(e.target.value)}
+                                className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-indigo-300 text-slate-600 cursor-pointer max-md:w-full"
+                                value={deptFilter}
+                                onChange={(e) => setDeptFilter(e.target.value)}
                             >
-                                <option>All Years</option>
-                                <option value="1">1st Year</option>
-                                <option value="2">2nd Year</option>
-                                <option value="3">3rd Year</option>
-                                <option value="4">4th Year</option>
+                                <option>All Departments</option>
+                                {departments.map(d => <option key={d} value={d}>{d}</option>)}
                             </select>
-                        )}
+
+                            {activeTab === 'students' && (
+                                <select
+                                    className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-indigo-300 text-slate-600 cursor-pointer max-md:w-full"
+                                    value={yearFilter}
+                                    onChange={(e) => setYearFilter(e.target.value)}
+                                >
+                                    <option>All Years</option>
+                                    <option value="1">1st Year</option>
+                                    <option value="2">2nd Year</option>
+                                    <option value="3">3rd Year</option>
+                                    <option value="4">4th Year</option>
+                                </select>
+                            )}
+                        </div>
                     </div>
 
                     {/* Table Body */}
-                    <div className="flex-1 overflow-y-auto custom-scrollbar relative">
-                        <div className="sticky top-0 bg-white/95 backdrop-blur-sm z-10 grid grid-cols-12 px-6 py-3 text-[10px] uppercase tracking-widest text-slate-400 font-bold border-b border-slate-100 shadow-sm">
-                            <div className="col-span-1">Rank</div>
-                            <div className="col-span-4">Name</div>
-                            <div className="col-span-3">Department</div>
-                            <div className="col-span-2 text-center">Score</div>
-                            <div className="col-span-2 text-right">Total</div>
-                        </div>
+                    <div className="flex-1 overflow-x-auto relative custom-scrollbar">
+                        <div className="min-w-[800px]">
+                            <div className="sticky top-0 bg-white/95 backdrop-blur-sm z-10 grid grid-cols-12 px-6 py-3 text-[10px] uppercase tracking-widest text-slate-400 font-bold border-b border-slate-100 shadow-sm">
+                                <div className="col-span-1">Rank</div>
+                                <div className="col-span-4">Name</div>
+                                <div className="col-span-3">Department</div>
+                                <div className="col-span-2 text-center">Score</div>
+                                <div className="col-span-2 text-right">Total</div>
+                            </div>
 
-                        <div className="divide-y divide-slate-50">
-                            <AnimatePresence mode='wait'>
-                                {paginatedData.map((user) => (
-                                    <motion.div
-                                        key={user.id}
-                                        layout
-                                        initial={{ opacity: 0, y: 5 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, y: -5 }}
-                                        transition={{ duration: 0.2 }}
-                                        className="grid grid-cols-12 items-center px-6 py-3 hover:bg-slate-50 transition-colors group cursor-default"
-                                    >
-                                        <div className="col-span-1">
-                                            <RankBadge rank={user.rank} />
-                                        </div>
-                                        <div className="col-span-4 flex items-center gap-3">
-                                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-sm ${user.rank === 1 ? 'bg-yellow-400' :
-                                                user.rank === 2 ? 'bg-slate-300' :
-                                                    user.rank === 3 ? 'bg-orange-300' : 'bg-indigo-100 text-indigo-500'
-                                                }`}>
-                                                {user.avatar}
+                            <div className="divide-y divide-slate-50">
+                                <AnimatePresence mode='wait'>
+                                    {paginatedData.map((user) => (
+                                        <motion.div
+                                            key={user.id}
+                                            layout
+                                            initial={{ opacity: 0, y: 5 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: -5 }}
+                                            transition={{ duration: 0.2 }}
+                                            className="grid grid-cols-12 items-center px-6 py-3 hover:bg-slate-50 transition-colors group cursor-default"
+                                        >
+                                            <div className="col-span-1">
+                                                <RankBadge rank={user.rank} />
                                             </div>
-                                            <div>
-                                                <div className="text-sm font-medium text-slate-900">{user.name}</div>
-                                                <div className="text-[10px] text-slate-400">{activeTab === 'students' ? `${user.year}${['st', 'nd', 'rd', 'th'][(user.year - 1) % 10] || 'th'} Year` : (user.type || 'Faculty Member')}</div>
+                                            <div className="col-span-4 flex items-center gap-3">
+                                                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-sm ${user.rank === 1 ? 'bg-yellow-400' :
+                                                    user.rank === 2 ? 'bg-slate-300' :
+                                                        user.rank === 3 ? 'bg-orange-300' : 'bg-indigo-100 text-indigo-500'
+                                                    }`}>
+                                                    {user.avatar}
+                                                </div>
+                                                <div>
+                                                    <div className="text-sm font-medium text-slate-900">{user.name}</div>
+                                                    <div className="text-[10px] text-slate-400">{activeTab === 'students' ? `${user.year}${['st', 'nd', 'rd', 'th'][(user.year - 1) % 10] || 'th'} Year` : (user.type || 'Faculty Member')}</div>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div className="col-span-3 text-xs text-slate-500 font-medium">
-                                            <span className="bg-slate-100 px-2 py-1 rounded-md">{user.department}</span>
-                                        </div>
-                                        <div className="col-span-2 text-center">
-                                            <div className="text-xs font-semibold text-slate-700">{user.score}</div>
-                                            <div className="text-[9px] text-rose-400">-{user.penalty} pen</div>
-                                        </div>
-                                        <div className="col-span-2 text-right font-bold text-indigo-600 text-sm">
-                                            {user.total_score}
-                                        </div>
-                                    </motion.div>
-                                ))}
-                            </AnimatePresence>
+                                            <div className="col-span-3 text-xs text-slate-500 font-medium">
+                                                <span className="bg-slate-100 px-2 py-1 rounded-md">{user.department}</span>
+                                            </div>
+                                            <div className="col-span-2 text-center">
+                                                <div className="text-xs font-semibold text-slate-700">{user.score}</div>
+                                                <div className="text-[9px] text-rose-400">-{user.penalty} pen</div>
+                                            </div>
+                                            <div className="col-span-2 text-right font-bold text-indigo-600 text-sm">
+                                                {user.total_score}
+                                            </div>
+                                        </motion.div>
+                                    ))}
+                                </AnimatePresence>
+                                {paginatedData.length === 0 && (
+                                    <div className="py-20 text-center text-slate-400 font-medium">No results found</div>
+                                )}
+                            </div>
                         </div>
                     </div>
 
                     {/* Pagination Footer */}
-                    <div className="flex-none p-3 border-t border-slate-100 bg-slate-50/50 flex justify-between items-center">
-                        <span className="text-xs text-slate-400 font-medium ml-2">
-                            Showing {Math.min((currentPage - 1) * itemsPerPage + 1, filteredData.length)} - {Math.min(currentPage * itemsPerPage, filteredData.length)} of {filteredData.length}
-                        </span>
-                        <div className="flex items-center gap-2">
-                            <button
-                                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                                disabled={currentPage === 1}
-                                className="p-1.5 rounded-lg hover:bg-white disabled:opacity-50 disabled:hover:bg-transparent text-slate-500 transition-colors"
-                            >
-                                <ChevronLeft size={16} />
-                            </button>
-                            <span className="text-xs font-bold text-slate-700 bg-white px-3 py-1 rounded-lg border border-slate-200 shadow-sm">
-                                {currentPage} / {Math.min(totalPages, 99)}
-                            </span>
-                            <button
-                                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                                disabled={currentPage === totalPages}
-                                className="p-1.5 rounded-lg hover:bg-white disabled:opacity-50 disabled:hover:bg-transparent text-slate-500 transition-colors"
-                            >
-                                <ChevronRight size={16} />
-                            </button>
-                        </div>
-                    </div>
+                    <Pagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={setCurrentPage}
+                        itemsPerPage={itemsPerPage}
+                        onItemsPerPageChange={setItemsPerPage}
+                        totalItems={filteredData.length}
+                        showingCount={paginatedData.length}
+                    />
                 </div>
 
                 {/* --- RIGHT PANEL: PODIUM & INFO (35%) --- */}
-                <div className="col-span-12 lg:col-span-4 flex flex-col gap-6 pr-1 pb-2">
-                    {/* Podium Card - Fixed Layout */}
-                    <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 relative overflow-visible mt-2">
-                        <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
-                            <Trophy size={100} className="text-indigo-500" />
-                        </div>
+                <div className="col-span-12 lg:col-span-4 flex flex-col gap-6">
+                    {/* Podium Card */}
+                    <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 relative">
                         <h2 className="text-lg font-bold text-slate-800 mb-8 flex items-center gap-2">
                             <Crown size={18} className="text-yellow-500" /> Top Performers
                         </h2>
@@ -273,7 +268,7 @@ const ScoreboardPage = () => {
                         </div>
                     </div>
 
-                    {/* Quick Stats - Dynamic Label */}
+                    {/* Quick Stats */}
                     <div className="grid grid-cols-2 gap-4">
                         <StatCard
                             icon={<Users size={18} className="text-indigo-600" />}
@@ -309,15 +304,15 @@ const PodiumStep = ({ user, rank, color, height, isGold }) => (
         <div className="mb-2 relative">
             {isGold && <Crown size={16} className="absolute -top-5 left-1/2 -translate-x-1/2 text-yellow-400 animate-bounce" />}
             <div className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold border-2 ${isGold ? 'border-yellow-200' : 'border-white'} shadow-sm bg-white text-slate-700`}>
-                {user.avatar}
+                {user?.avatar || 'U'}
             </div>
         </div>
         <div className={`w-full ${height} ${color} rounded-t-lg flex items-start justify-center pt-2 transition-all hover:opacity-90`}>
             <span className={`text-lg font-bold ${rank === 1 ? 'text-indigo-900' : 'text-slate-600'}`}>{rank}</span>
         </div>
-        <div className="mt-2 text-center">
-            <div className="text-[10px] font-bold text-slate-700 truncate w-full">{user.name}</div>
-            <div className="text-[9px] font-semibold text-indigo-500">{user.total_score}</div>
+        <div className="mt-2 text-center w-full">
+            <div className="text-[10px] font-bold text-slate-700 truncate w-full px-1">{user?.name}</div>
+            <div className="text-[9px] font-semibold text-indigo-500">{user?.total_score}</div>
         </div>
     </div>
 );

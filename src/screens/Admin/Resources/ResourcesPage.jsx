@@ -7,16 +7,21 @@ import {
 import api from '../../../utils/api';
 import ResourceModal from '../../../components/UI/ResourceModal/ResourceModal';
 import DeleteConfirmModal from '../../../components/UI/DeleteConfirmModal/DeleteConfirmModal';
+import Pagination from '../../../components/UI/Pagination/Pagination';
 
 const ResourcesPage = () => {
     const [resources, setResources] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
-    const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'table'
+    const [viewMode, setViewMode] = useState('table'); // 'grid' | 'table'
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [modalMode, setModalMode] = useState('create');
     const [selectedResource, setSelectedResource] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
+
+    // Pagination State
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(10);
 
     React.useEffect(() => {
         fetchResources();
@@ -42,6 +47,12 @@ const ResourcesPage = () => {
             return matchesSearch;
         });
     }, [resources, searchQuery]);
+
+    // Paginated Resources
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const paginatedResources = filteredResources.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(filteredResources.length / itemsPerPage);
 
     // Handlers
     const handleCreate = () => {
@@ -112,6 +123,18 @@ const ResourcesPage = () => {
                     ))}
                 </div>
 
+                <div className="mb-6">
+                    <Pagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={setCurrentPage}
+                        itemsPerPage={itemsPerPage}
+                        onItemsPerPageChange={setItemsPerPage}
+                        totalItems={filteredResources.length}
+                        showingCount={paginatedResources.length}
+                    />
+                </div>
+
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div>
                         <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Resource Management</h1>
@@ -161,7 +184,7 @@ const ResourcesPage = () => {
                     /* --- GRID VIEW --- */
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         <AnimatePresence>
-                            {filteredResources.map((res) => (
+                            {paginatedResources.map((res) => (
                                 <motion.div
                                     layout key={res.id}
                                     initial={{ opacity: 0, scale: 0.95 }}
@@ -221,7 +244,7 @@ const ResourcesPage = () => {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-50">
-                                {filteredResources.map((res) => (
+                                {paginatedResources.map((res) => (
                                     <tr key={res.id} className="hover:bg-slate-50/80 transition-colors">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
