@@ -72,7 +72,7 @@ const DepartmentsPage = () => {
     ];
 
     return (
-        <motion.div className="p-6 h-full overflow-y-auto bg-slate-50 min-h-screen" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+        <motion.div className="p-6 h-full overflow-y-auto bg-white min-h-screen" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             {/* Stats */}
             <div className="grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-5 mb-8">
                 {stats.map((stat, idx) => (

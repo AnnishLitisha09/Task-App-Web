@@ -67,8 +67,8 @@ const TasksPage = () => {
 
     return (
         <motion.div
-            className="p-6 w-full bg-slate-50 min-h-screen max-md:p-4"
-            initial={{ opacity: 0, y: 20 }}
+            className="p-6 w-full bg-white min-h-screen max-md:p-4"
+            initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, y: 0 }}
         >
             {/* Stats Grid */}

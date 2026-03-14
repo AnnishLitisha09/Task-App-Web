@@ -184,7 +184,7 @@ const ScoreboardPage = () => {
                     </div>
 
                     {/* Table Body */}
-                    <div className="flex-1 overflow-x-auto relative custom-scrollbar">
+                    <div className="flex-1 overflow-x-auto relative custom-scrollbar bg-white">
                         <div className="min-w-[800px]">
                             <div className="sticky top-0 bg-white/95 backdrop-blur-sm z-10 grid grid-cols-12 px-6 py-3 text-[10px] uppercase tracking-widest text-slate-400 font-bold border-b border-slate-100 shadow-sm">
                                 <div className="col-span-1">Rank</div>

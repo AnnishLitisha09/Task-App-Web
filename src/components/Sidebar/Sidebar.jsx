@@ -3,19 +3,33 @@ import { motion } from 'framer-motion';
 import {
     LayoutDashboard, Users, ShieldCheck, Building2,
     MapPin, Box, ClipboardList, Trophy, Ticket,
-    LogOut, ChevronRight
+    CheckSquare, LogOut, ChevronRight, ShieldAlert, BellDot
 } from 'lucide-react';
 
-const navItems = [
-    { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-    { id: 'users', icon: Users, label: 'Users' },
-    { id: 'authority', icon: ShieldCheck, label: 'Authority' },
-    { id: 'departments', icon: Building2, label: 'Departments' },
-    { id: 'infrastructure', icon: MapPin, label: 'Infrastructure' },
-    { id: 'resources', icon: Box, label: 'Resources' },
-    { id: 'tasks', icon: ClipboardList, label: 'Directives' },
-    { id: 'scoreboard', icon: Trophy, label: 'Scoreboard' },
-    { id: 'coupons', icon: Ticket, label: 'Coupons' },
+const navGroups = [
+    {
+        groupLabel: 'General',
+        items: [
+            { id: 'dashboard',  icon: LayoutDashboard, label: 'Dashboard' },
+            { id: 'users',      icon: Users,           label: 'Users' },
+            { id: 'authority',  icon: ShieldCheck,     label: 'Authority' },
+            { id: 'departments',icon: Building2,       label: 'Departments' },
+            { id: 'infrastructure', icon: MapPin,      label: 'Infrastructure' },
+            { id: 'resources',  icon: Box,             label: 'Resources' },
+            { id: 'tasks',      icon: ClipboardList,   label: 'Directives' },
+            { id: 'task-titles',icon: CheckSquare,     label: 'Task Titles' },
+            { id: 'scoreboard', icon: Trophy,          label: 'Scoreboard' },
+            { id: 'coupons',    icon: Ticket,          label: 'Coupons' },
+        ]
+    },
+    {
+        groupLabel: 'Governance',
+        items: [
+
+            { id: 'system-gov', icon: Users, label: 'System Governance' },
+            { id: 'ack-tracking',    icon: BellDot,      label: 'Ack. Tracking' },
+        ]
+    },
 ];
 
 const Sidebar = ({ onLogout, isOpen, onClose, activeTab, setActiveTab, userTitle, userRole }) => {
@@ -48,39 +62,41 @@ const Sidebar = ({ onLogout, isOpen, onClose, activeTab, setActiveTab, userTitle
 
                 {/* Nav */}
                 <nav className="flex-1 overflow-y-auto px-4 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-200 [&::-webkit-scrollbar-thumb]:rounded-xl">
-                    <div>
-                        <span className="pl-3 text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-3 block">General</span>
-                        {navItems.map((item) => {
-                            const isActive = activeTab === item.label;
-                            return (
-                                <button
-                                    key={item.id}
-                                    className={`w-full relative flex items-center justify-between px-3 py-2.5 rounded-xl mb-1 cursor-pointer transition-all duration-200 border-none
-                                        ${isActive
-                                            ? 'text-indigo-500 bg-[#f5f7ff]'
-                                            : 'text-slate-500 bg-transparent hover:text-slate-900 hover:bg-slate-50'
-                                        }`}
-                                    onClick={() => setActiveTab(item.label)}
-                                >
-                                    <div className="flex items-center gap-3 z-2">
-                                        <item.icon size={20} />
-                                        <span className="text-sm font-semibold">{item.label}</span>
-                                    </div>
-                                    {isActive && (
-                                        <motion.div
-                                            layoutId="active-pill"
-                                            className="absolute left-0 w-1 h-5 bg-indigo-500 rounded-r-[4px]"
-                                            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                    {navGroups.map((group, gi) => (
+                        <div key={gi} className={gi > 0 ? 'mt-5' : ''}>
+                            <span className="pl-3 text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-3 block">{group.groupLabel}</span>
+                            {group.items.map((item) => {
+                                const isActive = activeTab === item.label;
+                                return (
+                                    <button
+                                        key={item.id}
+                                        className={`w-full relative flex items-center justify-between px-3 py-2.5 rounded-xl mb-1 cursor-pointer transition-all duration-200 border-none
+                                            ${isActive
+                                                ? 'text-indigo-500 bg-[#f5f7ff]'
+                                                : 'text-slate-500 bg-transparent hover:text-slate-900 hover:bg-slate-50'
+                                            }`}
+                                        onClick={() => setActiveTab(item.label)}
+                                    >
+                                        <div className="flex items-center gap-3 z-2">
+                                            <item.icon size={20} />
+                                            <span className="text-sm font-semibold">{item.label}</span>
+                                        </div>
+                                        {isActive && (
+                                            <motion.div
+                                                layoutId="active-pill"
+                                                className="absolute left-0 w-1 h-5 bg-indigo-500 rounded-r-[4px]"
+                                                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                                            />
+                                        )}
+                                        <ChevronRight
+                                            size={14}
+                                            className={`text-slate-400 transition-all duration-200 ${isActive ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-1.5'}`}
                                         />
-                                    )}
-                                    <ChevronRight
-                                        size={14}
-                                        className={`text-slate-400 transition-all duration-200 ${isActive ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-1.5'}`}
-                                    />
-                                </button>
-                            );
-                        })}
-                    </div>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    ))}
                 </nav>
 
                 {/* Footer */}

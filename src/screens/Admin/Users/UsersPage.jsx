@@ -144,8 +144,8 @@ const UsersPage = () => {
 
     return (
         <motion.div
-            className="p-8 animate-[fadeIn_0.5s_ease] bg-slate-50 min-h-screen max-md:p-5"
-            initial={{ opacity: 0, y: 10 }}
+            className="p-8 animate-[fadeIn_0.5s_ease] bg-white min-h-screen max-md:p-5"
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
         >
             {/* Header */}

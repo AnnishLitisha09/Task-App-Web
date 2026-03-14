@@ -58,7 +58,7 @@ const AuthorityPage = () => {
     const totalPages = Math.ceil(filteredAuthorities.length / itemsPerPage);
 
     return (
-        <motion.div className="p-10 h-full overflow-y-auto bg-slate-50 min-h-screen" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+        <motion.div className="p-10 h-full overflow-y-auto bg-white min-h-screen" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             {/* Header */}
             <div className="flex justify-between items-center mb-8 max-md:flex-col max-md:items-stretch max-md:gap-4">
                 <div>
@@ -183,6 +183,7 @@ const AuthorityPage = () => {
                                         <span className="text-slate-700 font-bold truncate max-w-[150px]">{auth.scope_name}</span>
                                     </div>
                                     <div className="flex justify-between items-center text-sm">
+                                        <span className="text-slate-400 font-medium">Hierarchy</span>
                                         <span className="text-slate-400 font-medium">Hierarchy</span>
                                         <span className="text-indigo-500 font-extrabold">{auth.hierarchy}</span>
                                     </div>

@@ -40,7 +40,7 @@ const AdminDashboard = () => {
     ];
 
     return (
-        <div className="p-10 bg-slate-50 min-h-screen flex flex-col box-border font-['Inter',sans-serif] max-md:p-6">
+        <div className="p-10 bg-white min-h-screen flex flex-col box-border font-['Inter',sans-serif] max-md:p-6">
             {/* Header */}
             <header className="flex justify-between items-start mb-10 max-md:flex-col max-md:gap-4 max-md:items-stretch">
                 <div>

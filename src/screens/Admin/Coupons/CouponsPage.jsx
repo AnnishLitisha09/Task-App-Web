@@ -73,7 +73,7 @@ const CouponsPage = () => {
     const totalPages = Math.ceil(coupons.length / itemsPerPage);
 
     return (
-        <motion.div className="p-6 bg-slate-50 min-h-screen" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+        <motion.div className="p-6 bg-white min-h-screen" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
             {/* Header */}
             <div className="flex justify-between items-center mb-8">
                 <div className="flex items-center gap-4">

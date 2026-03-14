@@ -9,6 +9,10 @@ import ScoreboardPage from '../Scoreboard/ScoreboardPage';
 import ResourcesPage from '../Resources/ResourcesPage';
 import CoupenPage from '../Coupons/CouponsPage';
 import AuthorityPage from '../Authority/AuthorityPage';
+import TaskTitlesPage from '../TaskTitles/TaskTitlesPage';
+
+import AcknowledgmentTrackingPage from '../Governance/AcknowledgmentTrackingPage';
+import UniversalGovernancePage from '../Governance/UniversalGovernancePage';
 import { Edit2, Bell, Menu, X } from 'lucide-react';
 import api from '../../../utils/api';
 
@@ -49,9 +53,13 @@ const AdminLayout = ({ user: initialUser, onLogout }) => {
             case 'Departments': return <DepartmentsPage />;
             case 'Infrastructure': return <InfrastructurePage />;
             case 'Directives': return <TasksPage />;
+            case 'Task Titles': return <TaskTitlesPage />;
             case 'Scoreboard': return <ScoreboardPage />;
             case 'Resources': return <ResourcesPage />;
             case 'Coupons': return <CoupenPage />;
+
+            case 'System Governance': return <UniversalGovernancePage />;
+            case 'Ack. Tracking': return <AcknowledgmentTrackingPage />;
             default:
                 return (
                     <div className="flex flex-col items-center justify-center p-16 text-slate-500">
