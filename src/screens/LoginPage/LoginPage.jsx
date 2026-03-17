@@ -34,15 +34,21 @@ const LoginPage = ({ onLoginSuccess }) => {
 
         if (sessions[trimmedEmail]) {
             const user = sessions[trimmedEmail];
+            // Explicitly verify admin role for web portal
+            if (user.role !== 'admin' && user.role !== 'ADMIN') {
+                showErrorMessage('Access Denied: Only administrators can access the web portal.');
+                return;
+            }
             localStorage.setItem('isLoggedIn', 'true');
             localStorage.setItem('userEmail', trimmedEmail);
             localStorage.setItem('userRole', user.role);
             localStorage.setItem('userTitle', user.title);
             localStorage.setItem('userScope', user.scope);
+            localStorage.setItem('userId', '1'); // Mock Admin ID
             localStorage.setItem('token', 'mock_admin_token');
-            onLoginSuccess({ ...user, email: trimmedEmail });
+            onLoginSuccess({ ...user, email: trimmedEmail, user_id: '1' });
         } else {
-            showErrorMessage('Invalid credentials. Use student, faculty, hod, incharge, or principal emails.');
+            showErrorMessage('Invalid credentials. This portal is restricted to administrators.');
         }
     };
 
@@ -56,8 +62,16 @@ const LoginPage = ({ onLoginSuccess }) => {
 
             if (response.ok) {
                 const data = await response.json();
+                
+                // --- RESTRICT TO ADMIN ONLY ---
+                if (data.role !== 'ADMIN' && data.role !== 'admin') {
+                    showErrorMessage('Access Denied: Web access is strictly for Administrators.');
+                    return;
+                }
+
                 onLoginSuccess({
                     email: data.email,
+                    user_id: data.user_id,
                     role: data.role || 'admin',
                     title: data.name || data.title || 'Institutional Admin',
                     scope: data.scope || 'full',

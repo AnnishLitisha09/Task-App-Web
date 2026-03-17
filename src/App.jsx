@@ -3,6 +3,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google'
 import LoginPage from './screens/LoginPage/LoginPage'
 import AdminLayout from './screens/Admin/layouts/AdminLayout'
 import Dashboard from './screens/Admin/Dashboard/Dashboard' // <--- Import here
+import api from './utils/api'
 import './index.css'
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
@@ -12,15 +13,37 @@ function App() {
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-    if (isLoggedIn) {
-      const email = localStorage.getItem('userEmail');
-      const role = localStorage.getItem('userRole');
-      const title = localStorage.getItem('userTitle');
-      const scope = localStorage.getItem('userScope');
-      setUser({ email, role, title, scope });
-    }
-    setIsInitialized(true);
+    const initAuth = async () => {
+      const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+      if (isLoggedIn) {
+        try {
+          // Verify session with backend
+          const context = await api('auth/context');
+          
+          const role = localStorage.getItem('userRole')?.toUpperCase();
+          const backendRole = context.role?.toUpperCase();
+
+          // Strict Role Check: Only ADMINs allowed on web
+          if (role !== 'ADMIN' && backendRole !== 'ADMIN') {
+            console.error("Access Denied: Not an admin");
+            handleLogout();
+          } else {
+            const email = localStorage.getItem('userEmail');
+            const title = localStorage.getItem('userTitle');
+            const scope = localStorage.getItem('userScope');
+            const userId = localStorage.getItem('userId');
+            setUser({ email, role, title, scope, userId });
+          }
+        } catch (err) {
+          // If 401 occurs, api.js utility already handles redirect
+          console.error("Session verification failed", err);
+          handleLogout();
+        }
+      }
+      setIsInitialized(true);
+    };
+
+    initAuth();
   }, []);
 
   const handleLoginSuccess = (userData) => {
@@ -31,6 +54,9 @@ function App() {
     localStorage.setItem('userScope', userData.scope);
     if (userData.token) {
       localStorage.setItem('token', userData.token);
+    }
+    if (userData.user_id) {
+      localStorage.setItem('userId', userData.user_id);
     }
     setUser(userData);
   };
@@ -47,17 +73,10 @@ function App() {
       <div className="app-main">
         {!user ? (
           <LoginPage onLoginSuccess={handleLoginSuccess} />
-        ) : user.role === 'admin' ? (
+        ) : (
           <AdminLayout user={user} onLogout={handleLogout}>
-            {/* Call the Dashboard here */}
             <Dashboard user={user} />
           </AdminLayout>
-        ) : (
-          /* ... Access Denied Logic ... */
-          <div className="access-denied">
-            <h1>Access Denied</h1>
-            <button onClick={handleLogout}>Go Back</button>
-          </div>
         )}
       </div>
     </GoogleOAuthProvider>

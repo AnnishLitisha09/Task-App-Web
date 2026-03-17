@@ -23,17 +23,17 @@ const ROLE_META = {
 };
 
 const AcknowledgmentTrackingPage = () => {
-    const [history, setHistory] = useState([]);
     const [report, setReport] = useState(null);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [roleFilter, setRoleFilter] = useState('all');
-    const [dateRange, setDateRange] = useState(7);
+    const [statusFilter, setStatusFilter] = useState('all'); // all, acknowledged, pending
+    const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
     
     // Pagination
     const [currentPage, setCurrentPage] = useState(1);
-    const pageSize = 10;
+    const pageSize = 12;
 
     // Modal state
     const [modalConfig, setModalConfig] = useState({ isOpen: false, title: '', description: '', type: 'info' });
@@ -41,12 +41,7 @@ const AcknowledgmentTrackingPage = () => {
     const fetchData = useCallback(async () => {
         setRefreshing(true);
         try {
-            // Fetch History
-            const historyData = await api(`/tasks/acknowledgments/history?days=${dateRange}`);
-            setHistory(historyData.acknowledgments || []);
-
-            // Fetch Today's Report
-            const reportData = await api('/tasks/acknowledgments/unacknowledged-report');
+            const reportData = await api(`/tasks/acknowledgments/unacknowledged-report?date=${selectedDate}`);
             setReport(reportData);
         } catch (err) {
             console.error('Failed to fetch acknowledgment data:', err);
@@ -60,25 +55,64 @@ const AcknowledgmentTrackingPage = () => {
             setLoading(false);
             setRefreshing(false);
         }
-    }, [dateRange]);
+    }, [selectedDate]);
 
     useEffect(() => {
         fetchData();
     }, [fetchData]);
 
-    const filteredHistory = history.filter(ack => {
-        const matchesSearch = (ack.name || '').toLowerCase().includes(searchQuery.toLowerCase()) || 
-                             (ack.email || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-                             (ack.task_title || '').toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesRole = roleFilter === 'all' || ack.role === roleFilter;
-        return matchesSearch && matchesRole;
+    const handleAcknowledgeUser = async (userId, name) => {
+        try {
+            await api('/tasks/acknowledge-general', {
+                method: 'POST',
+                body: JSON.stringify({ user_id: userId, date: selectedDate })
+            });
+            
+            // Show success modal or toast
+            setModalConfig({
+                isOpen: true,
+                title: "Success",
+                description: `Successfully acknowledged schedule for ${name}.`,
+                type: "success"
+            });
+            
+            // Refresh data
+            fetchData();
+        } catch (err) {
+            setModalConfig({
+                isOpen: true,
+                title: "Approval Failed",
+                description: err.message || "Failed to mark as acknowledged.",
+                type: "danger"
+            });
+        }
+    };
+
+    // Flatten all users from report for table
+    const allUsers = report ? [
+        ...report.report.acknowledged.map(u => ({ ...u, status: 'acknowledged' })),
+        ...report.report.unacknowledged.student.map(u => ({ ...u, status: 'pending' })),
+        ...report.report.unacknowledged.faculty.map(u => ({ ...u, status: 'pending' })),
+        ...report.report.unacknowledged.staff.map(u => ({ ...u, status: 'pending' })),
+        ...report.report.unacknowledged.hod.map(u => ({ ...u, status: 'pending' })),
+        ...report.report.unacknowledged.principal.map(u => ({ ...u, status: 'pending' })),
+        ...report.report.unacknowledged.incharge.map(u => ({ ...u, status: 'pending' })),
+        ...report.report.unacknowledged.others.map(u => ({ ...u, status: 'pending' }))
+    ] : [];
+
+    const filteredUsers = allUsers.filter(user => {
+        const matchesSearch = (user.name || '').toLowerCase().includes(searchQuery.toLowerCase()) || 
+                             (user.email || '').toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesRole = roleFilter === 'all' || user.role === roleFilter;
+        const matchesStatus = statusFilter === 'all' || user.status === statusFilter;
+        return matchesSearch && matchesRole && matchesStatus;
     });
 
-    const paginatedHistory = filteredHistory.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+    const paginatedUsers = filteredUsers.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
     const getStatusStyle = (status) => {
-        if (status === 'acknowledged') return { bg: '#d1fae5', text: '#059669', label: 'Completed' };
-        return { bg: '#fef3c7', text: '#d97706', label: 'Pending' };
+        if (status === 'acknowledged') return { bg: '#d1fae5', text: '#059669', label: 'Acknowledged' };
+        return { bg: '#fee2e2', text: '#dc2626', label: 'Pending' };
     };
 
     return (
@@ -105,18 +139,13 @@ const AcknowledgmentTrackingPage = () => {
                         <RefreshCw size={20} className={refreshing ? 'animate-spin' : ''} />
                     </button>
                     <div className="bg-white border border-slate-100 px-5 py-3 rounded-2xl flex items-center gap-3 shadow-sm">
-                        <div className="flex flex-col">
-                            <span className="text-[0.6rem] font-bold uppercase text-slate-400 leading-none mb-1">Tracking Window</span>
-                            <select 
-                                value={dateRange}
-                                onChange={(e) => setDateRange(e.target.value)}
-                                className="text-sm font-extrabold text-slate-900 bg-transparent border-none outline-none cursor-pointer"
-                            >
-                                <option value={1}>Last 24 Hours</option>
-                                <option value={7}>Last 7 Days</option>
-                                <option value={30}>Last 30 Days</option>
-                            </select>
-                        </div>
+                        <Calendar size={18} className="text-slate-400" />
+                        <input 
+                            type="date"
+                            value={selectedDate}
+                            onChange={(e) => setSelectedDate(e.target.value)}
+                            className="text-sm font-extrabold text-slate-900 bg-transparent border-none outline-none cursor-pointer"
+                        />
                     </div>
                 </div>
             </div>
@@ -125,33 +154,33 @@ const AcknowledgmentTrackingPage = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
                 {[
                     { 
-                        title: 'Today\'s Completion', 
-                        value: report ? `${Math.round(((report.total_users - report.total_unacknowledged) / report.total_users || 0) * 100)}%` : '0%',
-                        sub: report ? `${report.total_users - report.total_unacknowledged} of ${report.total_users} users` : 'Syncing...',
+                        title: 'Completion Rate', 
+                        value: report ? `${Math.round((report.total_acknowledged / report.report.total_users || 0) * 100)}%` : '0%',
+                        sub: report ? `${report.total_acknowledged} of ${report.report.total_users} users` : 'Syncing...',
                         icon: CheckCircle2,
                         color: '#10b981',
                         bg: '#d1fae5'
                     },
                     { 
-                        title: 'Awaiting Ack.', 
+                        title: 'Pending Now', 
                         value: report?.total_unacknowledged || 0,
-                        sub: 'Protocols pending',
+                        sub: 'Requires manual ack.',
                         icon: Clock,
                         color: '#f59e0b',
                         bg: '#fef3c7'
                     },
                     { 
-                        title: 'Faculty Compliance', 
-                        value: report ? `${(report.report?.faculty?.length === 0 && report.total_users > 0) ? '100%' : 'Check List'}` : '...',
-                        sub: report?.report?.faculty?.length ? `${report.report.faculty.length} Pending` : 'All Clear',
+                        title: 'Faculty Pending', 
+                        value: report?.report?.unacknowledged?.faculty?.length || 0,
+                        sub: 'Staff awaiting check',
                         icon: UserCheck,
                         color: '#6366f1',
                         bg: '#e0e7ff'
                     },
                     { 
-                        title: 'Student Compliance', 
-                        value: report?.report?.student?.length || 0,
-                        sub: 'Inactive records',
+                        title: 'Student Pending', 
+                        value: report?.report?.unacknowledged?.student?.length || 0,
+                        sub: 'Blocked from tasks',
                         icon: GraduationCap,
                         color: '#f43f5e',
                         bg: '#ffe4e6'
@@ -186,28 +215,33 @@ const AcknowledgmentTrackingPage = () => {
                         <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                         <input 
                             type="text" 
-                            placeholder="Filter by name, task or email..."
+                            placeholder="Search by name or email..."
                             value={searchQuery}
                             onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
                             className="w-full h-12 pl-12 pr-4 bg-white border border-slate-200 rounded-xl outline-none focus:border-indigo-500 transition-all text-sm font-medium"
                         />
                     </div>
                     <div className="flex gap-2">
-                        <div className="relative min-w-[160px]">
-                            <Filter size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                            <select 
-                                value={roleFilter}
-                                onChange={(e) => { setRoleFilter(e.target.value); setCurrentPage(1); }}
-                                className="w-full h-12 pl-11 pr-10 bg-white border border-slate-200 rounded-xl outline-none focus:border-indigo-500 transition-all text-sm font-bold text-slate-600 appearance-none cursor-pointer"
-                            >
-                                <option value="all">All Roles</option>
-                                <option value="student">Student</option>
-                                <option value="faculty">Faculty</option>
-                                <option value="staff">Staff</option>
-                                <option value="role-user">Management</option>
-                            </select>
-                            <ChevronRight size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 rotate-90 pointer-events-none" />
-                        </div>
+                        <select 
+                            value={statusFilter}
+                            onChange={(e) => { setStatusFilter(e.target.value); setCurrentPage(1); }}
+                            className="h-12 px-4 bg-white border border-slate-200 rounded-xl outline-none focus:border-indigo-500 transition-all text-sm font-bold text-slate-600 cursor-pointer"
+                        >
+                            <option value="all">All Status</option>
+                            <option value="acknowledged">Acknowledged</option>
+                            <option value="pending">Pending</option>
+                        </select>
+                        <select 
+                            value={roleFilter}
+                            onChange={(e) => { setRoleFilter(e.target.value); setCurrentPage(1); }}
+                            className="h-12 px-4 bg-white border border-slate-200 rounded-xl outline-none focus:border-indigo-500 transition-all text-sm font-bold text-slate-600 cursor-pointer"
+                        >
+                            <option value="all">All Roles</option>
+                            <option value="student">Student</option>
+                            <option value="faculty">Faculty</option>
+                            <option value="staff">Staff</option>
+                            <option value="role-user">Management</option>
+                        </select>
                     </div>
                 </div>
 
@@ -217,32 +251,31 @@ const AcknowledgmentTrackingPage = () => {
                         <div className="p-8 space-y-4">
                             {[1, 2, 3, 4, 5].map(i => <div key={i} className="h-16 bg-slate-50 animate-pulse rounded-2xl" />)}
                         </div>
-                    ) : paginatedHistory.length === 0 ? (
+                    ) : paginatedUsers.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-32 text-slate-400">
                             <Info size={48} strokeWidth={1} className="mb-4 opacity-20" />
-                            <p className="font-medium text-slate-500">No acknowledgment logs found matching your criteria</p>
+                            <p className="font-medium text-slate-500">No users found matching your criteria</p>
                         </div>
                     ) : (
                         <table className="w-full border-collapse">
                             <thead>
                                 <tr className="text-left border-b border-slate-100">
                                     <th className="px-8 py-5 text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap">Personnel</th>
-                                    <th className="px-8 py-5 text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap">Protocol Group</th>
-                                    <th className="px-8 py-5 text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap">Acknowledge Time</th>
-                                    <th className="px-8 py-5 text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap">Status</th>
+                                    <th className="px-8 py-5 text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap">Role</th>
+                                    <th className="px-8 py-5 text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap">Ack. Status</th>
+                                    <th className="px-8 py-5 text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap text-right">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {paginatedHistory.map((ack, i) => {
-                                    const role = ROLE_META[ack.role?.toLowerCase()] || ROLE_META.others;
-                                    const status = getStatusStyle(ack.status);
+                                {paginatedUsers.map((user, i) => {
+                                    const role = ROLE_META[user.role?.toLowerCase()] || ROLE_META.others;
+                                    const statusStyle = getStatusStyle(user.status);
                                     const RoleIcon = role.icon;
-                                    const ackTime = ack.acknowledged_at ? new Date(ack.acknowledged_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '—';
-                                    const ackDate = ack.acknowledge_date ? new Date(ack.acknowledge_date).toLocaleDateString([], { month: 'short', day: 'numeric' }) : '—';
+                                    const ackTime = user.acknowledged_at ? new Date(user.acknowledged_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '—';
 
                                     return (
                                         <motion.tr 
-                                            key={`${ack.user_id}-${i}`}
+                                            key={`${user.user_id}-${i}`}
                                             initial={{ opacity: 0 }}
                                             animate={{ opacity: 1 }}
                                             className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors"
@@ -250,11 +283,11 @@ const AcknowledgmentTrackingPage = () => {
                                             <td className="px-8 py-5">
                                                 <div className="flex items-center gap-4">
                                                     <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 font-bold" style={{ background: role.bg, color: role.color }}>
-                                                        {ack.name?.charAt(0) || '?'}
+                                                        {user.name?.charAt(0) || '?'}
                                                     </div>
                                                     <div className="flex flex-col">
-                                                        <span className="text-sm font-bold text-slate-800">{ack.name}</span>
-                                                        <span className="text-[0.7rem] text-slate-400">{ack.email}</span>
+                                                        <span className="text-sm font-bold text-slate-800">{user.name}</span>
+                                                        <span className="text-[0.7rem] text-slate-400">{user.email}</span>
                                                     </div>
                                                 </div>
                                             </td>
@@ -268,17 +301,30 @@ const AcknowledgmentTrackingPage = () => {
                                             </td>
                                             <td className="px-8 py-5">
                                                 <div className="flex flex-col">
-                                                    <span className="text-sm font-extrabold text-slate-700">{ackTime}</span>
-                                                    <span className="text-[0.65rem] text-slate-400 font-bold uppercase">{ackDate}</span>
+                                                    <span 
+                                                        className="inline-flex items-center px-2.5 py-1 rounded-full text-[0.6rem] font-black uppercase tracking-wider w-fit"
+                                                        style={{ background: statusStyle.bg, color: statusStyle.text }}
+                                                    >
+                                                        {statusStyle.label}
+                                                    </span>
+                                                    {user.acknowledged_at && (
+                                                        <span className="text-[0.65rem] text-slate-400 font-bold mt-1">at {ackTime}</span>
+                                                    )}
                                                 </div>
                                             </td>
-                                            <td className="px-8 py-5">
-                                                <span 
-                                                    className="inline-flex items-center px-2.5 py-1 rounded-full text-[0.65rem] font-black uppercase tracking-wider"
-                                                    style={{ background: status.bg, color: status.text }}
-                                                >
-                                                    {status.label}
-                                                </span>
+                                            <td className="px-8 py-5 text-right">
+                                                {user.status === 'pending' ? (
+                                                    <button 
+                                                        onClick={() => handleAcknowledgeUser(user.user_id, user.name)}
+                                                        className="px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-xl hover:bg-indigo-700 transition-all shadow-sm shadow-indigo-100"
+                                                    >
+                                                        Approve
+                                                    </button>
+                                                ) : (
+                                                    <div className="text-emerald-500 pr-4">
+                                                        <CheckCircle2 size={20} />
+                                                    </div>
+                                                )}
                                             </td>
                                         </motion.tr>
                                     );
@@ -292,11 +338,11 @@ const AcknowledgmentTrackingPage = () => {
                 <div className="p-6 bg-slate-50/30 border-t border-slate-100">
                     <Pagination 
                         currentPage={currentPage}
-                        totalPages={Math.ceil(filteredHistory.length / pageSize)}
+                        totalPages={Math.ceil(filteredUsers.length / pageSize)}
                         onPageChange={setCurrentPage}
                         itemsPerPage={pageSize}
-                        totalItems={filteredHistory.length}
-                        showingCount={paginatedHistory.length}
+                        totalItems={filteredUsers.length}
+                        showingCount={paginatedUsers.length}
                     />
                 </div>
             </div>
@@ -308,7 +354,7 @@ const AcknowledgmentTrackingPage = () => {
                 title={modalConfig.title}
                 description={modalConfig.description}
                 type={modalConfig.type}
-                confirmText="Acknowledge"
+                confirmText="Okay"
             />
         </div>
     );

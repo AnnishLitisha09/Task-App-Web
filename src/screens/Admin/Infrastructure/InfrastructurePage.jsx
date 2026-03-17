@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { MapPin, Box, UserCheck, Plus, Search, Edit2, UserPlus, Trash2, LayoutGrid, List, CheckCircle2, XCircle, Clock } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { MapPin, Box, UserCheck, Plus, Search, Edit2, UserPlus, Trash2, LayoutGrid, List, CheckCircle2, XCircle, Clock, Upload, X, AlertCircle } from 'lucide-react';
 import api from '../../../utils/api';
 import VenueModal from '../../../components/UI/VenueModal/VenueModal';
 import DeleteConfirmModal from '../../../components/UI/DeleteConfirmModal/DeleteConfirmModal';
@@ -23,6 +23,9 @@ const InfrastructurePage = () => {
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [selectedVenue, setSelectedVenue] = useState(null);
     const [modalMode, setModalMode] = useState('create');
+    const [bulkResult, setBulkResult] = useState(null);
+    const [isBulkUploading, setIsBulkUploading] = useState(false);
+    const bulkInputRef = useRef(null);
 
     // Pagination State
     const [currentPage, setCurrentPage] = useState(1);
@@ -54,6 +57,25 @@ const InfrastructurePage = () => {
         try { await api(`/resources/venues/${selectedVenue.id}`, { method: 'DELETE' }); setVenues(prev => prev.filter(v => v.id !== selectedVenue.id)); }
         catch (err) { console.error(err); }
         finally { setIsDeleteOpen(false); setSelectedVenue(null); }
+    };
+
+    const handleBulkUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        setIsBulkUploading(true);
+        setBulkResult(null);
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+            const res = await api('/resources/venues/bulk', { method: 'POST', body: formData });
+            setBulkResult(res);
+            fetchVenues();
+        } catch (err) {
+            setBulkResult({ error: err.message });
+        } finally {
+            setIsBulkUploading(false);
+            e.target.value = '';
+        }
     };
 
     const filteredVenues = venues.filter(v =>
@@ -102,10 +124,37 @@ const InfrastructurePage = () => {
                             <button key={mode} className={`w-9 h-9 flex items-center justify-center rounded-lg transition-all ${viewMode === mode ? 'bg-white shadow-sm text-indigo-600' : 'text-slate-400 hover:text-slate-600'}`} onClick={() => setViewMode(mode)}><Icon size={18} /></button>
                         ))}
                     </div>
+                    <input ref={bulkInputRef} type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={handleBulkUpload} />
+                    <button
+                        onClick={() => bulkInputRef.current?.click()}
+                        disabled={isBulkUploading}
+                        className="flex items-center gap-2 border border-indigo-300 text-indigo-600 bg-indigo-50 px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-indigo-100 transition-all disabled:opacity-60"
+                    >
+                        <Upload size={18} /><span>{isBulkUploading ? 'Uploading…' : 'Bulk Upload'}</span>
+                    </button>
                     <button className="flex items-center gap-2 bg-indigo-500 text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-indigo-600 transition-all shadow-[0_4px_12px_rgba(99,102,241,0.2)]" onClick={handleCreate}>
                         <Plus size={18} /><span>Add Venue</span>
                     </button>
                 </div>
+
+                {/* Bulk Upload Result Banner */}
+                <AnimatePresence>
+                    {bulkResult && (
+                        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                            className={`mb-5 p-4 rounded-xl flex items-start gap-3 border ${bulkResult.error ? 'bg-red-50 border-red-200 text-red-700' : 'bg-emerald-50 border-emerald-200 text-emerald-800'}`}>
+                            {bulkResult.error ? <AlertCircle size={18} className="mt-0.5 shrink-0" /> : <CheckCircle2 size={18} className="mt-0.5 shrink-0" />}
+                            <div className="flex-1">
+                                {bulkResult.error
+                                    ? <p className="font-bold text-sm">Upload failed: {bulkResult.error}</p>
+                                    : <><p className="font-bold text-sm">Bulk Upload Complete!</p>
+                                        <p className="text-xs mt-0.5">✅ Created: {(bulkResult.results || []).filter(r => r.status === 'created').length} &nbsp;⏭ Skipped: {(bulkResult.results || []).filter(r => r.status === 'skipped').length} &nbsp;❌ Failed: {(bulkResult.results || []).filter(r => r.status === 'failed').length}</p>
+                                    </>
+                                }
+                            </div>
+                            <button onClick={() => setBulkResult(null)} className="text-slate-400 hover:text-slate-600"><X size={16} /></button>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
 
                 {/* Content */}
                 {isLoading ? (

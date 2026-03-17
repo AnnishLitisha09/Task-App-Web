@@ -1,4 +1,3 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 import {
     LayoutDashboard, Users, ShieldCheck, Building2,
@@ -12,7 +11,6 @@ const navGroups = [
         items: [
             { id: 'dashboard',  icon: LayoutDashboard, label: 'Dashboard' },
             { id: 'users',      icon: Users,           label: 'Users' },
-            { id: 'authority',  icon: ShieldCheck,     label: 'Authority' },
             { id: 'departments',icon: Building2,       label: 'Departments' },
             { id: 'infrastructure', icon: MapPin,      label: 'Infrastructure' },
             { id: 'resources',  icon: Box,             label: 'Resources' },
@@ -28,6 +26,7 @@ const navGroups = [
 
             { id: 'system-gov', icon: Users, label: 'System Governance' },
             { id: 'ack-tracking',    icon: BellDot,      label: 'Ack. Tracking' },
+            { id: 'active-sessions', icon: ShieldAlert,  label: 'Active Sessions' },
         ]
     },
 ];

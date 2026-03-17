@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import api from '../../../utils/api';
 import {
-    X, Check, ChevronRight, ChevronLeft,
+    X, Check, ChevronRight, ChevronLeft, Search,
     AlignLeft, Clock, Calendar, User, ShieldCheck,
-    Star, AlertTriangle, QrCode, Camera,
+    Star, AlertTriangle, QrCode, Camera, CheckCircle2,
     FileText, Key, Laptop, Presentation,
-    Truck, Cpu, Plus, Trash2
+    Truck, Cpu, Plus, Trash2, Upload, File
 } from 'lucide-react';
 
 const STEPS = [
@@ -33,51 +35,215 @@ const ToggleRow = ({ label, desc, checked, onChange }) => (
 const CreateTask = ({ onCancel, onSuccess }) => {
     const [currentStep, setCurrentStep] = useState(0);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [venues, setVenues] = useState([]);
+    const [taskTitles, setTaskTitles] = useState([]);
+    const [excelFile, setExcelFile] = useState(null);
     const [taskData, setTaskData] = useState({
-        title: '', description: '', category: 'Academic', priority: 'Medium',
-        taskType: 'Fixed Time Task', ownerId: 'Admin User', assigneeIds: [],
-        targetType: 'Individual', locationId: 'Main Hall', resources: [],
-        score: 100, penaltyRule: { penaltyValue: 5 }, completionMethods: [],
-        subTasks: [], requiresApproval: true, approvalAuthority: 'Department Head',
-        isPackageTask: false, allowPause: false, delegationAllowed: false,
-        autoEscalation: true, mandatoryDocumentation: true, requiredDocuments: [],
+        taskCategory: 'Directive Task', 
+        title: '', description: '', priority: 'Medium',
+        taskType: 'Fixed Time Task', ownerId: null, assigneeIds: [],
+        venue_id: '',
+        score: 100, penaltyRule: { penaltyValue: 5 },
+        subTasks: [], requiresApproval: false, approver_id: null,
+        isPackageTask: false, allowPause: false,
+        is_document: true, requiredDocuments: [],
         selectedDate: new Date().toISOString().split('T')[0],
         startDate: new Date().toISOString().split('T')[0],
         endDate: new Date().toISOString().split('T')[0],
-        startTime: '09:00', endTime: '17:00'
+        startTime: '09:00', endTime: '17:00',
+        task_title_id: '',
+        is_faculty: false, faculty_id: null,
+        is_mandatory_flag: false
     });
 
+    const [allUsers, setAllUsers] = useState([]);
+    const [apiData, setApiData] = useState(null);
+    
+    // User Selection Modal State
+    const [showUserPicker, setShowUserPicker] = useState(false);
+    const [pickerLevel, setPickerLevel] = useState(0); // 0: Role, 1: Dept, 2: Users
+    const [pickerRole, setPickerRole] = useState(null);
+    const [pickerDept, setPickerDept] = useState(null);
+    const [searchQuery, setSearchQuery] = useState('');
+
+    useEffect(() => {
+        const fetchBaseData = async () => {
+            try {
+                const [venuesData, titlesData, deptUsersData] = await Promise.all([
+                    api('tasks/venues/my-list'),
+                    api('tasks/titles'),
+                    api('users/by-department')
+                ]);
+                setVenues(venuesData.venues || []);
+                setTaskTitles(titlesData || []);
+                setApiData(deptUsersData);
+            } catch (err) {
+                console.error("Error fetching dependencies:", err);
+            }
+        };
+        fetchBaseData();
+    }, []);
+
     const hi = (key, value) => setTaskData(prev => ({ ...prev, [key]: value }));
-    const toggleMultiSelect = (key, value) => setTaskData(prev => { const list = prev[key]; return { ...prev, [key]: list.includes(value) ? list.filter(i => i !== value) : [...list, value] }; });
     const addSubTask = () => hi('subTasks', [...taskData.subTasks, { id: Date.now(), title: '', assigneeId: 'Select Assignee', order: taskData.subTasks.length + 1 }]);
     const removeSubTask = (id) => hi('subTasks', taskData.subTasks.filter(s => s.id !== id));
     const updateSubTask = (id, key, val) => hi('subTasks', taskData.subTasks.map(s => s.id === id ? { ...s, [key]: val } : s));
     const nextStep = () => setCurrentStep(prev => Math.min(prev + 1, 3));
     const prevStep = () => setCurrentStep(prev => Math.max(prev - 1, 0));
-    const handleSubmit = async () => { setIsSubmitting(true); setTimeout(() => { setIsSubmitting(false); onSuccess(); }, 1500); };
+
+    // --- User Picker Helpers ---
+    const getRoleUserCount = (roleKey) => {
+        if (!apiData) return 0;
+        if (roleKey === 'staff') return (apiData.staff || []).length;
+        let count = 0;
+        const depts = apiData[roleKey] || {};
+        Object.values(depts).forEach(users => count += users.length);
+        return count;
+    };
+    const getDeptUserCount = (dept) => {
+        if (!apiData) return 0;
+        return (apiData[pickerRole]?.[dept] || []).length;
+    };
+    const isItemSelected = (id) => taskData.assigneeIds.includes(String(id));
+    const toggleUser = (id) => {
+        const strId = String(id);
+        if (isItemSelected(strId)) {
+            hi('assigneeIds', taskData.assigneeIds.filter(i => i !== strId));
+        } else {
+            hi('assigneeIds', [...taskData.assigneeIds, strId]);
+        }
+    };
+    const toggleGroup = (usersInGroup) => {
+        const allSelected = usersInGroup.length > 0 && usersInGroup.every(u => isItemSelected(u.user_id));
+        if (allSelected) {
+            const groupIds = usersInGroup.map(u => String(u.user_id));
+            hi('assigneeIds', taskData.assigneeIds.filter(id => !groupIds.includes(id)));
+        } else {
+            const currentSelected = new Set(taskData.assigneeIds);
+            usersInGroup.forEach(u => currentSelected.add(String(u.user_id)));
+            hi('assigneeIds', Array.from(currentSelected));
+        }
+    };
+
+    const ROLE_OPTIONS = [
+        { title: "All Students", subtitle: "Grouped by Department", roleKey: "students", icon: User },
+        { title: "All Faculty", subtitle: "Grouped by Department", roleKey: "faculty", icon: User },
+        { title: "HODs", subtitle: "Department Heads", roleKey: "hods", icon: User },
+        { title: "Staff", subtitle: "Technical & Admin Staff", roleKey: "staff", icon: User }
+    ];
+
+    const handleSubmit = async () => {
+        if (!taskData.task_title_id && !taskData.title) {
+            alert("Please select a valid Task Title.");
+            return;
+        }
+
+        setIsSubmitting(true);
+        try {
+            const formData = new FormData();
+            
+            let task_type_data = {
+                task_name: taskData.taskType,
+            };
+
+            if (taskData.taskType === 'Fixed Time Task') {
+                task_type_data.start_date = taskData.selectedDate;
+                task_type_data.end_date = taskData.selectedDate;
+                task_type_data.start_time = `${taskData.startTime}:00`;
+                task_type_data.end_time = `${taskData.endTime}:00`;
+            } else {
+                task_type_data.start_date = taskData.startDate;
+                task_type_data.end_date = taskData.endDate;
+                task_type_data.start_time = `${taskData.startTime}:00`;
+                task_type_data.end_time = `${taskData.endTime}:00`;
+            }
+
+            const payload = {
+                title: taskData.title,
+                category: 'Others', // Hardcoded as category is not needed on UI
+                description: taskData.description,
+                priority: taskData.priority,
+                is_package: taskData.isPackageTask,
+                venue_id: taskData.venue_id || null,
+                is_pause_allowed: taskData.allowPause,
+                score: taskData.score,
+                penalty_per_hour: taskData.penaltyRule.penaltyValue,
+                is_document: taskData.is_document,
+                task_type_data: task_type_data,
+                task_title_id: taskData.task_title_id || null,
+                origin_type: taskData.taskCategory === 'Self Log' ? 'self' : 'directive',
+                assignee_ids: taskData.assigneeIds,
+                requires_approval: taskData.requiresApproval,
+                approver_id: taskData.approver_id,
+                is_faculty: taskData.is_faculty,
+                faculty_id: taskData.faculty_id,
+                is_mandatory: taskData.is_mandatory_flag,
+                closure_ids: [1]
+            };
+
+            Object.keys(payload).forEach(key => {
+                if (payload[key] === null || payload[key] === undefined) return;
+                if (typeof payload[key] === 'object') {
+                    formData.append(key, JSON.stringify(payload[key]));
+                } else {
+                    formData.append(key, payload[key]);
+                }
+            });
+
+            if (excelFile) {
+                formData.append('file', excelFile);
+            }
+
+            await api('tasks/unified-create', {
+                method: 'POST',
+                body: formData
+            });
+
+            onSuccess();
+        } catch (err) {
+            console.error("Submission failed:", err);
+            alert("Failed to create task: " + err.message);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
     const priorityColors = { Low: 'border-slate-300 text-slate-500', Medium: 'border-blue-400 text-blue-500', High: 'border-amber-400 text-amber-600', Critical: 'border-red-400 text-red-600' };
     const priorityActiveColors = { Low: 'bg-slate-100 border-slate-400 text-slate-700', Medium: 'bg-blue-50 border-blue-400 text-blue-700', High: 'bg-amber-50 border-amber-400 text-amber-700', Critical: 'bg-red-50 border-red-400 text-red-700' };
 
     const renderSection1 = () => (
         <div className="space-y-5">
-            <div><label className={labelCls}>Task Title</label>
-                <input className={inputCls} placeholder="e.g. Annual Audit Report" value={taskData.title} onChange={(e) => hi('title', e.target.value)} /></div>
+            <div><label className={labelCls}>TASK CATEGORY</label>
+                <select className={selectCls} value={taskData.taskCategory} onChange={(e) => hi('taskCategory', e.target.value)}>
+                    <option>Directive Task</option>
+                    <option>Self Log</option>
+                </select>
+            </div>
+            <div><label className={labelCls}>{taskData.taskCategory === 'Self Log' ? 'ACTIVITY TITLE' : 'TASK TITLE'}</label>
+                <select className={selectCls} value={taskData.task_title_id} onChange={(e) => {
+                    const title = taskTitles.find(t => t.id === parseInt(e.target.value));
+                    hi('task_title_id', e.target.value);
+                    if (title) hi('title', title.task_title);
+                }}>
+                    <option value="">Select a standard title...</option>
+                    {taskTitles.map(t => <option key={t.id} value={t.id}>{t.task_title}</option>)}
+                </select>
+            </div>
+
             <div><label className={labelCls}>Description</label>
                 <div className="relative"><AlignLeft size={16} className="absolute left-3 top-3 text-slate-400" />
-                    <textarea className={`${inputCls} pl-10 resize-none`} placeholder="Provide detailed instructions..." value={taskData.description} onChange={(e) => hi('description', e.target.value)} rows={3} /></div></div>
+                    <textarea className={`${inputCls} pl-10 resize-none`} placeholder="Provide detailed instructions..." value={taskData.description} onChange={(e) => hi('description', e.target.value)} rows={taskData.taskCategory === 'Self Log' ? 5 : 3} /></div></div>
             <div className="grid grid-cols-2 gap-4">
-                <div><label className={labelCls}>Category</label>
-                    <select className={selectCls} value={taskData.category} onChange={(e) => hi('category', e.target.value)}>
-                        {['Academic', 'Administrative', 'Compliance'].map(o => <option key={o}>{o}</option>)}</select></div>
-                <div><label className={labelCls}>Priority</label>
+                <div className="col-span-2"><label className={labelCls}>Priority</label>
                     <div className="flex gap-2 flex-wrap">
                         {['Low', 'Medium', 'High', 'Critical'].map(p => (
                             <button key={p} type="button" className={`px-3 py-1.5 rounded-lg border text-xs font-bold transition-all ${taskData.priority === p ? priorityActiveColors[p] : priorityColors[p]}`}
                                 onClick={() => hi('priority', p)}>{p}</button>))}
                     </div></div>
             </div>
-            <ToggleRow label="Is Package Task" desc="Combine multiple steps into a sequential workflow" checked={taskData.isPackageTask} onChange={(e) => hi('isPackageTask', e.target.checked)} />
+            {taskData.taskCategory !== 'Self Log' && (
+                <ToggleRow label="Is Package Task" desc="Combine multiple steps into a sequential workflow" checked={taskData.isPackageTask} onChange={(e) => hi('isPackageTask', e.target.checked)} />
+            )}
         </div>
     );
 
@@ -88,8 +254,9 @@ const CreateTask = ({ onCancel, onSuccess }) => {
                     <select className={selectCls} value={taskData.taskType} onChange={(e) => hi('taskType', e.target.value)}>
                         {['Fixed Time Task', 'Long Task', 'Recurring Task', 'Bidding Task'].map(o => <option key={o}>{o}</option>)}</select></div>
                 <div><label className={labelCls}>Venue / Location</label>
-                    <select className={selectCls} value={taskData.locationId} onChange={(e) => hi('locationId', e.target.value)}>
-                        {['Main Hall', 'Lab 101', 'Conference Room', 'Remote'].map(o => <option key={o}>{o}</option>)}</select></div>
+                    <select className={selectCls} value={taskData.venue_id} onChange={(e) => hi('venue_id', e.target.value)}>
+                        <option value="">No Venue / Remote</option>
+                        {venues.map(v => <option key={v.venue_id} value={v.venue_id}>{v.name} ({v.location})</option>)}</select></div>
             </div>
             <div className="border-t border-dashed border-slate-200 pt-4"><p className="text-[0.7rem] font-extrabold text-slate-400 uppercase tracking-[0.08em] mb-4">Time Configuration</p>
                 {taskData.taskType === 'Fixed Time Task' ? (
@@ -120,33 +287,77 @@ const CreateTask = ({ onCancel, onSuccess }) => {
         <div className="space-y-5">
             {!taskData.isPackageTask ? (
                 <>
-                    {[
-                        { icon: ShieldCheck, label: 'Task Owner', value: taskData.ownerId, cls: 'bg-indigo-100 text-indigo-600' },
-                        { icon: User, label: 'Assignees', value: `${taskData.assigneeIds.length || 'No'} assignees selected`, cls: 'bg-blue-100 text-blue-600' }
-                    ].map(({ icon: Icon, label, value, cls }) => (
-                        <div key={label} className="flex items-center gap-4 p-4 bg-slate-50 border border-slate-200 rounded-2xl">
-                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${cls}`}><Icon size={18} /></div>
-                            <div className="flex-1"><label className={labelCls}>{label}</label><span className="text-sm font-semibold text-slate-700">{value}</span></div>
-                            <button className="text-xs font-bold text-indigo-500 hover:text-indigo-700">Change</button>
+                    <div className={`flex items-center gap-3 p-4 border rounded-2xl transition-all ${excelFile ? 'bg-green-50 border-green-200' : 'bg-slate-50 border-dashed border-slate-300 hover:border-indigo-300 hover:bg-indigo-50/30'}`}>
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${excelFile ? 'bg-green-100 text-green-600' : 'bg-indigo-100 text-indigo-600'}`}>
+                            {excelFile ? <Check size={18} /> : <Upload size={18} />}
                         </div>
-                    ))}
-                    <div className="flex items-center gap-3 p-4 bg-slate-50 border border-dashed border-slate-300 rounded-2xl cursor-pointer hover:border-indigo-300 hover:bg-indigo-50/30 transition-all">
-                        <FileText size={18} className="text-slate-400" />
-                        <span className="text-sm font-semibold text-slate-500">Assign via Excel (.xlsx)</span>
-                        <input type="file" hidden id="excel-up" />
-                        <label htmlFor="excel-up" className="ml-auto text-xs font-bold text-indigo-500 cursor-pointer">Browse File</label>
+                        <div className="flex-1">
+                            <label className={labelCls}>Assign via Excel (.xlsx)</label>
+                            <span className={`text-sm font-semibold ${excelFile ? 'text-green-700' : 'text-slate-500'}`}>
+                                {excelFile ? excelFile.name : "Bulk Assign via Excel"}
+                            </span>
+                        </div>
+                        <input type="file" hidden id="excel-up" accept=".xlsx, .xls" onChange={(e) => setExcelFile(e.target.files[0])} />
+                        {excelFile ? (
+                            <button onClick={() => setExcelFile(null)} className="text-xs font-bold text-red-500 hover:text-red-700"><Trash2 size={16} /></button>
+                        ) : (
+                            <label htmlFor="excel-up" className="text-xs font-bold text-indigo-500 cursor-pointer">Browse File</label>
+                        )}
                     </div>
-                    <div><label className={labelCls}>Target Entity</label>
-                        <select className={selectCls} value={taskData.targetType} onChange={(e) => hi('targetType', e.target.value)}>
-                            {['Individual', 'Role', 'Infrastructure', 'Group'].map(o => <option key={o}>{o}</option>)}</select></div>
-                    <ToggleRow label="Requires Approval" desc="Validation needed before task is considered done" checked={taskData.requiresApproval} onChange={(e) => hi('requiresApproval', e.target.checked)} />
-                    {taskData.requiresApproval && (
-                        <div className="flex items-center gap-4 p-4 bg-amber-50 border border-amber-100 rounded-2xl">
-                            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-amber-100 text-amber-600"><ShieldCheck size={18} /></div>
-                            <div className="flex-1"><label className={labelCls}>Approval Authority</label><span className="text-sm font-semibold text-slate-700">{taskData.approvalAuthority}</span></div>
-                            <button className="text-xs font-bold text-amber-600 hover:text-amber-700">Change</button>
+                    
+                    <div className="border-t border-dashed border-slate-200 pt-4">
+                        <p className="text-[0.7rem] font-extrabold text-slate-400 uppercase tracking-[0.08em] mb-4">Manual Assignee Selection</p>
+                        
+                        <div onClick={() => setShowUserPicker(true)} className="flex items-center gap-3 p-4 border rounded-2xl bg-slate-50 cursor-pointer hover:border-indigo-300 hover:bg-indigo-50/50 transition-all border-dashed border-slate-300">
+                            <div className="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center">
+                                <User size={18} />
+                            </div>
+                            <div className="flex-1">
+                                <span className="block text-[0.65rem] font-extrabold text-slate-400 uppercase tracking-widest mb-0.5">ASSIGN TO</span>
+                                <span className={`text-[0.85rem] font-bold ${taskData.assigneeIds.length === 0 ? 'text-slate-500' : 'text-slate-900'}`}>
+                                    {taskData.assigneeIds.length === 0 ? "Select Users, Roles or Depts" : `${taskData.assigneeIds.length} users selected`}
+                                </span>
+                            </div>
+                            <ChevronRight size={18} className="text-slate-400" />
                         </div>
-                    )}
+                        
+                        {taskData.assigneeIds.length > 0 && (
+                            <div className="flex flex-wrap gap-2 mt-3 p-3 bg-slate-50 border border-slate-100 rounded-xl">
+                                {taskData.assigneeIds.map(id => {
+                                    const user = allUsers.find(u => u.user_id === id);
+                                    return (
+                                        <div key={id} className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-100/50 text-indigo-700 rounded-lg border border-indigo-100">
+                                            <span className="text-[0.75rem] font-bold">{user?.name || `User ${id}`}</span>
+                                            <button onClick={(e) => { e.stopPropagation(); hi('assigneeIds', taskData.assigneeIds.filter(i => i !== id)); }} className="hover:text-red-500 transition-colors pointer-events-auto"><X size={14} /></button>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="border-t border-dashed border-slate-200 pt-4"><p className="text-[0.7rem] font-extrabold text-slate-400 uppercase tracking-[0.08em] mb-4">Governance</p>
+                        <ToggleRow label="Requires Approval" desc="Validation needed before task is considered done" checked={taskData.requiresApproval} onChange={(e) => hi('requiresApproval', e.target.checked)} />
+                        {taskData.requiresApproval && (
+                            <div className="mt-3">
+                                <label className={labelCls}>Approval Authority</label>
+                                <select className={selectCls} value={taskData.approver_id || ''} onChange={(e) => hi('approver_id', e.target.value)}>
+                                    <option value="">Select Approver...</option>
+                                    {allUsers.filter(u => u.role !== 'student').map(u => <option key={u.user_id} value={u.user_id}>{u.name} ({u.role})</option>)}
+                                </select>
+                            </div>
+                        )}
+                        <ToggleRow label="Is Faculty Managed" desc="Assign a faculty member in charge" checked={taskData.is_faculty} onChange={(e) => hi('is_faculty', e.target.checked)} />
+                        {taskData.is_faculty && (
+                            <div className="mt-3">
+                                <label className={labelCls}>Faculty In Charge</label>
+                                <select className={selectCls} value={taskData.faculty_id || ''} onChange={(e) => hi('faculty_id', e.target.value)}>
+                                    <option value="">Select Faculty...</option>
+                                    {allUsers.filter(u => u.role === 'faculty' || u.role === 'admin' || (u.user_id && selectedRole === 'faculty')).map(u => <option key={u.user_id} value={u.user_id}>{u.name}</option>)}
+                                </select>
+                            </div>
+                        )}
+                    </div>
                 </>
             ) : (
                 <div>
@@ -161,7 +372,10 @@ const CreateTask = ({ onCancel, onSuccess }) => {
                                     initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
                                     <span className="w-7 h-7 bg-indigo-100 text-indigo-600 rounded-lg flex items-center justify-center font-bold text-xs shrink-0">{idx + 1}</span>
                                     <input className={`${inputCls} flex-1`} placeholder="Step Title" value={sub.title} onChange={(e) => updateSubTask(sub.id, 'title', e.target.value)} />
-                                    <div className="flex items-center gap-1.5 text-xs text-slate-400"><User size={12} /><span>{sub.assigneeId}</span></div>
+                                    <select className="bg-transparent border-none text-xs font-bold text-slate-500 outline-none" value={sub.assigneeId} onChange={(e) => updateSubTask(sub.id, 'assigneeId', e.target.value)}>
+                                        <option>Select Assignee</option>
+                                        {allUsers.map(u => <option key={u.user_id} value={u.user_id}>{u.name}</option>)}
+                                    </select>
                                     <button onClick={() => removeSubTask(sub.id)} className="text-slate-300 hover:text-red-400 transition-colors"><Trash2 size={15} /></button>
                                 </motion.div>
                             ))}
@@ -174,8 +388,6 @@ const CreateTask = ({ onCancel, onSuccess }) => {
     );
 
     const renderSection4 = () => {
-        const methods = [{ id: 'OTP Verify', icon: Key }, { id: 'Photo Upload', icon: Camera }, { id: 'QR Scan', icon: QrCode }, { id: 'Doc Upload', icon: FileText }];
-        const resources = [{ id: 'Laptop', icon: Laptop }, { id: 'Projector', icon: Presentation }, { id: 'Vehicle', icon: Truck }, { id: 'Software', icon: Cpu }];
         return (
             <div className="space-y-6">
                 <div className="grid grid-cols-2 gap-4">
@@ -185,29 +397,18 @@ const CreateTask = ({ onCancel, onSuccess }) => {
                                 <input type="number" className={`${inputCls} pl-10`} value={value} onChange={(e) => onChange(e.target.value)} /></div></div>
                     ))}
                 </div>
-                <div><p className="text-[0.7rem] font-extrabold text-slate-400 uppercase tracking-[0.08em] mb-3">Completion Methods</p>
-                    <div className="flex flex-wrap gap-2">
-                        {methods.map(m => (<button key={m.id} type="button" onClick={() => toggleMultiSelect('completionMethods', m.id)}
-                            className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-bold transition-all ${taskData.completionMethods.includes(m.id) ? 'bg-indigo-50 border-indigo-300 text-indigo-600' : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300'}`}>
-                            <m.icon size={14} />{m.id}</button>))}
-                    </div></div>
-                <div><p className="text-[0.7rem] font-extrabold text-slate-400 uppercase tracking-[0.08em] mb-3">Required Resources</p>
-                    <div className="flex flex-wrap gap-2">
-                        {resources.map(r => (<button key={r.id} type="button" onClick={() => toggleMultiSelect('resources', r.id)}
-                            className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-bold transition-all ${taskData.resources.includes(r.id) ? 'bg-indigo-50 border-indigo-300 text-indigo-600' : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300'}`}>
-                            <r.icon size={14} />{r.id}</button>))}
-                    </div></div>
+                
                 <div className="bg-slate-50 border border-slate-100 rounded-2xl px-4 pb-1">
-                    {[{ key: 'autoEscalation', label: 'Auto Escalation', desc: 'Notify superiors if task is overdue' }, { key: 'mandatoryDocumentation', label: 'Mandatory Documentation', desc: 'Requires proof uploads' }, { key: 'delegationAllowed', label: 'Allow Delegation', desc: 'Assignees can delegate to others' }].map(item => (
+                    {[{ key: 'is_document', label: 'Mandatory Documentation', desc: 'Requires proof uploads' }, { key: 'is_mandatory_flag', label: 'Is Mandatory Task?', desc: 'Required activity for all assignees' }].map(item => (
                         <ToggleRow key={item.key} label={item.label} desc={item.desc} checked={taskData[item.key]} onChange={(e) => hi(item.key, e.target.checked)} />))}
                 </div>
             </div>
         );
     };
 
-    return (
+    return createPortal(
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-999 flex items-center justify-center p-4">
-            <motion.div className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+            <motion.div className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] relative"
                 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 30 }}>
                 {/* Header */}
                 <div className="flex justify-between items-center px-8 py-5 border-b border-slate-100">
@@ -236,7 +437,7 @@ const CreateTask = ({ onCancel, onSuccess }) => {
                 </div>
 
                 {/* Body */}
-                <div className="flex-1 overflow-y-auto px-8 py-6">
+                <div className="flex-1 overflow-y-auto px-8 py-6 relative">
                     <AnimatePresence mode="wait">
                         <motion.div key={currentStep} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.25 }}>
                             {currentStep === 0 && renderSection1()}
@@ -250,19 +451,191 @@ const CreateTask = ({ onCancel, onSuccess }) => {
                 {/* Footer */}
                 <div className="flex justify-between items-center px-8 py-5 border-t border-slate-100 bg-slate-50/50">
                     <div>{currentStep > 0 && <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-semibold text-sm hover:bg-slate-100" onClick={prevStep}><ChevronLeft size={18} />Back</button>}</div>
-                    <div>
+                    <div className="flex gap-3">
                         {currentStep < 3 ? (
-                            <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-500 text-white font-bold text-sm hover:bg-indigo-600 transition-all" onClick={nextStep}>Continue<ChevronRight size={18} /></button>
+                            <button className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-indigo-500 text-white font-bold text-sm shadow-lg shadow-indigo-200 hover:bg-indigo-600 transition-all" onClick={nextStep}>Continue <ChevronRight size={18} /></button>
                         ) : (
-                            <button className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-indigo-500 text-white font-bold text-sm hover:bg-indigo-600 transition-all disabled:opacity-60"
-                                onClick={handleSubmit} disabled={isSubmitting || !taskData.title}>
-                                {isSubmitting ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : 'Publish Directive'}
-                            </button>
+                            <button className={`flex items-center gap-2 px-6 py-2.5 rounded-xl bg-emerald-500 text-white font-bold text-sm shadow-lg shadow-emerald-200 hover:bg-emerald-600 transition-all ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`} onClick={handleSubmit} disabled={isSubmitting}>{isSubmitting ? 'Publishing...' : 'Publish Directive'}</button>
                         )}
                     </div>
                 </div>
+
+                {/* Overlay User Picker over the entire CreateTask modal */}
+                {showUserPicker && (
+                    <div className="absolute inset-0 bg-white z-50 flex flex-col p-6 animate-in fade-in zoom-in-95 duration-200">
+                        <div className="flex justify-between items-center mb-4">
+                                <div className="flex items-center gap-3">
+                                    {pickerLevel > 0 && (
+                                        <button 
+                                            onClick={() => {
+                                                if (pickerLevel === 2 && pickerRole !== 'staff') {
+                                                    setPickerLevel(1);
+                                                    setPickerDept(null);
+                                                } else {
+                                                    setPickerLevel(0);
+                                                    setPickerRole(null);
+                                                    setPickerDept(null);
+                                                }
+                                                setSearchQuery('');
+                                            }}
+                                            className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 transition-colors"
+                                        >
+                                            <ChevronLeft size={20} />
+                                        </button>
+                                    )}
+                                    <h3 className="text-[1.1rem] font-extrabold text-slate-900 flex items-center gap-2">
+                                        <User size={20} className="text-indigo-500"/>
+                                        {pickerLevel === 0 ? "Select Role" : pickerLevel === 1 ? `Select ${pickerRole} Department` : `Select ${pickerRole === 'staff' ? 'Staff' : pickerDept}`}
+                                    </h3>
+                                </div>
+                                <button onClick={() => setShowUserPicker(false)} className="bg-slate-100 p-2 rounded-xl text-slate-500 hover:bg-slate-200 transition-all cursor-pointer"><X size={18} /></button>
+                            </div>
+
+                            {pickerLevel > 0 && (
+                                <div className="flex items-center gap-2 mb-4 px-2 py-1 bg-slate-50 rounded-lg w-fit border border-slate-100">
+                                    <span className="text-[0.65rem] font-bold text-slate-500 uppercase tracking-widest">{pickerRole}</span>
+                                    {pickerDept && (
+                                        <>
+                                            <ChevronRight size={12} className="text-slate-300" />
+                                            <span className="text-[0.65rem] font-bold text-slate-700 uppercase tracking-widest">{pickerDept}</span>
+                                        </>
+                                    )}
+                                </div>
+                            )}
+
+                            {pickerLevel === 2 && (
+                                <div className="relative mb-5">
+                                    <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                                    <input
+                                        type="text"
+                                        className={`${inputCls} pl-11 py-3 text-[0.9rem]`}
+                                        placeholder={`Search users by name or ID...`}
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                    />
+                                </div>
+                            )}
+
+                            <div className="flex-1 overflow-y-auto space-y-3 custom-scrollbar">
+                                {!apiData ? (
+                                    <div className="flex justify-center py-10"><div className="animate-spin w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full" /></div>
+                                ) : pickerLevel === 0 ? (
+                                    ROLE_OPTIONS.map(role => {
+                                        const count = getRoleUserCount(role.roleKey);
+                                        const usersInGroup = role.roleKey === 'staff' ? [...(apiData.staff || [])] : [];
+                                        if (role.roleKey !== 'staff') {
+                                            const depts = apiData[role.roleKey] || {};
+                                            Object.values(depts).forEach(group => {
+                                                if (Array.isArray(group)) {
+                                                    usersInGroup.push(...group);
+                                                }
+                                            });
+                                        }
+                                        const allSelected = usersInGroup.length > 0 && usersInGroup.every(u => isItemSelected(u.user_id));
+                                        
+                                        return (
+                                            <div key={role.roleKey} onClick={() => {
+                                                setPickerRole(role.roleKey);
+                                                if (role.roleKey === 'staff') {
+                                                    setPickerLevel(2);
+                                                    setPickerDept('Staff');
+                                                } else {
+                                                    setPickerLevel(1);
+                                                }
+                                                setSearchQuery('');
+                                            }} className={`flex items-center p-4 rounded-2xl border transition-all cursor-pointer ${allSelected ? 'bg-indigo-50 border-indigo-200' : 'bg-white border-slate-100 hover:border-indigo-300 shadow-sm'}`}>
+                                                <div className={`w-12 h-12 rounded-xl flex items-center justify-center mr-4 transition-colors ${allSelected ? 'bg-indigo-500 text-white shadow-md shadow-indigo-200' : 'bg-indigo-50 text-indigo-600'}`}>
+                                                    <role.icon size={20} />
+                                                </div>
+                                                <div className="flex-1">
+                                                    <h4 className="text-[0.95rem] font-bold text-slate-900 mb-0.5">{role.title} ({count})</h4>
+                                                    <p className="text-[0.65rem] font-bold text-slate-500 uppercase tracking-widest">{role.subtitle}</p>
+                                                </div>
+                                                <div className="flex items-center gap-3">
+                                                    <button
+                                                        onClick={(e) => { e.stopPropagation(); toggleGroup(usersInGroup); }}
+                                                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[0.7rem] font-extrabold border transition-all ${
+                                                            allSelected
+                                                              ? 'bg-indigo-500 border-indigo-500 text-white shadow-md shadow-indigo-200'
+                                                              : 'bg-white border-indigo-300 text-indigo-600 hover:bg-indigo-50'
+                                                        }`}
+                                                    >
+                                                        {allSelected ? <><Check size={12} /> Deselect All</> : 'Select All'}
+                                                    </button>
+                                                    <ChevronRight size={20} className="text-slate-300" />
+                                                </div>
+                                            </div>
+                                        )
+                                    })
+                                ) : pickerLevel === 1 ? (
+                                    Object.keys(apiData[pickerRole] || {}).sort().filter(d => d.toLowerCase().includes(searchQuery.toLowerCase())).map(dept => {
+                                        const count = getDeptUserCount(dept);
+                                        const usersInGroup = apiData[pickerRole]?.[dept] || [];
+                                        const allSelected = usersInGroup.length > 0 && usersInGroup.every(u => isItemSelected(u.user_id));
+                                        
+                                        return (
+                                            <div key={dept} onClick={() => {
+                                                setPickerDept(dept);
+                                                setPickerLevel(2);
+                                                setSearchQuery('');
+                                            }} className={`flex items-center p-4 rounded-xl border transition-all cursor-pointer ${allSelected ? 'bg-indigo-50 border-indigo-200' : 'bg-white border-slate-100 hover:border-indigo-300'}`}>
+                                                <div className="flex-1">
+                                                    <h4 className="text-[0.9rem] font-bold text-slate-800 mb-1">{dept} ({count})</h4>
+                                                    <p className="text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest">Target all in {dept}</p>
+                                                </div>
+                                                <div className="flex items-center gap-3">
+                                                    <button
+                                                        onClick={(e) => { e.stopPropagation(); toggleGroup(usersInGroup); }}
+                                                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[0.7rem] font-extrabold border transition-all ${
+                                                            allSelected
+                                                              ? 'bg-indigo-500 border-indigo-500 text-white shadow-md shadow-indigo-200'
+                                                              : 'bg-white border-indigo-300 text-indigo-600 hover:bg-indigo-50'
+                                                        }`}
+                                                    >
+                                                        {allSelected ? <><Check size={12} /> Deselect</> : 'Select All'}
+                                                    </button>
+                                                    <ChevronRight size={18} className="text-slate-300" />
+                                                </div>
+                                            </div>
+                                        )
+                                    })
+                                ) : (
+                                    (pickerRole === 'staff' ? (apiData.staff || []) : (apiData[pickerRole]?.[pickerDept] || []))
+                                    .filter(u => u?.name?.toLowerCase().includes(searchQuery.toLowerCase()) || String(u?.user_id || '').includes(searchQuery))
+                                    .map(user => {
+                                        const isSelected = isItemSelected(user.user_id);
+                                        return (
+                                            <button
+                                                key={user.user_id}
+                                                onClick={() => toggleUser(user.user_id)}
+                                                className={`w-full flex items-center justify-between p-3.5 rounded-xl text-left transition-all cursor-pointer ${isSelected ? 'bg-indigo-50 border border-indigo-200 shadow-[0_2px_10px_-4px_rgba(99,102,241,0.3)]' : 'bg-white border border-slate-100 hover:border-indigo-300'}`}
+                                            >
+                                                <div className="flex items-center gap-3.5">
+                                                    <div className={`w-11 h-11 rounded-xl flex items-center justify-center font-black text-[1.1rem] transition-colors ${isSelected ? 'bg-indigo-500 text-white shadow-md shadow-indigo-200' : 'bg-slate-100 text-slate-500'}`}>
+                                                        {user.name.charAt(0)}
+                                                    </div>
+                                                    <div>
+                                                        <span className={`block text-[0.9rem] font-extrabold ${isSelected ? 'text-indigo-900' : 'text-slate-800'}`}>{user.name}</span>
+                                                        <span className="text-[0.7rem] text-slate-500 font-bold uppercase tracking-[0.5px] mt-0.5">{user.designation || pickerRole} &middot; {user.reg_no || `#${user.user_id}`}</span>
+                                                    </div>
+                                                </div>
+                                                {isSelected && <CheckCircle2 size={20} className="text-indigo-600" />}
+                                            </button>
+                                        );
+                                    })
+                                )}
+                            </div>
+
+                            <div className="pt-5 mt-auto border-t border-slate-100">
+                                <button onClick={() => setShowUserPicker(false)} className="w-full py-3.5 bg-slate-900 text-white font-extrabold text-[0.9rem] rounded-xl shadow-lg shadow-slate-200 hover:bg-slate-800 transition-all cursor-pointer">
+                                    Done &middot; {taskData.assigneeIds.length} Selected
+                                </button>
+                            </div>
+                    </div>
+                )}
             </motion.div>
-        </div>
+        </div>,
+        document.body
     );
 };
 

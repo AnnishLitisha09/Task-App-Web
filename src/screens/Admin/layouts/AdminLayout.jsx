@@ -8,11 +8,12 @@ import TasksPage from '../Tasks/TasksPage';
 import ScoreboardPage from '../Scoreboard/ScoreboardPage';
 import ResourcesPage from '../Resources/ResourcesPage';
 import CoupenPage from '../Coupons/CouponsPage';
-import AuthorityPage from '../Authority/AuthorityPage';
 import TaskTitlesPage from '../TaskTitles/TaskTitlesPage';
 
 import AcknowledgmentTrackingPage from '../Governance/AcknowledgmentTrackingPage';
 import UniversalGovernancePage from '../Governance/UniversalGovernancePage';
+import ActiveSessionsPage from '../Governance/ActiveSessionsPage';
+import NotificationsPage from '../../Notifications/NotificationsPage';
 import { Edit2, Bell, Menu, X } from 'lucide-react';
 import api from '../../../utils/api';
 
@@ -49,9 +50,7 @@ const AdminLayout = ({ user: initialUser, onLogout }) => {
         switch (activeTab) {
             case 'Dashboard': return <AdminDashboard />;
             case 'Users': return <UsersPage />;
-            case 'Authority': return <AuthorityPage />;
-            case 'Departments': return <DepartmentsPage />;
-            case 'Infrastructure': return <InfrastructurePage />;
+            case 'Departments': return <DepartmentsPage />;            case 'Infrastructure': return <InfrastructurePage />;
             case 'Directives': return <TasksPage />;
             case 'Task Titles': return <TaskTitlesPage />;
             case 'Scoreboard': return <ScoreboardPage />;
@@ -60,6 +59,8 @@ const AdminLayout = ({ user: initialUser, onLogout }) => {
 
             case 'System Governance': return <UniversalGovernancePage />;
             case 'Ack. Tracking': return <AcknowledgmentTrackingPage />;
+            case 'Active Sessions': return <ActiveSessionsPage />;
+            case 'Notifications': return <NotificationsPage />;
             default:
                 return (
                     <div className="flex flex-col items-center justify-center p-16 text-slate-500">
@@ -98,8 +99,12 @@ const AdminLayout = ({ user: initialUser, onLogout }) => {
                     </div>
 
                     <div className="flex items-center gap-5 max-md:gap-3">
-                        <button className="max-[480px]:hidden bg-transparent text-slate-500 cursor-pointer relative p-[5px] grid place-items-center transition-colors hover:text-indigo-500">
+                        <button 
+                            onClick={() => setActiveTab('Notifications')}
+                            className={`max-[480px]:hidden bg-transparent cursor-pointer relative p-[5px] grid place-items-center transition-colors ${activeTab === 'Notifications' ? 'text-indigo-500' : 'text-slate-500 hover:text-indigo-500'}`}
+                        >
                             <Bell size={20} />
+                            {/* We could fetch real unread count here if we had a global state */}
                             <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-rose-500 border-2 border-white rounded-full"></span>
                         </button>
                         <div className="hidden max-[480px]:hidden w-px h-6 bg-slate-200"></div>

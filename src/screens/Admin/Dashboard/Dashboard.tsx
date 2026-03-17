@@ -32,12 +32,34 @@ const AdminDashboard = () => {
         { label: 'Role Users', value: counts.role_users.toLocaleString(), icon: ShieldCheck, color: '#f59e0b' },
     ];
 
-    const alerts = [
-        { id: 1, title: 'Unassigned Department', detail: 'Biotechnology Dept lacks a verified HOD.', status: 'Critical', icon: Building2, color: '#f43f5e', time: '2h ago' },
-        { id: 2, title: 'Infrastructure Ownership', detail: 'Lab 402 has no assigned faculty owner.', status: 'Pending', icon: MapPin, color: '#f59e0b', time: '5h ago' },
-        { id: 3, title: 'Mandatory Task Overdue', detail: 'Monthly Safety Audit is 2 days late.', status: 'Overdue', icon: AlertTriangle, color: '#f59e0b', time: '1d ago' },
-        { id: 4, title: 'Role Permission Leak', detail: 'External Guest role has elevated access.', status: 'Critical', icon: ShieldAlert, color: '#f43f5e', time: '3d ago' },
-    ];
+    const handleDownloadReport = async (type: 'venue' | 'resource') => {
+        try {
+            const endpoint = type === 'venue' ? '/resources/venues/export' : '/resources/export';
+            const response = await api(endpoint, {
+                method: 'GET',
+                responseType: 'blob' // We will assume the frontend `api` handles blob or we fetch it natively if needed.
+            });
+            
+            // Note: Since standard api wrapper might not support blob easily, using fetch directly:
+            const token = localStorage.getItem('token');
+            const res = await fetch(`http://localhost:5000/api${endpoint}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `admin_${type}_utilisation_${Date.now()}.xlsx`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        } catch (error) {
+            console.error(`Failed to download ${type} report:`, error);
+        }
+    };
 
     return (
         <div className="p-10 bg-white min-h-screen flex flex-col box-border font-['Inter',sans-serif] max-md:p-6">
@@ -74,72 +96,54 @@ const AdminDashboard = () => {
                 ))}
             </div>
 
-            {/* Governance Panel */}
+            {/* System Reports Panel */}
             <section className="bg-white rounded-[20px] border border-slate-200 grow flex flex-col overflow-hidden shadow-[0_4px_6px_-1px_rgba(0,0,0,0.05)]">
                 <div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-white">
                     <div className="flex items-center gap-3">
                         <ShieldAlert size={20} className="text-indigo-500" />
                         <div>
-                            <h2 className="text-[1.25rem] font-extrabold text-slate-900 m-0">Governance &amp; Compliance</h2>
-                            <p className="text-xs text-slate-500 mt-1">Real-time alerts requiring administrative action</p>
+                            <h2 className="text-[1.25rem] font-extrabold text-slate-900 m-0">System Reports & Analytics</h2>
+                            <p className="text-xs text-slate-500 mt-1">Download comprehensive administrative data and utilisation logs.</p>
                         </div>
                     </div>
-                    <button className="flex items-center gap-2 bg-slate-50 border border-slate-200 px-[18px] py-2.5 rounded-xl text-[0.85rem] font-bold text-slate-600 cursor-pointer transition-all hover:bg-white hover:text-indigo-500 hover:border-indigo-500 hover:shadow-[0_4px_12px_rgba(99,102,241,0.1)] hover:-translate-y-px">
-                        <ArrowUpRight size={16} />
-                        <span>Export Report</span>
-                    </button>
                 </div>
 
-                <div className="px-6 py-4 pb-10 overflow-x-auto custom-scrollbar">
-                    <table className="w-full border-collapse border-spacing-0 border-spacing-y-2 min-w-[800px]">
-                        <thead>
-                            <tr>
-                                <th className="py-3 px-4 text-left text-[0.75rem] font-bold text-slate-400 uppercase tracking-[0.05em]">Issue Detail</th>
-                                <th className="py-3 px-4 text-left text-[0.75rem] font-bold text-slate-400 uppercase tracking-[0.05em]">Severity</th>
-                                <th className="py-3 px-4 text-left text-[0.75rem] font-bold text-slate-400 uppercase tracking-[0.05em]">Reported</th>
-                                <th className="py-3 px-4 text-right text-[0.75rem] font-bold text-slate-400 uppercase tracking-[0.05em]">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {alerts.map((alert, i) => (
-                                <motion.tr
-                                    key={alert.id}
-                                    className="bg-white hover:bg-slate-50 transition-colors"
-                                    initial={{ opacity: 0, x: -10 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.2 + (i * 0.05) }}
-                                >
-                                    <td className="py-4 px-4 align-middle border-t border-b border-slate-100 first:border-l first:rounded-l-xl last:border-r last:rounded-r-xl">
-                                        <div className="flex items-center gap-3.5">
-                                            <div className="w-10 h-10 rounded-[10px] flex items-center justify-center shrink-0" style={{ backgroundColor: `${alert.color}15`, color: alert.color }}>
-                                                <alert.icon size={18} />
-                                            </div>
-                                            <div className="flex flex-col">
-                                                <span className="text-[0.95rem] font-bold text-slate-900">{alert.title}</span>
-                                                <span className="text-[0.8rem] text-slate-500 mt-0.5">{alert.detail}</span>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td className="py-4 px-4 align-middle border-t border-b border-slate-100">
-                                        <span className="px-3 py-1 rounded-full text-[0.72rem] font-bold uppercase inline-flex" style={{ backgroundColor: `${alert.color}10`, color: alert.color }}>
-                                            {alert.status}
-                                        </span>
-                                    </td>
-                                    <td className="py-4 px-4 align-middle border-t border-b border-slate-100">
-                                        <div className="flex items-center gap-1.5 text-slate-400 text-[0.8rem] font-semibold">
-                                            <Clock size={12} />
-                                            <span>{alert.time}</span>
-                                        </div>
-                                    </td>
-                                    <td className="py-4 px-4 align-middle border-t border-b border-slate-100 text-right">
-                                        <button className="bg-slate-100 text-slate-600 border-none px-4 py-2 rounded-lg text-[0.8rem] font-bold cursor-pointer transition-all hover:bg-indigo-500 hover:text-white hover:shadow-[0_4px_12px_rgba(99,102,241,0.25)]">
-                                            Resolve
-                                        </button>
-                                    </td>
-                                </motion.tr>
-                            ))}
-                        </tbody>
-                    </table>
+                <div className="p-8 grid grid-cols-2 gap-6 max-md:grid-cols-1">
+                    {/* Venue Report Card */}
+                    <div className="border border-slate-200 rounded-2xl p-6 flex items-start gap-5 hover:border-indigo-300 transition-colors shadow-sm bg-slate-50/50">
+                        <div className="w-14 h-14 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center shrink-0">
+                            <Building2 size={28} />
+                        </div>
+                        <div className="flex-1">
+                            <h3 className="text-lg font-black text-slate-900">Venue Utilisation Report</h3>
+                            <p className="text-sm text-slate-500 mt-1 mb-4">View occupancy, booking trends, and maintenance logs across all institutional venues.</p>
+                            <button 
+                                onClick={() => handleDownloadReport('venue')}
+                                className="flex items-center gap-2 bg-white border border-slate-200 px-4 py-2.5 rounded-xl text-sm font-bold text-slate-700 hover:text-indigo-600 hover:border-indigo-600 hover:shadow-md transition-all active:scale-95"
+                            >
+                                <ArrowUpRight size={16} />
+                                Download .xlsx
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Resource Report Card */}
+                    <div className="border border-slate-200 rounded-2xl p-6 flex items-start gap-5 hover:border-green-300 transition-colors shadow-sm bg-slate-50/50">
+                        <div className="w-14 h-14 bg-green-100 text-green-600 rounded-2xl flex items-center justify-center shrink-0">
+                            <MapPin size={28} />
+                        </div>
+                        <div className="flex-1">
+                            <h3 className="text-lg font-black text-slate-900">Resource Inventory Report</h3>
+                            <p className="text-sm text-slate-500 mt-1 mb-4">Full breakdown of physical resources, health statuses, and asset tracking histories.</p>
+                            <button 
+                                onClick={() => handleDownloadReport('resource')}
+                                className="flex items-center gap-2 bg-white border border-slate-200 px-4 py-2.5 rounded-xl text-sm font-bold text-slate-700 hover:text-green-600 hover:border-green-600 hover:shadow-md transition-all active:scale-95"
+                            >
+                                <ArrowUpRight size={16} />
+                                Download .xlsx
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </section>
         </div>

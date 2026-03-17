@@ -39,7 +39,24 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
     const [designation, setDesignation] = useState('');
     const [venueId, setVenueId] = useState<number | string>('');
     const [roleName, setRoleName] = useState('');
+    const [scopeName, setScopeName] = useState('');
     const [facultyType, setFacultyType] = useState('Professor');
+
+    // Auto-map scope when roleName changes
+    const ROLE_SCOPE_MAP: Record<string, string> = {
+        HOD: 'departmental',
+        DEAN: 'institutional',
+        PRINCIPAL: 'institutional',
+        INCHARGE: 'infrastructure',
+        DIRECTOR: 'institutional',
+    };
+    const ROLE_OPTIONS = ['HOD', 'DEAN', 'PRINCIPAL', 'INCHARGE', 'DIRECTOR'];
+
+    useEffect(() => {
+        if (roleName && ROLE_SCOPE_MAP[roleName]) {
+            setScopeName(ROLE_SCOPE_MAP[roleName]);
+        }
+    }, [roleName]);
 
     // Fetch Faculty List
     useEffect(() => {
@@ -115,6 +132,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
         setDesignation('');
         setVenueId('');
         setRoleName('');
+        setScopeName('');
         setAdvisorSearch('');
         setError('');
     };
@@ -123,14 +141,32 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
         setIsLoading(true);
         setError('');
 
-        // Validation for department_id
-        const isDepartmentRequired = ['student', 'faculty', 'role-user'].includes(category);
+        // Dept only required for student, faculty, AND role-user when role is HOD
+        const isDepartmentRequired = ['student', 'faculty'].includes(category) || (category === 'role-user' && roleName === 'HOD');
         const isDeptEmpty = deptId === '' || deptId === null || deptId === undefined;
 
         if (isDepartmentRequired && isDeptEmpty) {
-            setError('Please Select a Department');
+            setError(roleName === 'HOD' ? 'Please select a Department for HOD' : 'Please Select a Department');
             setIsLoading(false);
             return;
+        }
+
+        if (category === 'role-user') {
+            if (!fullName.trim()) {
+                setError('Please enter the Authority Name');
+                setIsLoading(false);
+                return;
+            }
+            if (!roleName) {
+                setError('Please select a Role');
+                setIsLoading(false);
+                return;
+            }
+            if (!scopeName) {
+                setError('Please select a Scope');
+                setIsLoading(false);
+                return;
+            }
         }
 
         try {
@@ -194,8 +230,9 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                     payload = {
                         ...payload,
                         roleName: roleName,
-                        department_id: parsedDeptId,
-                        venue_id: parsedVenueId
+                        scope: scopeName,
+                        department_id: roleName === 'HOD' ? parsedDeptId : null,
+                        venue_id: (roleName === 'INCHARGE' || roleName === 'LIBRARY_INCHARGE') ? parsedVenueId : null
                     };
                     break;
                 default:
@@ -352,7 +389,11 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                         </div>
                     </div>
                 );
-            case 'role-user':
+            case 'role-user': {
+                const isHOD = roleName === 'HOD';
+                const isIncharge = roleName === 'INCHARGE';
+                const needsDept = isHOD;
+                const needsVenue = isIncharge;
                 return (
                     <div className={inputGridClasses}>
                         <div className={inputGroupClasses}>
@@ -360,36 +401,64 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                             <input type="text" value={fullName} onChange={e => setFullName(e.target.value)} className={inputClasses} />
                         </div>
                         <div className={inputGroupClasses}>
-                            <label className={labelClasses}>Role</label>
+                            <label className={labelClasses}>Role / Designation</label>
                             <select value={roleName} onChange={e => setRoleName(e.target.value)} className={selectClasses}>
                                 <option value="">Select Role</option>
-                                {['HOD', 'PRINCIPAL', 'LIBRARY_INCHARGE', 'DIRECTOR'].map(r => <option key={r} value={r}>{r}</option>)}
+                                {ROLE_OPTIONS.map(r => <option key={r} value={r}>{r.replace(/_/g, ' ')}</option>)}
                             </select>
                         </div>
-                        <div className={inputGroupClasses}>
-                            <label className={labelClasses}>Department (Optional)</label>
-                            <select value={deptId} onChange={e => setDeptId(e.target.value)} className={selectClasses}>
-                                <option value="">None</option>
-                                {departments.map(d => (
-                                    <option key={d.id || d.department_id || d.departmentId} value={d.id || d.department_id || d.departmentId}>
-                                        {d.name || d.department_name || d.departmentName}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                        <div className={inputGroupClasses}>
-                            <label className={labelClasses}>Venue (Optional)</label>
-                            <select value={venueId} onChange={e => setVenueId(e.target.value)} className={selectClasses}>
-                                <option value="">None</option>
-                                {venues.map(v => (
-                                    <option key={v.id || v.venue_id || v.venueId} value={v.id || v.venue_id || v.venueId}>
-                                        {v.name || v.venue_name || v.venueName}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
+
+                        {/* HOD: needs department */}
+                        {needsDept && (
+                            <div className={`${inputGroupClasses} md:col-span-2`}>
+                                <label className={`${labelClasses} text-indigo-600`}>📚 Department <span className="text-red-500">*</span></label>
+                                <select value={deptId} onChange={e => setDeptId(e.target.value)} className={selectClasses}>
+                                    <option value="">Select Department</option>
+                                    {departments.map(d => (
+                                        <option key={d.id || d.department_id} value={d.id || d.department_id}>
+                                            {d.name || d.department_name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
+
+                        {/* INCHARGE: needs venue */}
+                        {needsVenue && (
+                            <div className={`${inputGroupClasses} md:col-span-2`}>
+                                <label className={`${labelClasses} text-amber-600`}>🏢 Venue / Facility <span className="text-red-500">*</span></label>
+                                <select value={venueId} onChange={e => setVenueId(e.target.value)} className={selectClasses}>
+                                    <option value="">Select Venue</option>
+                                    {venues.map(v => (
+                                        <option key={v.id || v.venue_id} value={v.id || v.venue_id}>
+                                            {v.name || v.venue_name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
+
+                        {/* Scope — auto-mapped but override allowed */}
+                        {roleName && (
+                            <div className={`${inputGroupClasses} md:col-span-2`}>
+                                <label className={labelClasses}>
+                                    🔑 Authority Scope
+                                    <span className="ml-2 text-[0.7rem] font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+                                        AUTO-MAPPED
+                                    </span>
+                                </label>
+                                <select value={scopeName} onChange={e => setScopeName(e.target.value)} className={`${selectClasses} border-emerald-300 focus:border-emerald-500 focus:shadow-[0_0_0_4px_rgba(16,185,129,0.1)]`}>
+                                    <option value="">Select Scope</option>
+                                    <option value="departmental">🏫 Departmental — Access to one department</option>
+                                    <option value="institutional">🏛️ Institutional — Access to full institution</option>
+                                    <option value="infrastructure">🏢 Infrastructure — Access to venues/facilities</option>
+                                </select>
+                                <p className="text-[0.7rem] text-slate-400 mt-1">Auto-set based on role. You can override if needed.</p>
+                            </div>
+                        )}
                     </div>
                 );
+            }
             default:
                 return <div className="text-center py-12 text-slate-500">Please select a user category in Step 1 to continue</div>;
         }
@@ -398,7 +467,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
     return (
         <AnimatePresence>
             {isOpen && (
-                <div className="fixed inset-0 z-[5000] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+                <div className="fixed inset-0 z-5000 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
                     <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
                         <div className="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-white z-10 shrink-0">
                             <div className="flex items-center gap-3">

@@ -1,10 +1,10 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Search, Plus, Box, User, Monitor,
     LayoutGrid, List, MoreVertical, Edit2, UserPlus, 
     CheckCircle2, Clock, XCircle, MapPin, Cpu, ArrowRightLeft, 
-    Save, X, Settings2, Info, AlertTriangle, Hammer, Wrench, Layers, Activity, Check
+    Save, X, Settings2, Info, AlertTriangle, Hammer, Wrench, Layers, Activity, Check, Upload
 } from 'lucide-react';
 import api from '../../../utils/api';
 import ResourceModal from '../../../components/UI/ResourceModal/ResourceModal';
@@ -53,6 +53,9 @@ const ResourcesPage = () => {
     
     // Global Alert State
     const [alertConfig, setAlertConfig] = useState({ isOpen: false, title: '', description: '', type: 'info' });
+    const [bulkResult, setBulkResult] = useState(null);
+    const [isBulkUploading, setIsBulkUploading] = useState(false);
+    const bulkInputRef = useRef(null);
 
     // Pagination State
     const [currentPage, setCurrentPage] = useState(1);
@@ -264,6 +267,25 @@ const ResourcesPage = () => {
         });
     };
 
+    const handleBulkUploadAssets = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        setIsBulkUploading(true);
+        setBulkResult(null);
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+            const res = await api('/resources/bulk', { method: 'POST', body: formData });
+            setBulkResult(res);
+            fetchData();
+        } catch (err) {
+            setBulkResult({ error: err.message });
+        } finally {
+            setIsBulkUploading(false);
+            e.target.value = '';
+        }
+    };
+
     const getVenueCount = (v) => {
         const raw = v.total_resource_count ?? v.systems_count ?? v.resource_count ?? v.count ?? 0;
         return parseInt(raw) || 0;
@@ -339,12 +361,22 @@ const ResourcesPage = () => {
 
                     <div className="flex items-center gap-3">
                         {viewType === 'assets' ? (
-                            <button
-                                onClick={handleCreate}
-                                className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-2xl text-sm font-black shadow-xl shadow-indigo-100 transition-all flex items-center gap-2 active:scale-95"
-                            >
-                                <Plus size={18} /> New Master Record
-                            </button>
+                            <>
+                                <input ref={bulkInputRef} type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={handleBulkUploadAssets} />
+                                <button
+                                    onClick={() => bulkInputRef.current?.click()}
+                                    disabled={isBulkUploading}
+                                    className="flex items-center gap-2 border border-indigo-300 text-indigo-600 bg-indigo-50 px-5 py-3 rounded-2xl text-sm font-black hover:bg-indigo-100 transition-all disabled:opacity-60"
+                                >
+                                    <Upload size={16} />{isBulkUploading ? 'Uploading…' : 'Bulk Upload'}
+                                </button>
+                                <button
+                                    onClick={handleCreate}
+                                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-2xl text-sm font-black shadow-xl shadow-indigo-100 transition-all flex items-center gap-2 active:scale-95"
+                                >
+                                    <Plus size={18} /> New Master Record
+                                </button>
+                            </>
                         ) : viewType === 'venues' ? (
                             <button className="flex items-center gap-2 bg-slate-900 text-white px-6 py-3 rounded-2xl text-sm font-black shadow-xl shadow-slate-200 hover:bg-slate-800 transition-all active:scale-95">
                                 <ArrowRightLeft size={18} />
@@ -361,6 +393,25 @@ const ResourcesPage = () => {
                     </div>
                 </div>
             </div>
+            {/* Bulk Upload Result Banner */}
+            <AnimatePresence>
+                {bulkResult && (
+                    <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                        className={`mx-8 mb-4 p-4 rounded-xl flex items-start gap-3 border ${bulkResult.error ? 'bg-red-50 border-red-200 text-red-700' : 'bg-emerald-50 border-emerald-200 text-emerald-800'}`}>
+                        {bulkResult.error ? <AlertTriangle size={18} className="mt-0.5 shrink-0" /> : <CheckCircle2 size={18} className="mt-0.5 shrink-0" />}
+                        <div className="flex-1 text-sm">
+                            {bulkResult.error
+                                ? <p className="font-bold">Upload failed: {bulkResult.error}</p>
+                                : <><p className="font-bold">Bulk Upload Complete!</p>
+                                    <p className="text-xs mt-0.5">✅ Created: {(bulkResult.results || []).filter(r => r.status === 'created').length} &nbsp;⏭ Skipped: {(bulkResult.results || []).filter(r => r.status === 'skipped').length} &nbsp;❌ Failed: {(bulkResult.results || []).filter(r => r.status === 'failed').length}</p>
+                                    <p className="text-xs italic mt-0.5 opacity-70">Required columns: name, quantity, status (optional), venue_name (optional)</p>
+                                </>
+                            }
+                        </div>
+                        <button onClick={() => setBulkResult(null)} className="text-slate-400 hover:text-slate-600"><X size={16} /></button>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {/* --- CONTENT --- */}
             <div className="flex-1 px-8 py-8 min-h-0 overflow-y-auto custom-scrollbar">
@@ -631,12 +682,19 @@ const VenueCard = ({ venue, onAssign, onViewDetails, delay }) => {
                 
                 <div className="flex flex-wrap gap-2 mt-1">
                     {assets.length > 0 ? (
-                        assets.map((assetName, idx) => (
-                            <div key={idx} className="px-3 py-1.5 bg-white border border-slate-100 rounded-xl shadow-sm text-[9px] font-black text-slate-600 uppercase tracking-tighter flex items-center gap-1.5 hover:border-indigo-200 hover:text-indigo-600 transition-all duration-300">
-                                <div className="w-1 h-1 rounded-full bg-indigo-400" />
-                                {assetName}
-                            </div>
-                        ))
+                        <>
+                            {assets.slice(0, 2).map((assetName, idx) => (
+                                <div key={idx} className="px-3 py-1.5 bg-white border border-slate-100 rounded-xl shadow-sm text-[9px] font-black text-slate-600 uppercase tracking-tighter flex items-center gap-1.5 hover:border-indigo-200 hover:text-indigo-600 transition-all duration-300">
+                                    <div className="w-1 h-1 rounded-full bg-indigo-400" />
+                                    {assetName}
+                                </div>
+                            ))}
+                            {assets.length > 2 && (
+                                <div className="px-3 py-1.5 bg-indigo-50 border border-indigo-100 rounded-xl shadow-sm text-[9px] font-black text-indigo-600 uppercase tracking-tighter flex items-center gap-1.5 hover:bg-indigo-600 hover:text-white transition-all duration-300">
+                                    +{assets.length - 2} More
+                                </div>
+                            )}
+                        </>
                     ) : (
                         <div className="w-full flex flex-col items-center justify-center py-4 text-slate-300 border-2 border-dashed border-slate-100 rounded-2xl">
                              <Box size={16} className="mb-1 opacity-50" />

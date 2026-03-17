@@ -9,32 +9,62 @@ import {
 import TaskDetails from './TaskDetails';
 import CreateTask from './CreateTask';
 import Pagination from '../../../components/UI/Pagination/Pagination';
-
-const mockTasks = [
-    { id: 1, title: 'Annual Academic Audit', category: 'Academic', priority: 'Critical', status: 'Active', dueDate: '2024-03-15', location: 'Main Hall', methods: ['QR Scan', 'Photo', 'Doc Upload'], assignees: 3, score: 100, description: 'Comprehensive audit of academic processes' },
-    { id: 2, title: 'Lab Equipment Inspection', category: 'Compliance', priority: 'Medium', status: 'Review', dueDate: '2024-03-18', location: 'Lab 101', methods: ['Photo', 'Doc Upload'], assignees: 2, score: 75, description: 'Quarterly equipment safety check' },
-    { id: 3, title: 'Faculty Meeting Minutes', category: 'Administrative', priority: 'Low', status: 'Completed', dueDate: '2024-03-10', location: 'Conference Room', methods: ['Doc Upload'], assignees: 1, score: 50, description: 'Document monthly faculty discussions' },
-];
+import api from '../../../utils/api';
 
 const TasksPage = () => {
     const [searchQuery, setSearchQuery] = useState('');
-    const [tasks, setTasks] = useState(mockTasks);
+    const [tasks, setTasks] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
     const [selectedTask, setSelectedTask] = useState(null);
     const [isCreating, setIsCreating] = useState(false);
     const [viewMode, setViewMode] = useState('table');
     const [statusFilter, setStatusFilter] = useState('all');
     const [priorityFilter, setPriorityFilter] = useState('all');
 
+    const adminId = localStorage.getItem('userId');
+
+    const fetchTasks = async () => {
+        setIsLoading(true);
+        try {
+            // Fetch tasks created by this admin
+            const response = await api(`tasks/created-by/${adminId}`);
+            setTasks(response.items || []);
+        } catch (err) {
+            console.error("Failed to fetch tasks:", err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    React.useEffect(() => {
+        if (adminId) fetchTasks();
+    }, [adminId]);
+
     // Pagination State
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
 
     const handleTaskClick = (task) => setSelectedTask(task);
-    const handleDelete = (taskId) => setTasks(tasks.filter(t => t.id !== taskId));
+    const handleDelete = async (taskId) => {
+        if (window.confirm("Are you sure you want to delete this task?")) {
+            try {
+                await api(`tasks/${taskId}`, { method: 'DELETE' });
+                setTasks(tasks.filter(t => t.task_id !== taskId));
+            } catch (err) {
+                alert("Delete failed: " + err.message);
+            }
+        }
+    };
 
     const filteredTasks = tasks.filter(task => {
-        const matchesSearch = task.title.toLowerCase().includes(searchQuery.toLowerCase()) || task.category.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesStatus = statusFilter === 'all' || task.status === statusFilter;
+        const matchesSearch = task.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                             (task.category && task.category.toLowerCase().includes(searchQuery.toLowerCase()));
+        
+        let taskStatus = 'Active';
+        if (task.is_completed) taskStatus = 'Completed';
+        else if (task.is_approved === false) taskStatus = 'Review';
+
+        const matchesStatus = statusFilter === 'all' || taskStatus === statusFilter;
         const matchesPriority = priorityFilter === 'all' || task.priority === priorityFilter;
         return matchesSearch && matchesStatus && matchesPriority;
     });
@@ -61,9 +91,56 @@ const TasksPage = () => {
         return <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}><TaskDetails task={selectedTask} onBack={() => setSelectedTask(null)} /></motion.div>;
     }
 
-    const getPriorityColor = (p) => ({ Critical: '#ef4444', High: '#f59e0b', Medium: '#6366f1', Low: '#10b981' }[p] || '#64748b');
-    const getStatusColor = (s) => ({ Active: '#3b82f6', Review: '#f59e0b', Completed: '#10b981' }[s] || '#64748b');
-    const getMethodIcon = (m) => ({ 'QR Scan': <QrCode size={14} />, 'Photo': <Camera size={14} />, 'Doc Upload': <FileText size={14} /> }[m] || <CheckCircle2 size={14} />);
+    const getTaskStatus = (task) => {
+        if (task.is_completed) return 'Completed';
+        if (task.is_approved === false) return 'Review';
+        return 'Active';
+    };
+
+    const getTaskDate = (task) => {
+        if (!task.TaskType) return 'N/A';
+        const data = task.TaskType;
+        return data.start_date || 'Ongoing';
+    };
+
+    const getTaskLocation = (task) => {
+        return task.Venue ? task.Venue.name : (task.venue_id ? `Venue #${task.venue_id}` : 'Remote');
+    };
+
+    const getAssigneeCount = (task) => {
+        return task.TaskAssigns ? task.TaskAssigns.length : 0;
+    };
+
+    const getTaskMethods = (task) => {
+        // Backend might have closure_ids or completionMethods array
+        // For now, return a placeholder or map if available
+        return ['QR Scan', 'Photo']; 
+    };
+
+    const getPriorityColor = (priority) => {
+        switch (priority) {
+            case 'Critical': return '#ef4444';
+            case 'High': return '#f59e0b';
+            case 'Medium': return '#3b82f6';
+            case 'Low': return '#64748b';
+            default: return '#94a3b8';
+        }
+    };
+
+    const getStatusColor = (status) => {
+        switch (status) {
+            case 'Completed': return '#10b981';
+            case 'Review': return '#f59e0b';
+            case 'Active': return '#3b82f6';
+            default: return '#64748b';
+        }
+    };
+
+    const getMethodIcon = (method) => {
+        if (method === 'QR Scan') return <QrCode size={14} className="text-indigo-500" />;
+        if (method === 'Photo') return <Camera size={14} className="text-emerald-500" />;
+        return <CheckCircle2 size={14} className="text-slate-400" />;
+    };
 
     return (
         <motion.div
@@ -116,15 +193,25 @@ const TasksPage = () => {
             </div>
 
             {/* Content */}
-            {viewMode === 'grid' ? (
+            {isLoading ? (
+                <div className="flex items-center justify-center py-20">
+                    <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+                </div>
+            ) : filteredTasks.length === 0 ? (
+                <div className="text-center py-20 bg-slate-50 rounded-3xl border border-dashed border-slate-200">
+                    <FileText size={48} className="mx-auto text-slate-300 mb-4" />
+                    <h3 className="text-lg font-bold text-slate-600">No Directives Found</h3>
+                    <p className="text-slate-400">Click "Create Directive" to issue a new task.</p>
+                </div>
+            ) : viewMode === 'grid' ? (
                 <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-6">
                     {paginatedTasks.map((task, idx) => (
-                        <motion.div key={task.id} className="bg-white rounded-[18px] border border-slate-200 p-6 flex flex-col gap-5 cursor-pointer transition-all hover:border-indigo-500 hover:-translate-y-1.5 hover:shadow-[0_15px_30px_-10px_rgba(0,0,0,0.1)]"
+                        <motion.div key={task.task_id} className="bg-white rounded-[18px] border border-slate-200 p-6 flex flex-col gap-5 cursor-pointer transition-all hover:border-indigo-500 hover:-translate-y-1.5 hover:shadow-[0_15px_30px_-10px_rgba(0,0,0,0.1)]"
                             initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: idx * 0.05 }} whileHover={{ y: -5 }}>
                             <div className="flex justify-between items-center">
                                 <div className="flex gap-2">
                                     <span className="px-2.5 py-1 rounded-lg text-[0.7rem] font-bold uppercase tracking-[0.02em]" style={{ backgroundColor: `${getPriorityColor(task.priority)}15`, color: getPriorityColor(task.priority) }}>{task.priority}</span>
-                                    <span className="px-2.5 py-1 rounded-lg text-[0.7rem] font-bold uppercase tracking-[0.02em]" style={{ backgroundColor: `${getStatusColor(task.status)}15`, color: getStatusColor(task.status) }}>{task.status}</span>
+                                    <span className="px-2.5 py-1 rounded-lg text-[0.7rem] font-bold uppercase tracking-[0.02em]" style={{ backgroundColor: `${getStatusColor(getTaskStatus(task))}15`, color: getStatusColor(getTaskStatus(task)) }}>{getTaskStatus(task)}</span>
                                 </div>
                                 <button className="bg-transparent border-none text-slate-400 p-1 cursor-pointer"><MoreVertical size={16} /></button>
                             </div>
@@ -132,17 +219,17 @@ const TasksPage = () => {
                                 <h3 className="text-[1.1rem] font-bold text-slate-800 m-0">{task.title}</h3>
                                 <p className="text-[0.85rem] text-slate-500 mt-1 mb-0">{task.category}</p>
                                 <div className="flex flex-col gap-2 mt-3">
-                                    <div className="flex items-center gap-2 text-[0.85rem] text-slate-500"><MapPin size={14} className="text-slate-400" /><span>{task.location}</span></div>
-                                    <div className="flex items-center gap-2 text-[0.85rem] text-slate-500"><Calendar size={14} className="text-slate-400" /><span>{task.dueDate}</span></div>
+                                    <div className="flex items-center gap-2 text-[0.85rem] text-slate-500"><MapPin size={14} className="text-slate-400" /><span>{getTaskLocation(task)}</span></div>
+                                    <div className="flex items-center gap-2 text-[0.85rem] text-slate-500"><Calendar size={14} className="text-slate-400" /><span>{getTaskDate(task)}</span></div>
                                 </div>
                                 <div className="flex flex-wrap gap-2 mt-3">
-                                    {task.methods.map((method, i) => (
+                                    {getTaskMethods(task).map((method, i) => (
                                         <div key={i} className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-lg text-[0.75rem] font-semibold text-slate-600">{getMethodIcon(method)}<span>{method}</span></div>
                                     ))}
                                 </div>
                             </div>
                             <div className="border-t border-slate-100 pt-5 flex justify-between items-center">
-                                <span className="text-[0.8rem] font-bold text-slate-800">{task.assignees} Assignees</span>
+                                <span className="text-[0.8rem] font-bold text-slate-800">{getAssigneeCount(task)} Assignees</span>
                                 <span className="bg-sky-50 text-sky-900 px-2.5 py-1 rounded-lg text-[0.8rem] font-extrabold">{task.score} pts</span>
                             </div>
                         </motion.div>
@@ -153,20 +240,20 @@ const TasksPage = () => {
                     <div className="overflow-x-auto custom-scrollbar">
                         <div className="min-w-[1000px]">
                             <div className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_140px] px-6 py-4 bg-slate-50 text-[0.75rem] font-bold text-slate-500 uppercase border-b border-slate-100">
-                                <span>Directive</span><span>Category</span><span>Priority</span><span>Status</span><span>Due Date</span><span>Location</span><span className="text-right">Actions</span>
+                                <span>Directive</span><span>Category</span><span>Priority</span><span>Status</span><span>Date</span><span>Location</span><span className="text-right">Actions</span>
                             </div>
                             {paginatedTasks.map((task) => (
-                                <motion.div key={task.id} className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_140px] px-6 py-4 items-center gap-4 border-b border-slate-100" whileHover={{ backgroundColor: '#fcfdfe' }}>
-                                    <div><strong className="block text-[0.95rem] text-slate-800">{task.title}</strong><p className="text-[0.8rem] text-slate-500 m-0 mt-0.5">{task.description}</p></div>
+                                <motion.div key={task.task_id} className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_140px] px-6 py-4 items-center gap-4 border-b border-slate-100" whileHover={{ backgroundColor: '#fcfdfe' }}>
+                                    <div><strong className="block text-[0.95rem] text-slate-800">{task.title}</strong><p className="text-[0.8rem] text-slate-500 m-0 mt-0.5 max-w-[300px] truncate">{task.description}</p></div>
                                     <div className="text-[0.85rem] text-slate-600">{task.category}</div>
                                     <div><span className="px-2.5 py-1 rounded-lg text-[0.7rem] font-bold uppercase" style={{ backgroundColor: `${getPriorityColor(task.priority)}15`, color: getPriorityColor(task.priority) }}>{task.priority}</span></div>
-                                    <div><span className="px-2.5 py-1 rounded-lg text-[0.7rem] font-bold uppercase" style={{ backgroundColor: `${getStatusColor(task.status)}15`, color: getStatusColor(task.status) }}>{task.status}</span></div>
-                                    <div className="text-[0.85rem] text-slate-600">{task.dueDate}</div>
-                                    <div className="text-[0.85rem] text-slate-600">{task.location}</div>
+                                    <div><span className="px-2.5 py-1 rounded-lg text-[0.7rem] font-bold uppercase" style={{ backgroundColor: `${getStatusColor(getTaskStatus(task))}15`, color: getStatusColor(getTaskStatus(task)) }}>{getTaskStatus(task)}</span></div>
+                                    <div className="text-[0.85rem] text-slate-600">{getTaskDate(task)}</div>
+                                    <div className="text-[0.85rem] text-slate-600 truncate">{getTaskLocation(task)}</div>
                                     <div className="flex justify-end gap-2">
                                         <button className="w-8 h-8 rounded-lg border border-slate-200 bg-white text-slate-500 flex items-center justify-center cursor-pointer transition-all hover:bg-slate-100 hover:text-indigo-500 hover:border-indigo-500" onClick={() => handleTaskClick(task)}><Eye size={16} /></button>
                                         <button className="w-8 h-8 rounded-lg border border-slate-200 bg-white text-slate-500 flex items-center justify-center cursor-pointer transition-all hover:bg-slate-100 hover:text-indigo-500 hover:border-indigo-500"><Edit3 size={16} /></button>
-                                        <button className="w-8 h-8 rounded-lg border border-slate-200 bg-white text-slate-500 flex items-center justify-center cursor-pointer transition-all hover:bg-red-50 hover:text-red-500 hover:border-red-200" onClick={() => handleDelete(task.id)}><Trash2 size={16} /></button>
+                                        <button className="w-8 h-8 rounded-lg border border-slate-200 bg-white text-slate-500 flex items-center justify-center cursor-pointer transition-all hover:bg-red-50 hover:text-red-500 hover:border-red-200" onClick={() => handleDelete(task.task_id)}><Trash2 size={16} /></button>
                                     </div>
                                 </motion.div>
                             ))}

@@ -10,8 +10,6 @@ import {
     Edit3, UserMinus, Users, UserCircle, ShieldCheck, ChevronDown, Upload, CheckCircle2,
     LayoutGrid, List
 } from 'lucide-react';
-import AuthorityModal from '../../../components/UI/AuthorityModal/AuthorityModal';
-import AuthorityTransferModal from '../../../components/UI/AuthorityModal/AuthorityTransferModal';
 import Pagination from '../../../components/UI/Pagination/Pagination';
 
 const UsersPage = () => {
@@ -31,10 +29,8 @@ const UsersPage = () => {
     const [usersList, setUsersList] = useState([]);
     const [apiCounts, setApiCounts] = useState(null);
     const [isUsersLoading, setIsUsersLoading] = useState(true);
-    const [isAuthorityOpen, setIsAuthorityOpen] = useState(false);
-    const [isTransferOpen, setIsTransferOpen] = useState(false);
-    const [authMode, setAuthMode] = useState('create');
     const [isBulkLoading, setIsBulkLoading] = useState(false);
+    const [bulkResult, setBulkResult] = useState(null);
     const [viewMode, setViewMode] = useState('table');
 
     // Pagination State
@@ -109,19 +105,23 @@ const UsersPage = () => {
         const file = event.target.files[0];
         if (!file) return;
         setIsBulkLoading(true);
-        const reader = new FileReader();
-        reader.onload = async (e) => {
-            try {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, { type: 'array' });
-                const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-                const jsonData = XLSX.utils.sheet_to_json(worksheet);
-                const result = await api('/users/bulk-create', { method: 'POST', body: { users: jsonData } });
-                alert(`Successfully uploaded ${result.count || jsonData.length} users!`);
-            } catch (err) { alert(`Error: ${err.message}`); }
-            finally { setIsBulkLoading(false); }
-        };
-        reader.readAsArrayBuffer(file);
+        setBulkResult(null);
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+            const result = await api('/users/bulk', { method: 'POST', body: formData });
+            setBulkResult(result);
+            // Refresh users
+            const response = await api('/users/dashboard/all');
+            if (response?.users) {
+                const mappedUsers = response.users.map(u => {
+                    const info = u.student_info || u.faculty_info || u.staff_info || u.role_user_info || {};
+                    return { ...u, ...info, name: info.name || (u.role === 'admin' ? 'Admin' : 'Unknown'), email: info.email || 'N/A', dept: info.department_name || (u.role_assignments?.[0]?.department) || 'N/A', regNo: info.reg_no || 'N/A', score: parseFloat(info.score || 0), penalty: parseFloat(info.penalty || 0), year: info.year || 'N/A', designation: info.designation || 'N/A' };
+                });
+                setUsersList(mappedUsers);
+            }
+        } catch (err) { setBulkResult({ error: err.message }); }
+        finally { setIsBulkLoading(false); event.target.value = ''; }
     };
 
     const handleExportExcel = () => {
@@ -171,6 +171,26 @@ const UsersPage = () => {
                     </button>
                 </div>
             </div>
+
+            {/* Bulk Upload Result Banner */}
+            <AnimatePresence>
+                {bulkResult && (
+                    <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                        className={`mb-6 p-4 rounded-xl flex items-start gap-3 border ${bulkResult.error ? 'bg-red-50 border-red-200 text-red-700' : 'bg-emerald-50 border-emerald-200 text-emerald-800'}`}>
+                        <CheckCircle2 size={18} className="mt-0.5 shrink-0" />
+                        <div className="flex-1 text-sm">
+                            {bulkResult.error
+                                ? <p className="font-bold">Upload failed: {bulkResult.error}</p>
+                                : <><p className="font-bold">Bulk Upload Complete!</p>
+                                    <p className="text-xs mt-0.5">✅ Created: {(bulkResult.results || []).filter(r => r.status === 'created').length} &nbsp;⏭ Skipped: {(bulkResult.results || []).filter(r => r.status === 'skipped').length} &nbsp;❌ Failed: {(bulkResult.results || []).filter(r => r.status === 'failed').length}</p>
+                                    <p className="text-xs italic mt-0.5 opacity-70">Required columns: user_type, name, email, reg_no (optional), department_name</p>
+                                </>
+                            }
+                        </div>
+                        <button onClick={() => setBulkResult(null)} className="text-slate-400 hover:text-slate-600"><Upload size={0} /></button>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {/* Stats Strip */}
             <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-6 mb-10 max-lg:grid-cols-2 max-[480px]:grid-cols-1">
@@ -367,16 +387,8 @@ const UsersPage = () => {
                     else setUsersList(prev => [mappedUser, ...prev]);
                 }}
             />
-            <ViewUserModal isOpen={isViewOpen} onClose={() => setIsViewOpen(false)} user={selectedUser} onEdit={handleEdit}
-                onAssignAuthority={(user) => { setSelectedUser(user); setAuthMode('create'); setIsAuthorityOpen(true); }}
-                onTransferAuthority={(user) => { setSelectedUser(user); setIsTransferOpen(true); }}
-            />
-            <AuthorityModal isOpen={isAuthorityOpen} onClose={() => setIsAuthorityOpen(false)} authorityData={authMode === 'edit' ? selectedUser : null} initialUser={authMode === 'create' ? selectedUser : null} mode={authMode}
-                onSuccess={() => { setIsAuthorityOpen(false); setToastMsg('Authority assigned successfully!'); setShowToast(true); setTimeout(() => setShowToast(false), 3000); }}
-            />
-            <AuthorityTransferModal isOpen={isTransferOpen} onClose={() => setIsTransferOpen(false)} currentAuthority={selectedUser}
-                onSuccess={() => { setIsTransferOpen(false); setToastMsg('Authority transferred successfully!'); setShowToast(true); setTimeout(() => setShowToast(false), 3000); }}
-            />
+            <ViewUserModal isOpen={isViewOpen} onClose={() => setIsViewOpen(false)} user={selectedUser} onEdit={handleEdit} />
+
             {selectedUser && (
                 <DeleteConfirmModal isOpen={isDeleteOpen} onClose={() => setIsDeleteOpen(false)} userName={selectedUser.name} onConfirm={handleDeleteConfirm} title="Delete User?" confirmText="Delete User" />
             )}
