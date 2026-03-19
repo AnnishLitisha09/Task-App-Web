@@ -116,42 +116,41 @@ const AcknowledgmentTrackingPage = () => {
     };
 
     return (
-        <div className="flex flex-col gap-8">
+        <div className="p-10 max-lg:p-8 max-md:p-6 max-sm:p-4 bg-[#fcfcfd] min-h-screen font-sans flex flex-col gap-10 max-md:gap-8">
             {/* Header Section */}
-            <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
-                <div>
-                    <div className="flex items-center gap-2 mb-2">
-                        <div className="bg-indigo-600 p-1.5 rounded-lg text-white shadow-lg shadow-indigo-100">
-                            <CheckCircle2 size={16} />
-                        </div>
-                        <span className="text-[0.7rem] font-bold text-indigo-600 uppercase tracking-widest">Compliance Registry</span>
+            <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-8">
+                <div className="space-y-1">
+                    <div className="flex items-center gap-2 text-indigo-500 text-[10px] uppercase tracking-[0.3em] mb-2 font-black opacity-80">
+                        <CheckCircle2 size={12} strokeWidth={3} /> Compliance Monitoring
                     </div>
-                    <h1 className="text-[2rem] font-extrabold text-slate-900 m-0 tracking-tight">Ack. Tracking Matrix</h1>
-                    <p className="text-slate-500 mt-2 text-base">Monitor daily morning awareness protocols and track personnel acknowledgment status.</p>
+                    <h1 className="text-4xl max-md:text-3xl font-black text-slate-900 tracking-tighter leading-none">
+                        Acknowledgment <span className="text-indigo-600">Matrix</span>
+                    </h1>
+                    <p className="text-xs text-slate-400 uppercase tracking-widest font-black opacity-60 mt-2">Daily awareness protocols & personnel tracking</p>
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 self-end xl:self-auto">
                     <button 
                         onClick={fetchData}
-                        className="p-3.5 rounded-2xl bg-slate-50 text-slate-500 hover:bg-slate-100 hover:text-indigo-600 transition-all border border-slate-200"
+                        className="p-4 rounded-2xl bg-white text-slate-400 hover:text-indigo-600 hover:shadow-lg transition-all border border-slate-100 shadow-sm"
                         title="Sync Records"
                     >
-                        <RefreshCw size={20} className={refreshing ? 'animate-spin' : ''} />
+                        <RefreshCw size={20} className={refreshing ? 'animate-spin' : ''} strokeWidth={2.5} />
                     </button>
-                    <div className="bg-white border border-slate-100 px-5 py-3 rounded-2xl flex items-center gap-3 shadow-sm">
-                        <Calendar size={18} className="text-slate-400" />
+                    <div className="bg-white border-2 border-slate-50 px-6 py-3 rounded-2xl flex items-center gap-4 shadow-sm group focus-within:border-indigo-100 transition-all">
+                        <Calendar size={18} className="text-slate-300 group-focus-within:text-indigo-500 transition-colors" />
                         <input 
                             type="date"
                             value={selectedDate}
                             onChange={(e) => setSelectedDate(e.target.value)}
-                            className="text-sm font-extrabold text-slate-900 bg-transparent border-none outline-none cursor-pointer"
+                            className="text-sm font-black text-slate-700 bg-transparent border-none outline-none cursor-pointer"
                         />
                     </div>
                 </div>
             </div>
 
             {/* Metrics Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
+            <div className="grid grid-cols-2 xl:grid-cols-4 gap-5">
                 {[
                     { 
                         title: 'Completion Rate', 

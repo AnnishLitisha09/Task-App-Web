@@ -467,122 +467,159 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
     return (
         <AnimatePresence>
             {isOpen && (
-                <div className="fixed inset-0 z-5000 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-                    <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
-                        <div className="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-white z-10 shrink-0">
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-500 flex items-center justify-center">
-                                    <UserPlus size={20} />
+                <div className="fixed inset-0 z-5000 flex items-center justify-center p-4 sm:p-6 bg-slate-900/60 backdrop-blur-md">
+                    <motion.div 
+                        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                        className="bg-white rounded-[32px] shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[92vh] border border-white/20"
+                    >
+                        {/* Header */}
+                        <div className="px-6 py-5 sm:px-8 sm:py-6 border-b border-slate-100 flex justify-between items-center bg-white z-10 shrink-0">
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center shadow-inner">
+                                    <UserPlus size={24} strokeWidth={2.5} />
                                 </div>
-                                <div>
-                                    <h2 className="text-xl font-bold text-slate-800 m-0 leading-tight">{isEdit ? 'Edit User Profile' : 'Create New User'}</h2>
-                                    <p className="text-sm text-slate-500 m-0 mt-0.5">{isEdit ? 'Institutional Access' : 'New Account Setup'}</p>
+                                <div className="min-w-0">
+                                    <h2 className="text-xl sm:text-2xl font-black text-slate-800 m-0 leading-tight truncate">
+                                        {isEdit ? 'Refine Profile' : 'New Identity'}
+                                    </h2>
+                                    <p className="text-xs sm:text-sm font-bold text-slate-400 m-0 mt-0.5 uppercase tracking-widest italic opacity-70">
+                                        {isEdit ? 'Operational Access' : 'Credential Initialization'}
+                                    </p>
                                 </div>
                             </div>
-                            <button className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors" onClick={onClose} aria-label="Close modal">
-                                <X size={20} />
+                            <button className="w-10 h-10 rounded-xl flex items-center justify-center text-slate-400 hover:bg-slate-50 hover:text-slate-900 transition-all border-none bg-transparent cursor-pointer active:scale-90" onClick={onClose}>
+                                <X size={24} />
                             </button>
                         </div>
 
-                        <div className="flex items-center gap-2 px-6 py-4 bg-slate-50 border-b border-slate-100 shrink-0">
-                            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${step >= 1 ? 'text-indigo-600 bg-white shadow-sm' : 'text-slate-400'}`}>
-                                <div className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold ${step >= 1 ? 'bg-indigo-500 text-white' : 'bg-slate-200 text-slate-500'}`}>{step > 1 ? <Check size={14} /> : '1'}</div>
-                                <span>Basic Details</span>
+                        {/* Progress Stepper */}
+                        <div className="flex items-center gap-2 px-6 py-4 sm:px-8 bg-slate-50/50 border-b border-slate-100 shrink-0 overflow-x-auto no-scrollbar">
+                            <div className={`flex items-center gap-2.5 px-4 py-2 rounded-xl text-xs sm:text-sm font-black transition-all whitespace-nowrap ${step >= 1 ? 'text-indigo-600 bg-white shadow-sm ring-1 ring-slate-100' : 'text-slate-400'}`}>
+                                <div className={`w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-black ${step >= 1 ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-500'}`}>{step > 1 ? <Check size={14} strokeWidth={3} /> : '01'}</div>
+                                <span className="uppercase tracking-wider">Classification</span>
                             </div>
-                            <div className={`h-[2px] w-8 transition-colors ${step > 1 ? 'bg-indigo-500' : 'bg-slate-200'}`}></div>
-                            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${step === 2 ? 'text-indigo-600 bg-white shadow-sm' : 'text-slate-400'}`}>
-                                <div className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold ${step === 2 ? 'bg-indigo-500 text-white' : 'bg-slate-200 text-slate-500'}`}>2</div>
-                                <span>Specific Info</span>
+                            <div className={`h-[2px] min-w-[20px] flex-1 transition-colors ${step > 1 ? 'bg-indigo-600' : 'bg-slate-200/50'}`}></div>
+                            <div className={`flex items-center gap-2.5 px-4 py-2 rounded-xl text-xs sm:text-sm font-black transition-all whitespace-nowrap ${step === 2 ? 'text-indigo-600 bg-white shadow-sm ring-1 ring-slate-100' : 'text-slate-400'}`}>
+                                <div className={`w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-black ${step === 2 ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-500'}`}>02</div>
+                                <span className="uppercase tracking-wider">Parameters</span>
                             </div>
                         </div>
 
-                        <div className="p-6 overflow-y-auto flex-1 custom-scrollbar">
+                        {/* Content */}
+                        <div className="p-6 sm:p-8 overflow-y-auto flex-1 custom-scrollbar">
                             <AnimatePresence mode="wait">
                                 {step === 1 ? (
                                     <motion.div
                                         key="step1"
-                                        initial={{ opacity: 0, x: -10 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        exit={{ opacity: 0, x: 10 }}
-                                        className="flex flex-col gap-6"
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -10 }}
+                                        className="space-y-8"
                                     >
-                                        <div className="flex flex-col gap-4">
-                                            <span className="text-sm font-bold text-slate-800 uppercase tracking-wider">Identity</span>
-                                            <div className="flex flex-col gap-1.5">
-                                                <label className="text-[0.85rem] font-bold text-slate-700">Institutional Email</label>
+                                        <div className="space-y-4">
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-1 h-4 bg-indigo-500 rounded-full"></div>
+                                                <span className="text-[0.65rem] font-black text-slate-400 uppercase tracking-[0.2em]">Contact Vector</span>
+                                            </div>
+                                            <div className="flex flex-col gap-2">
+                                                <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Email Identifier</label>
                                                 <input
                                                     type="email"
-                                                    placeholder="user@inst.edu"
+                                                    placeholder="identifier@institution.edu"
                                                     value={email}
                                                     onChange={e => setEmail(e.target.value)}
                                                     readOnly={isEdit}
-                                                    className={`w-full px-4 py-2.5 border rounded-xl text-[0.9rem] outline-none transition-all ${isEdit ? 'bg-slate-50 border-slate-200 text-slate-500 cursor-not-allowed' : 'bg-white border-slate-200 focus:border-indigo-500 focus:shadow-[0_0_0_4px_rgba(99,102,241,0.1)] placeholder:text-slate-400'}`}
+                                                    className={`w-full px-5 py-4 border-2 rounded-[20px] text-[0.95rem] font-bold outline-none transition-all ${isEdit ? 'bg-slate-50 border-slate-100 text-slate-400 cursor-not-allowed opacity-70' : 'bg-white border-slate-100 focus:border-indigo-500 focus:bg-white focus:shadow-[0_15px_30px_-10px_rgba(99,102,241,0.1)] placeholder:text-slate-300'}`}
                                                 />
                                             </div>
                                         </div>
 
-                                        <div className="flex flex-col gap-4">
-                                            <span className="text-sm font-bold text-slate-800 uppercase tracking-wider">Account Type</span>
-                                            <div className="flex flex-col gap-1.5">
-                                                <label className="text-[0.85rem] font-bold text-slate-700">User Category</label>
-                                                <select
-                                                    value={category}
-                                                    onChange={e => setCategory(e.target.value)}
-                                                    className={`w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-[0.9rem] outline-none transition-all cursor-pointer appearance-none ${isEdit ? 'bg-slate-50 text-slate-500 cursor-not-allowed' : 'focus:border-indigo-500 focus:shadow-[0_0_0_4px_rgba(99,102,241,0.1)]'}`}
-                                                    disabled={isEdit}
-                                                >
-                                                    <option value="">-- Choose Category --</option>
-                                                    <option value="student">Student</option>
-                                                    <option value="faculty">Faculty</option>
-                                                    <option value="staff">Staff</option>
-                                                    <option value="role-user">Authority</option>
-                                                </select>
+                                        <div className="space-y-4">
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-1 h-4 bg-amber-500 rounded-full"></div>
+                                                <span className="text-[0.65rem] font-black text-slate-400 uppercase tracking-[0.2em]">Domain Assignment</span>
+                                            </div>
+                                            <div className="flex flex-col gap-2">
+                                                <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Entity Category</label>
+                                                <div className="relative group">
+                                                    <select
+                                                        value={category}
+                                                        onChange={e => setCategory(e.target.value)}
+                                                        className={`w-full px-5 py-4 bg-white border-2 border-slate-100 rounded-[20px] text-[0.95rem] font-bold outline-none transition-all cursor-pointer appearance-none ${isEdit ? 'bg-slate-50 text-slate-400 cursor-not-allowed opacity-70' : 'group-hover:border-slate-200 focus:border-indigo-500 focus:shadow-[0_15px_30px_-10px_rgba(99,102,241,0.1)]'}`}
+                                                        disabled={isEdit}
+                                                    >
+                                                        <option value="">-- Select Category --</option>
+                                                        <option value="student">Student — Academic Track</option>
+                                                        <option value="faculty">Faculty — Instruction/Research</option>
+                                                        <option value="staff">Staff — Technical/Admin</option>
+                                                        <option value="role-user">Authority — Governance</option>
+                                                    </select>
+                                                    <ChevronRight size={20} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none rotate-90" />
+                                                </div>
                                             </div>
                                         </div>
                                     </motion.div>
                                 ) : (
                                     <motion.div
                                         key="step2"
-                                        initial={{ opacity: 0, x: 10 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        exit={{ opacity: 0, x: -10 }}
-                                        className="flex flex-col gap-6"
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -10 }}
+                                        className="space-y-2"
                                     >
+                                        <div className="mb-6 flex items-center justify-between bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100/50">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-8 h-8 rounded-lg bg-indigo-500 text-white flex items-center justify-center font-bold text-xs uppercase">
+                                                    {category.substring(0, 1)}
+                                                </div>
+                                                <span className="text-xs font-black text-indigo-700 uppercase tracking-widest">{category} Profile Details</span>
+                                            </div>
+                                            <div className="text-[10px] font-black text-indigo-400 uppercase tracking-widest italic">{email}</div>
+                                        </div>
                                         {renderCategoryFields()}
                                     </motion.div>
                                 )}
                             </AnimatePresence>
                         </div>
 
-                        <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between shrink-0">
-                            <div className="flex-1">
-                                {error && (
-                                    <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg w-fit">
-                                        <AlertCircle size={14} />
-                                        <span>{error}</span>
-                                    </div>
-                                )}
+                        {/* Footer */}
+                        <div className="px-6 py-5 sm:px-8 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white shrink-0">
+                            <div className="flex-1 w-full sm:w-auto">
+                                <AnimatePresence>
+                                    {error && (
+                                        <motion.div 
+                                            initial={{ opacity: 0, scale: 0.9 }} 
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            className="flex items-center gap-2.5 text-[0.7rem] font-black uppercase tracking-tight text-rose-600 bg-rose-50 border border-rose-100 px-4 py-2.5 rounded-xl w-full sm:w-fit"
+                                        >
+                                            <AlertCircle size={16} />
+                                            <span>{error}</span>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
                             </div>
 
-                            <div className="flex gap-3">
-                                <button className="px-5 py-2.5 rounded-xl font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 hover:text-slate-800 transition-colors" onClick={step === 1 ? onClose : () => setStep(1)} disabled={isLoading}>
-                                    {step === 1 ? 'Cancel' : 'Back'}
+                            <div className="flex gap-3 w-full sm:w-auto">
+                                <button className="flex-1 sm:flex-none px-8 py-3.5 rounded-2xl font-black text-xs uppercase tracking-widest text-slate-500 bg-white border-2 border-slate-100 hover:bg-slate-50 hover:border-slate-200 transition-all border-none cursor-pointer active:scale-95" onClick={step === 1 ? onClose : () => setStep(1)} disabled={isLoading}>
+                                    {step === 1 ? 'Cancel' : 'Return'}
                                 </button>
                                 <button
-                                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-white bg-indigo-500 border-none hover:bg-indigo-600 transition-all shadow-[0_4px_12px_rgba(99,102,241,0.2)] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-indigo-500 disabled:shadow-none"
+                                    className="flex-1 sm:flex-none flex items-center justify-center gap-3 px-8 py-3.5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] text-white bg-slate-900 border-none hover:bg-indigo-600 transition-all shadow-[0_15px_30px_-10px_rgba(0,0,0,0.2)] disabled:opacity-30 disabled:cursor-not-allowed active:scale-95"
                                     onClick={step === 1 ? () => setStep(2) : handleFinalize}
                                     disabled={isLoading || (step === 1 && !isEdit && (!category || !email))}
                                 >
-                                    {isLoading ? 'Wait...' : (
+                                    {isLoading ? 'Processing...' : (
                                         <>
-                                            {step === 1 ? 'Next' : (isEdit ? 'Save' : 'Create')}
-                                            {step === 1 && <ChevronRight size={16} />}
+                                            <span>{step === 1 ? 'Configure' : (isEdit ? 'Update' : 'Commit')}</span>
+                                            {step === 1 && <ChevronRight size={18} strokeWidth={3} />}
                                         </>
                                     )}
                                 </button>
                             </div>
                         </div>
-                    </div>
+                    </motion.div>
                 </div>
             )}
         </AnimatePresence>

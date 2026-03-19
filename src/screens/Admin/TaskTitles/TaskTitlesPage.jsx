@@ -91,45 +91,66 @@ const TaskTitlesPage = () => {
         { label: 'Targeting All', value: taskTitles.filter(t => t.target_role === 'all').length, icon: Users, color: '#10b981' },
     ];
 
+    // Auto-switch view based on screen size
+    useEffect(() => {
+        const handleResize = () => { if (window.innerWidth < 1024) setViewMode('grid'); };
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
     return (
-        <motion.div className="p-6 h-full overflow-y-auto bg-white min-h-screen" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+        <motion.div className="p-10 max-lg:p-8 max-md:p-6 max-sm:p-4 h-full overflow-y-auto bg-[#fcfcfd] min-h-screen font-sans" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <div className="mb-10 max-md:mb-8">
+                <h1 className="text-3xl max-md:text-2xl font-black text-slate-900 tracking-tight">Task Dictionary & Registry</h1>
+                <p className="text-xs text-slate-400 mt-1 uppercase tracking-[0.2em] font-black opacity-70">Cataloging & Protocol Naming Conventions</p>
+            </div>
+
             {/* Stats */}
-            <div className="grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-5 mb-8">
+            <div className="grid grid-cols-2 gap-6 mb-12 max-md:mb-10">
                 {stats.map((stat, idx) => (
-                    <motion.div key={idx} className="bg-white p-6 rounded-2xl flex items-center gap-4 shadow-sm border border-slate-200 transition-all hover:-translate-y-1 hover:shadow-md"
-                        whileHover={{ y: -5 }} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: idx * 0.1 }}>
-                        <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${stat.color}15`, color: stat.color }}><stat.icon size={24} /></div>
-                        <div>
-                            <span className="block text-[0.8rem] font-bold text-slate-400 uppercase mb-1">{stat.label}</span>
-                            <h3 className="text-[1.5rem] font-extrabold text-slate-800 m-0">{stat.value}</h3>
+                    <motion.div key={idx} className="bg-white p-6 max-sm:p-5 rounded-[32px] border border-slate-100 shadow-[0_15px_40px_-15px_rgba(0,0,0,0.03)] hover:shadow-[0_25px_50px_-15px_rgba(0,0,0,0.07)] hover:border-indigo-100 hover:-translate-y-1 transition-all group"
+                        initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.1 }}>
+                        <div className="w-16 h-16 max-sm:w-14 max-sm:h-14 rounded-2xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 shadow-lg font-bold" style={{ backgroundColor: `${stat.color}15`, color: stat.color }}>
+                            <stat.icon size={32} strokeWidth={2.5} className="max-sm:w-6 max-sm:h-6" />
+                        </div>
+                        <div className="flex-1">
+                            <span className="block text-[0.65rem] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">{stat.label}</span>
+                            <h3 className="text-3xl max-sm:text-2xl font-black text-slate-900 tracking-tighter leading-none">{stat.value}</h3>
                         </div>
                     </motion.div>
                 ))}
             </div>
 
             {/* Header */}
-            <div className="flex justify-between items-center mb-6 gap-4 max-md:flex-col max-md:items-stretch">
-                <div className="relative flex-1 max-w-[400px] max-md:max-w-none">
-                    <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                    <input type="text" placeholder="Search task titles or roles..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full py-2.5 pl-10 pr-3 rounded-[10px] border border-slate-200 text-[0.9rem] transition-all bg-white text-slate-800 outline-none focus:border-indigo-500 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.1)]" />
+            <div className="flex flex-col xl:flex-row justify-between items-stretch xl:items-center gap-6 mb-12 max-md:mb-10">
+                <div className="relative flex-1 max-w-2xl group">
+                    <Search size={20} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-500 transition-colors" />
+                    <input type="text" placeholder="Search terminology or sector-specific titles..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full py-4 pl-14 pr-6 bg-white border-2 border-slate-100 rounded-[22px] text-[0.95rem] font-bold text-slate-700 outline-none transition-all focus:border-indigo-400 focus:shadow-[0_15px_30px_-10px_rgba(99,102,241,0.1)] placeholder:text-slate-300" />
                 </div>
-                <div className="flex items-center gap-4 max-md:justify-between">
-                    <div className="flex bg-slate-100 p-1 rounded-[10px] border border-slate-200">
-                        <button className={`px-3 py-2 rounded-lg border-none cursor-pointer flex ${viewMode === 'grid' ? 'bg-white text-indigo-500 shadow-sm' : 'bg-transparent text-slate-500'}`} onClick={() => setViewMode('grid')}><LayoutGrid size={18} /></button>
-                        <button className={`px-3 py-2 rounded-lg border-none cursor-pointer flex ${viewMode === 'table' ? 'bg-white text-indigo-500 shadow-sm' : 'bg-transparent text-slate-500'}`} onClick={() => setViewMode('table')}><List size={18} /></button>
+
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+                    <div className="flex bg-slate-100 p-1.5 rounded-[18px] border border-slate-200 shadow-inner max-lg:hidden">
+                        <button className={`p-2.5 rounded-[13px] border-none cursor-pointer flex transition-all ${viewMode === 'grid' ? 'bg-white text-indigo-600 shadow-md' : 'bg-transparent text-slate-400 hover:text-slate-600'}`} onClick={() => setViewMode('grid')}><LayoutGrid size={20} strokeWidth={2.5} /></button>
+                        <button className={`p-2.5 rounded-[13px] border-none cursor-pointer flex transition-all ${viewMode === 'table' ? 'bg-white text-indigo-600 shadow-md' : 'bg-transparent text-slate-400 hover:text-slate-600'}`} onClick={() => setViewMode('table')}><List size={20} strokeWidth={2.5} /></button>
                     </div>
-                    <input ref={bulkInputRef} type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={handleBulkUpload} />
-                    <button
-                        onClick={() => bulkInputRef.current?.click()}
-                        disabled={isBulkUploading}
-                        className="flex items-center gap-2 py-2.5 px-[18px] rounded-[10px] border border-indigo-300 text-indigo-600 font-bold bg-indigo-50 hover:bg-indigo-100 transition-all disabled:opacity-60"
-                    >
-                        <Upload size={16} /><span>{isBulkUploading ? 'Uploading…' : 'Bulk Upload'}</span>
-                    </button>
-                    <button className="bg-indigo-500 text-white py-2.5 px-[18px] rounded-[10px] flex items-center gap-2 font-bold border-none cursor-pointer shadow-[0_4px_12px_rgba(99,102,241,0.2)]" onClick={handleCreate}>
-                        <Plus size={18} /><span>Add Task Title</span>
-                    </button>
+                    
+                    <div className="flex gap-4">
+                        <input ref={bulkInputRef} type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={handleBulkUpload} />
+                        <button
+                            onClick={() => bulkInputRef.current?.click()}
+                            disabled={isBulkUploading}
+                            className="flex-1 sm:flex-none flex items-center justify-center gap-3 border-2 border-indigo-100 text-indigo-600 bg-white px-8 py-4 rounded-[22px] text-xs font-black uppercase tracking-widest hover:bg-indigo-50 hover:border-indigo-300 transition-all disabled:opacity-50 active:scale-95 shadow-sm"
+                        >
+                            <Upload size={18} strokeWidth={2.5} />
+                            <span>{isBulkUploading ? 'Ingesting…' : 'Batch Ingest'}</span>
+                        </button>
+                        <button onClick={handleCreate} className="flex-1 sm:flex-none bg-slate-900 hover:bg-indigo-600 text-white px-8 py-4 rounded-[22px] text-xs font-black uppercase tracking-[0.2em] shadow-xl transition-all active:scale-95 border-none cursor-pointer flex items-center justify-center gap-3">
+                            <Plus size={20} strokeWidth={3} />
+                            <span>Append Title</span>
+                        </button>
+                    </div>
                 </div>
             </div>
 

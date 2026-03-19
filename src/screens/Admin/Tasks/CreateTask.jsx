@@ -52,12 +52,31 @@ const CreateTask = ({ onCancel, onSuccess }) => {
         endDate: new Date().toISOString().split('T')[0],
         startTime: '09:00', endTime: '17:00',
         task_title_id: '',
-        is_faculty: false, faculty_id: null,
+        is_faculty: false, faculty_ids: [],
         is_mandatory_flag: false
     });
 
     const [allUsers, setAllUsers] = useState([]);
     const [apiData, setApiData] = useState(null);
+    const [pickerTarget, setPickerTarget] = useState('assigneeIds'); 
+
+    useEffect(() => {
+        if (!apiData) return;
+        const flattened = [];
+        Object.values(apiData).forEach(value => {
+            if (Array.isArray(value)) {
+                flattened.push(...value);
+            } else if (typeof value === 'object') {
+                Object.values(value).forEach(deptUsers => {
+                    if (Array.isArray(deptUsers)) {
+                        flattened.push(...deptUsers);
+                    }
+                });
+            }
+        });
+        const unique = Array.from(new Map(flattened.map(u => [String(u.user_id), u])).values());
+        setAllUsers(unique);
+    }, [apiData]);
     
     // User Selection Modal State
     const [showUserPicker, setShowUserPicker] = useState(false);
@@ -94,7 +113,7 @@ const CreateTask = ({ onCancel, onSuccess }) => {
     // --- User Picker Helpers ---
     const getRoleUserCount = (roleKey) => {
         if (!apiData) return 0;
-        if (roleKey === 'staff') return (apiData.staff || []).length;
+        if (['staff', 'principal', 'dean'].includes(roleKey)) return (apiData[roleKey] || []).length;
         let count = 0;
         const depts = apiData[roleKey] || {};
         Object.values(depts).forEach(users => count += users.length);
@@ -104,33 +123,58 @@ const CreateTask = ({ onCancel, onSuccess }) => {
         if (!apiData) return 0;
         return (apiData[pickerRole]?.[dept] || []).length;
     };
-    const isItemSelected = (id) => taskData.assigneeIds.includes(String(id));
+    const isItemSelected = (id) => {
+        const val = taskData[pickerTarget];
+        if (Array.isArray(val)) return val.includes(String(id));
+        return String(val) === String(id);
+    };
     const toggleUser = (id) => {
         const strId = String(id);
+        const currentSelected = taskData[pickerTarget];
+        if (pickerTarget === 'approver_id') {
+            hi(pickerTarget, strId);
+            return;
+        }
         if (isItemSelected(strId)) {
-            hi('assigneeIds', taskData.assigneeIds.filter(i => i !== strId));
+            hi(pickerTarget, currentSelected.filter(i => i !== strId));
         } else {
-            hi('assigneeIds', [...taskData.assigneeIds, strId]);
+            hi(pickerTarget, [...currentSelected, strId]);
         }
     };
     const toggleGroup = (usersInGroup) => {
+        const currentSelectedArr = taskData[pickerTarget];
         const allSelected = usersInGroup.length > 0 && usersInGroup.every(u => isItemSelected(u.user_id));
         if (allSelected) {
             const groupIds = usersInGroup.map(u => String(u.user_id));
-            hi('assigneeIds', taskData.assigneeIds.filter(id => !groupIds.includes(id)));
+            hi(pickerTarget, currentSelectedArr.filter(id => !groupIds.includes(id)));
         } else {
-            const currentSelected = new Set(taskData.assigneeIds);
+            const currentSelected = new Set(currentSelectedArr);
             usersInGroup.forEach(u => currentSelected.add(String(u.user_id)));
-            hi('assigneeIds', Array.from(currentSelected));
+            hi(pickerTarget, Array.from(currentSelected));
         }
     };
 
     const ROLE_OPTIONS = [
-        { title: "All Students", subtitle: "Grouped by Department", roleKey: "students", icon: User },
-        { title: "All Faculty", subtitle: "Grouped by Department", roleKey: "faculty", icon: User },
+        { title: "Principal", subtitle: "Institutional Head", roleKey: "principal", icon: ShieldCheck },
+        { title: "Dean", subtitle: "Institutional Dean", roleKey: "dean", icon: ShieldCheck },
         { title: "HODs", subtitle: "Department Heads", roleKey: "hods", icon: User },
-        { title: "Staff", subtitle: "Technical & Admin Staff", roleKey: "staff", icon: User }
+        { title: "All Faculty", subtitle: "Grouped by Department", roleKey: "faculty", icon: User },
+        { title: "Staff", subtitle: "Technical & Admin Staff", roleKey: "staff", icon: User },
+        { title: "All Students", subtitle: "Grouped by Department", roleKey: "students", icon: User }
     ];
+
+    const HIERARCHY = ['admin', 'principal', 'dean', 'hods', 'faculty', 'students', 'staff'];
+    const currentUserRole = (localStorage.getItem('userRole') || 'admin').toLowerCase();
+    const roleMap = { 'hod': 'hods', 'student': 'students' };
+    const normalizedUserRole = roleMap[currentUserRole] || currentUserRole;
+    const userRoleIndex = HIERARCHY.indexOf(normalizedUserRole);
+
+    const getFilteredOptions = () => {
+        if (pickerTarget === 'faculty_ids') {
+            return ROLE_OPTIONS.filter(opt => ['faculty', 'hods', 'dean', 'principal'].includes(opt.roleKey));
+        }
+        return ROLE_OPTIONS;
+    };
 
     const handleSubmit = async () => {
         if (!taskData.task_title_id && !taskData.title) {
@@ -176,7 +220,7 @@ const CreateTask = ({ onCancel, onSuccess }) => {
                 requires_approval: taskData.requiresApproval,
                 approver_id: taskData.approver_id,
                 is_faculty: taskData.is_faculty,
-                faculty_id: taskData.faculty_id,
+                faculty_ids: taskData.faculty_ids,
                 is_mandatory: taskData.is_mandatory_flag,
                 closure_ids: [1]
             };
@@ -308,7 +352,7 @@ const CreateTask = ({ onCancel, onSuccess }) => {
                     <div className="border-t border-dashed border-slate-200 pt-4">
                         <p className="text-[0.7rem] font-extrabold text-slate-400 uppercase tracking-[0.08em] mb-4">Manual Assignee Selection</p>
                         
-                        <div onClick={() => setShowUserPicker(true)} className="flex items-center gap-3 p-4 border rounded-2xl bg-slate-50 cursor-pointer hover:border-indigo-300 hover:bg-indigo-50/50 transition-all border-dashed border-slate-300">
+                        <div onClick={() => { setPickerTarget('assigneeIds'); setShowUserPicker(true); }} className="flex items-center gap-3 p-4 border rounded-2xl bg-slate-50 cursor-pointer hover:border-indigo-300 hover:bg-indigo-50/50 transition-all border-dashed border-slate-300">
                             <div className="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center">
                                 <User size={18} />
                             </div>
@@ -337,24 +381,35 @@ const CreateTask = ({ onCancel, onSuccess }) => {
                     </div>
 
                     <div className="border-t border-dashed border-slate-200 pt-4"><p className="text-[0.7rem] font-extrabold text-slate-400 uppercase tracking-[0.08em] mb-4">Governance</p>
-                        <ToggleRow label="Requires Approval" desc="Validation needed before task is considered done" checked={taskData.requiresApproval} onChange={(e) => hi('requiresApproval', e.target.checked)} />
-                        {taskData.requiresApproval && (
+                        <ToggleRow label="Is Faculty Managed" desc="Assign a faculty member in charge" checked={taskData.isFaculty} onChange={(e) => hi('isFaculty', e.target.checked)} />
+                        {taskData.isFaculty && (
                             <div className="mt-3">
-                                <label className={labelCls}>Approval Authority</label>
-                                <select className={selectCls} value={taskData.approver_id || ''} onChange={(e) => hi('approver_id', e.target.value)}>
-                                    <option value="">Select Approver...</option>
-                                    {allUsers.filter(u => u.role !== 'student').map(u => <option key={u.user_id} value={u.user_id}>{u.name} ({u.role})</option>)}
-                                </select>
-                            </div>
-                        )}
-                        <ToggleRow label="Is Faculty Managed" desc="Assign a faculty member in charge" checked={taskData.is_faculty} onChange={(e) => hi('is_faculty', e.target.checked)} />
-                        {taskData.is_faculty && (
-                            <div className="mt-3">
-                                <label className={labelCls}>Faculty In Charge</label>
-                                <select className={selectCls} value={taskData.faculty_id || ''} onChange={(e) => hi('faculty_id', e.target.value)}>
-                                    <option value="">Select Faculty...</option>
-                                    {allUsers.filter(u => u.role === 'faculty' || u.role === 'admin' || (u.user_id && selectedRole === 'faculty')).map(u => <option key={u.user_id} value={u.user_id}>{u.name}</option>)}
-                                </select>
+                                <div onClick={() => { setPickerTarget('faculty_ids'); setShowUserPicker(true); }} className="flex items-center gap-3 p-4 border rounded-2xl bg-slate-50 cursor-pointer hover:border-indigo-300 hover:bg-indigo-50/50 transition-all border border-slate-200">
+                                    <div className="w-10 h-10 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center">
+                                        <User size={18} />
+                                    </div>
+                                    <div className="flex-1">
+                                        <span className="block text-[0.65rem] font-extrabold text-slate-400 uppercase tracking-widest mb-0.5">FACULTY IN CHARGE</span>
+                                        <span className={`text-[0.85rem] font-bold ${taskData.faculty_ids.length === 0 ? 'text-slate-500' : 'text-slate-900'}`}>
+                                            {taskData.faculty_ids.length === 0 ? "Select Faculty..." : `${taskData.faculty_ids.length} faculty selected`}
+                                        </span>
+                                    </div>
+                                    <ChevronRight size={18} className="text-slate-400" />
+                                </div>
+
+                                {taskData.faculty_ids.length > 0 && (
+                                    <div className="flex flex-wrap gap-2 mt-3 p-3 bg-slate-50 border border-slate-100 rounded-xl">
+                                        {taskData.faculty_ids.map(id => {
+                                            const user = allUsers.find(u => String(u.user_id) === String(id));
+                                            return (
+                                                <div key={id} className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-100/50 text-orange-700 rounded-lg border border-orange-100">
+                                                    <span className="text-[0.75rem] font-bold">{user?.name || `User ${id}`}</span>
+                                                    <button onClick={(e) => { e.stopPropagation(); hi('faculty_ids', taskData.faculty_ids.filter(i => String(i) !== String(id))); }} className="hover:text-red-500 transition-colors pointer-events-auto"><X size={14} /></button>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                )}
                             </div>
                         )}
                     </div>
@@ -519,11 +574,11 @@ const CreateTask = ({ onCancel, onSuccess }) => {
                             <div className="flex-1 overflow-y-auto space-y-3 custom-scrollbar">
                                 {!apiData ? (
                                     <div className="flex justify-center py-10"><div className="animate-spin w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full" /></div>
-                                ) : pickerLevel === 0 ? (
-                                    ROLE_OPTIONS.map(role => {
+                                 ) : pickerLevel === 0 ? (
+                                    getFilteredOptions().map(role => {
                                         const count = getRoleUserCount(role.roleKey);
-                                        const usersInGroup = role.roleKey === 'staff' ? [...(apiData.staff || [])] : [];
-                                        if (role.roleKey !== 'staff') {
+                                        const usersInGroup = ['staff', 'principal', 'dean'].includes(role.roleKey) ? [...(apiData[role.roleKey] || [])] : [];
+                                        if (!['staff', 'principal', 'dean'].includes(role.roleKey)) {
                                             const depts = apiData[role.roleKey] || {};
                                             Object.values(depts).forEach(group => {
                                                 if (Array.isArray(group)) {
@@ -536,9 +591,9 @@ const CreateTask = ({ onCancel, onSuccess }) => {
                                         return (
                                             <div key={role.roleKey} onClick={() => {
                                                 setPickerRole(role.roleKey);
-                                                if (role.roleKey === 'staff') {
+                                                 if (['staff', 'principal', 'dean'].includes(role.roleKey)) {
                                                     setPickerLevel(2);
-                                                    setPickerDept('Staff');
+                                                    setPickerDept(role.title);
                                                 } else {
                                                     setPickerLevel(1);
                                                 }
@@ -628,7 +683,7 @@ const CreateTask = ({ onCancel, onSuccess }) => {
 
                             <div className="pt-5 mt-auto border-t border-slate-100">
                                 <button onClick={() => setShowUserPicker(false)} className="w-full py-3.5 bg-slate-900 text-white font-extrabold text-[0.9rem] rounded-xl shadow-lg shadow-slate-200 hover:bg-slate-800 transition-all cursor-pointer">
-                                    Done &middot; {taskData.assigneeIds.length} Selected
+                                    Done &middot; {pickerTarget === 'approver_id' ? (taskData.approver_id ? 1 : 0) : taskData[pickerTarget].length} Selected
                                 </button>
                             </div>
                     </div>

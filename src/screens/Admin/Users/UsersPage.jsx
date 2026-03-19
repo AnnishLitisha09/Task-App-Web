@@ -33,6 +33,18 @@ const UsersPage = () => {
     const [bulkResult, setBulkResult] = useState(null);
     const [viewMode, setViewMode] = useState('table');
 
+    // Auto-switch to grid view on mobile
+    React.useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth < 1024) {
+                setViewMode('grid');
+            }
+        };
+        handleResize(); // Initial check
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
     // Pagination State
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -149,25 +161,25 @@ const UsersPage = () => {
             animate={{ opacity: 1, y: 0 }}
         >
             {/* Header */}
-            <div className="flex justify-between items-center mb-10 max-md:flex-col max-md:items-stretch max-md:gap-6">
-                <div>
-                    <h1 className="text-[2rem] text-slate-800 font-extrabold m-0 tracking-[-0.5px]">User Directory</h1>
-                    <p className="text-slate-500 text-base mt-1.5">Manage institutional profiles and credentials</p>
+            <div className="flex justify-between items-center mb-10 max-md:mb-8 max-sm:mb-6 max-md:flex-col max-md:items-stretch max-md:gap-6">
+                <div className="min-w-0">
+                    <h1 className="text-[2rem] text-slate-800 font-extrabold m-0 tracking-[-0.5px] max-md:text-[1.75rem] max-sm:text-[1.5rem] truncate">User Directory</h1>
+                    <p className="text-slate-500 text-base mt-1.5 max-sm:text-sm">Manage institutional profiles and credentials</p>
                 </div>
-                <div className="flex gap-3 max-md:w-full">
-                    <label className="flex items-center gap-2 bg-white border border-slate-200 text-slate-600 px-[22px] py-2.5 rounded-xl font-bold cursor-pointer transition-colors hover:bg-slate-50 max-md:flex-1 max-md:justify-center">
-                        <Upload size={18} />
-                        <span className="max-[480px]:hidden">Excel Upload</span>
-                        <span className="min-[481px]:hidden text-xs">Upload</span>
+                <div className="flex gap-3 max-md:grid max-md:grid-cols-2 max-sm:gap-2">
+                    <label className="flex items-center gap-2 bg-white border border-slate-200 text-slate-600 px-[22px] py-2.5 rounded-xl font-bold cursor-pointer transition-all hover:bg-slate-50 hover:border-slate-300 active:scale-95 max-md:px-4 max-md:justify-center">
+                        <Upload size={18} className="shrink-0" />
+                        <span className="max-[1100px]:hidden max-md:inline max-sm:text-[0.75rem]">Excel Upload</span>
+                        <span className="min-[1101px]:hidden max-md:hidden max-sm:hidden">Upload</span>
                         <input type="file" hidden accept=".xlsx, .xls, .csv" onChange={handleBulkUpload} />
                     </label>
                     <button
-                        className="flex items-center gap-2 bg-indigo-500 text-white border-none px-[22px] py-2.5 rounded-xl font-bold cursor-pointer transition-all shadow-[0_4px_12px_rgba(99,102,241,0.2)] hover:bg-indigo-600 max-md:flex-1 max-md:justify-center"
+                        className="flex items-center gap-2 bg-indigo-500 text-white border-none px-[22px] py-2.5 rounded-xl font-bold cursor-pointer transition-all shadow-[0_4px_12px_rgba(99,102,241,0.2)] hover:bg-indigo-600 active:scale-95 max-md:px-4 max-md:justify-center"
                         onClick={handleCreateNew}
                     >
-                        <UserPlus size={18} />
-                        <span className="max-[520px]:hidden">Create New User</span>
-                        <span className="min-[521px]:hidden text-xs">Add User</span>
+                        <UserPlus size={18} className="shrink-0" />
+                        <span className="max-[1100px]:hidden max-md:inline max-sm:text-[0.75rem]">Create User</span>
+                        <span className="min-[1101px]:hidden max-md:hidden max-sm:hidden">Add User</span>
                     </button>
                 </div>
             </div>
@@ -178,56 +190,57 @@ const UsersPage = () => {
                     <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
                         className={`mb-6 p-4 rounded-xl flex items-start gap-3 border ${bulkResult.error ? 'bg-red-50 border-red-200 text-red-700' : 'bg-emerald-50 border-emerald-200 text-emerald-800'}`}>
                         <CheckCircle2 size={18} className="mt-0.5 shrink-0" />
-                        <div className="flex-1 text-sm">
+                        <div className="flex-1 text-sm min-w-0">
                             {bulkResult.error
                                 ? <p className="font-bold">Upload failed: {bulkResult.error}</p>
                                 : <><p className="font-bold">Bulk Upload Complete!</p>
                                     <p className="text-xs mt-0.5">✅ Created: {(bulkResult.results || []).filter(r => r.status === 'created').length} &nbsp;⏭ Skipped: {(bulkResult.results || []).filter(r => r.status === 'skipped').length} &nbsp;❌ Failed: {(bulkResult.results || []).filter(r => r.status === 'failed').length}</p>
-                                    <p className="text-xs italic mt-0.5 opacity-70">Required columns: user_type, name, email, reg_no (optional), department_name</p>
+                                    <p className="text-xs italic mt-0.5 opacity-70 truncate">Required columns: user_type, name, email, reg_no (optional), department_name</p>
                                 </>
                             }
                         </div>
-                        <button onClick={() => setBulkResult(null)} className="text-slate-400 hover:text-slate-600"><Upload size={0} /></button>
+                        <button onClick={() => setBulkResult(null)} className="text-slate-400 hover:text-slate-600 bg-transparent cursor-pointer p-1"><X size={16} /></button>
                     </motion.div>
                 )}
             </AnimatePresence>
 
             {/* Stats Strip */}
-            <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-6 mb-10 max-lg:grid-cols-2 max-[480px]:grid-cols-1">
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-6 mb-10 max-lg:grid-cols-2 max-sm:grid-cols-2 max-sm:gap-4 max-md:mb-8">
                 {stats.map((stat, i) => (
-                    <div key={i} className="bg-white border border-slate-200 p-5 rounded-2xl flex items-center gap-4 transition-all duration-300 shadow-sm hover:-translate-y-1 hover:shadow-[0_12px_20px_-8px_rgba(0,0,0,0.05)] hover:border-indigo-500">
-                        <div className="w-11 h-11 rounded-xl grid place-items-center" style={{ background: `${stat.color}15`, color: stat.color }}>
+                    <div key={i} className="bg-white border border-slate-200 p-5 rounded-2xl flex items-center gap-4 transition-all duration-300 shadow-sm hover:-translate-y-1 hover:shadow-[0_12px_20px_-8px_rgba(0,0,0,0.05)] hover:border-indigo-500 max-sm:p-4">
+                        <div className="w-11 h-11 rounded-xl grid place-items-center shrink-0" style={{ background: `${stat.color}15`, color: stat.color }}>
                             <stat.icon size={18} />
                         </div>
-                        <div>
-                            <p className="text-[0.8rem] font-semibold text-slate-400 m-0 uppercase tracking-[0.5px]">{stat.label}</p>
-                            <h4 className="text-[1.4rem] font-bold text-slate-800 m-0">{stat.value}</h4>
+                        <div className="min-w-0">
+                            <p className="text-[0.8rem] font-semibold text-slate-400 m-0 uppercase tracking-[0.5px] truncate">{stat.label}</p>
+                            <h4 className="text-[1.4rem] font-bold text-slate-800 m-0 truncate">{stat.value}</h4>
                         </div>
                     </div>
                 ))}
             </div>
 
             {/* Table Controls */}
-            <div className="flex justify-between items-center mb-6 gap-4 max-md:flex-col max-md:items-stretch">
-                <div className="flex gap-3 items-center max-md:flex-col max-md:items-stretch flex-1">
-                    <div className="flex gap-2 items-center">
-                        <div className="flex bg-slate-100 rounded-xl p-1 gap-1 border border-slate-200">
+            <div className="flex justify-between items-center mb-6 gap-4 max-lg:flex-col max-lg:items-stretch">
+                <div className="flex gap-3 items-center max-md:flex-col max-md:items-stretch flex-1 min-w-0">
+                    <div className="flex gap-2 items-center max-sm:justify-between">
+                        <div className="flex bg-indigo-50/50 rounded-xl p-1 gap-1 border border-indigo-100/50">
                             {[{ mode: 'grid', Icon: LayoutGrid }, { mode: 'table', Icon: List }].map(({ mode, Icon }) => (
                                 <button
                                     key={mode}
-                                    className={`w-9 h-9 flex items-center justify-center rounded-lg transition-all ${viewMode === mode ? 'bg-white shadow-sm text-indigo-600' : 'text-slate-400 hover:text-slate-600'}`}
+                                    className={`w-9 h-9 flex items-center justify-center rounded-lg transition-all border-none cursor-pointer ${viewMode === mode ? 'bg-indigo-500 shadow-md text-white' : 'text-slate-400 hover:text-indigo-500 hover:bg-white'}`}
                                     onClick={() => setViewMode(mode)}
                                 >
                                     <Icon size={18} />
                                 </button>
                             ))}
                         </div>
+                        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider min-[641px]:hidden">Filters</span>
                     </div>
-                    <div className="flex gap-3 items-center overflow-x-auto pb-2 hide-scrollbar max-md:w-full max-md:grid max-md:grid-cols-2 max-[480px]:grid-cols-1">
+                    <div className="flex gap-3 items-center overflow-x-auto pb-1 custom-scrollbar max-md:w-full max-sm:grid max-sm:grid-cols-1">
                         {/* Category Select */}
-                        <div className="relative flex items-center shrink-0 max-md:w-full">
+                        <div className="relative flex items-center shrink-0 max-sm:w-full">
                             <select
-                                className="appearance-none bg-white border border-slate-200 py-2.5 pl-4 pr-9 rounded-xl text-[0.85rem] font-semibold text-slate-600 cursor-pointer min-w-[160px] transition-colors hover:border-slate-300 hover:bg-slate-50 outline-none max-md:w-full"
+                                className="appearance-none bg-white border border-slate-200 py-2.5 pl-4 pr-9 rounded-xl text-[0.85rem] font-bold text-slate-600 cursor-pointer min-w-[160px] transition-all hover:border-indigo-400 hover:bg-slate-50 outline-none max-sm:w-full focus:border-indigo-500"
                                 value={activeTab} onChange={(e) => setActiveTab(e.target.value)}
                             >
                                 <option value="all">All Categories</option>
@@ -236,47 +249,47 @@ const UsersPage = () => {
                                 <option value="staff">Staff</option>
                                 <option value="authority">Authorities</option>
                             </select>
-                            <ChevronDown size={14} className="absolute right-3 text-slate-400 pointer-events-none" />
+                            <ChevronDown size={14} className="absolute right-3.5 text-slate-400 pointer-events-none" />
                         </div>
-                        <div className="relative flex items-center shrink-0 max-md:w-full">
+                        <div className="relative flex items-center shrink-0 max-sm:w-full">
                             <select
-                                className="appearance-none bg-white border border-slate-200 py-2.5 pl-4 pr-9 rounded-xl text-[0.85rem] font-semibold text-slate-600 cursor-pointer min-w-[160px] transition-colors hover:border-slate-300 hover:bg-slate-50 outline-none max-md:w-full"
+                                className="appearance-none bg-white border border-slate-200 py-2.5 pl-4 pr-9 rounded-xl text-[0.85rem] font-bold text-slate-600 cursor-pointer min-w-[160px] transition-all hover:border-indigo-400 hover:bg-slate-50 outline-none max-sm:w-full focus:border-indigo-500"
                                 value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
                             >
                                 <option value="all">All Status</option>
                                 <option value="active">Active Only</option>
                                 <option value="pending">Pending Only</option>
                             </select>
-                            <ChevronDown size={14} className="absolute right-3 text-slate-400 pointer-events-none" />
+                            <ChevronDown size={14} className="absolute right-3.5 text-slate-400 pointer-events-none" />
                         </div>
-                        <div className="relative flex items-center shrink-0 max-md:w-full">
+                        <div className="relative flex items-center shrink-0 max-sm:w-full">
                             <select
-                                className="appearance-none bg-white border border-slate-200 py-2.5 pl-4 pr-9 rounded-xl text-[0.85rem] font-semibold text-slate-600 cursor-pointer min-w-[160px] transition-colors hover:border-slate-300 hover:bg-slate-50 outline-none max-md:w-full"
+                                className="appearance-none bg-white border border-slate-200 py-2.5 pl-4 pr-9 rounded-xl text-[0.85rem] font-bold text-slate-600 cursor-pointer min-w-[160px] transition-all hover:border-indigo-400 hover:bg-slate-50 outline-none max-sm:w-full focus:border-indigo-500"
                                 value={deptFilter} onChange={(e) => setDeptFilter(e.target.value)}
                             >
                                 <option value="all">All Departments</option>
                                 {departments.map(dept => <option key={dept.id} value={dept.name}>{dept.name}</option>)}
                             </select>
-                            <ChevronDown size={14} className="absolute right-3 text-slate-400 pointer-events-none" />
+                            <ChevronDown size={14} className="absolute right-3.5 text-slate-400 pointer-events-none" />
                         </div>
                         {isFiltered && (
                             <button
-                                className="bg-transparent border-none text-indigo-500 text-[0.85rem] font-bold cursor-pointer px-3 py-2 rounded-lg transition-colors hover:bg-[#f5f3ff] hover:underline shrink-0 max-md:text-left"
+                                className="bg-transparent border-none text-rose-500 text-[0.85rem] font-bold cursor-pointer py-2 rounded-lg transition-colors hover:bg-rose-50 hover:underline shrink-0 max-sm:text-center"
                                 onClick={handleClearFilters}
                             >
-                                Clear Filters
+                                Clear All
                             </button>
                         )}
                     </div>
                 </div>
-                <div className="relative flex-1 max-w-[450px] max-md:max-w-none">
-                    <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                <div className="relative flex-1 max-w-[450px] max-lg:max-w-none">
+                    <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                     <input
                         type="text"
-                        placeholder="Search users..."
+                        placeholder="Search users by name, email or reg no..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full py-3 pl-10 pr-3.5 bg-white border border-slate-200 rounded-xl text-[0.95rem] transition-all outline-none focus:border-indigo-500 focus:shadow-[0_0_0_4px_rgba(99,102,241,0.1)]"
+                        className="w-full py-3.5 pl-11 pr-4 bg-white border border-slate-200 rounded-xl text-[0.9rem] font-medium transition-all outline-none focus:border-indigo-500 focus:shadow-[0_0_0_4px_rgba(99,102,241,0.1)] placeholder:text-slate-400"
                     />
                 </div>
             </div>

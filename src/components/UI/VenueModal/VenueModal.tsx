@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, MapPin, UserPlus, Check, AlertCircle, Info, Building, AlignLeft, Camera, Trash2 } from 'lucide-react';
+import { X, MapPin, UserPlus, Check, AlertCircle, Info, Building, AlignLeft, Camera, Trash2, ChevronRight } from 'lucide-react';
 import api from '../../../utils/api';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -88,94 +88,135 @@ const VenueModal: React.FC<VenueModalProps> = ({ isOpen, onClose, venueData, mod
 
     return (
         <AnimatePresence>
-            <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-1000 flex items-center justify-center p-4">
-                <motion.div className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden"
-                    initial={{ opacity: 0, scale: 0.98, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.98, y: 10 }}>
-                    <div className="flex justify-between items-center px-7 py-5 border-b border-slate-100">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-indigo-500 text-white rounded-xl flex items-center justify-center">
-                                {mode === 'assign' ? <UserPlus size={20} /> : <MapPin size={20} />}
+            <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-5000 flex items-center justify-center p-4">
+                <motion.div className="bg-white w-full max-w-2xl rounded-[32px] shadow-2xl overflow-hidden flex flex-col max-h-[92vh] border border-white/20"
+                    initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}>
+                    
+                    {/* Header */}
+                    <div className="flex justify-between items-center px-6 py-5 sm:px-8 sm:py-6 border-b border-slate-100 bg-white z-10 shrink-0">
+                        <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center shadow-inner">
+                                {mode === 'assign' ? <UserPlus size={24} strokeWidth={2.5} /> : <MapPin size={24} strokeWidth={2.5} />}
                             </div>
-                            <div>
-                                <h2 className="text-base font-extrabold text-slate-900">
-                                    {mode === 'create' ? 'Add New Venue' : mode === 'edit' ? 'Edit Venue Details' : 'Assign Venue Incharge'}
+                            <div className="min-w-0">
+                                <h2 className="text-xl sm:text-2xl font-black text-slate-800 m-0 leading-tight truncate">
+                                    {mode === 'create' ? 'Establish Venue' : mode === 'edit' ? 'Update Infrastructure' : 'Delegate Authority'}
                                 </h2>
-                                <p className="text-[0.75rem] text-slate-400">{mode === 'assign' ? `Assigning authority for ${name}` : 'Institutional infrastructure management'}</p>
+                                <p className="text-xs sm:text-sm font-bold text-slate-400 m-0 mt-0.5 uppercase tracking-widest italic opacity-70 truncate">
+                                    {mode === 'assign' ? `Assigned to ${name}` : 'Institutional Asset Management'}
+                                </p>
                             </div>
                         </div>
-                        <button className="w-8 h-8 flex items-center justify-center text-slate-400 hover:bg-slate-100 rounded-lg" onClick={onClose}><X size={20} /></button>
+                        <button className="w-10 h-10 rounded-xl flex items-center justify-center text-slate-400 hover:bg-slate-50 hover:text-slate-900 transition-all border-none bg-transparent cursor-pointer active:scale-90" onClick={onClose} aria-label="Close modal">
+                            <X size={24} />
+                        </button>
                     </div>
 
-                    <div className="px-7 py-6 space-y-5 max-h-[65vh] overflow-y-auto">
-                        {error && <div className="flex items-center gap-2 px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm"><AlertCircle size={16} /><span>{error}</span></div>}
+                    {/* Content */}
+                    <div className="p-6 sm:p-8 space-y-6 overflow-y-auto flex-1 custom-scrollbar">
+                        {error && (
+                            <motion.div 
+                                initial={{ opacity: 0, y: -10 }} 
+                                animate={{ opacity: 1, y: 0 }}
+                                className="flex items-center gap-3 px-4 py-3.5 bg-rose-50 border border-rose-100 rounded-2xl text-rose-600 text-[0.75rem] font-black uppercase tracking-tight"
+                            >
+                                <AlertCircle size={18} />
+                                <span>{error}</span>
+                            </motion.div>
+                        )}
 
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className={labelCls}>Venue Name</label>
-                                <div className="relative"><Building size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                                    <input type="text" className={inputCls} placeholder="e.g. Einstein Seminar Hall" value={name} onChange={(e) => setName(e.target.value)} readOnly={mode === 'assign'} /></div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                            <div className="space-y-2">
+                                <label className={labelCls}>Identity / Designation</label>
+                                <div className="relative group">
+                                    <Building size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+                                    <input type="text" className={`${inputCls} pl-11! border-2 border-slate-100 hover:border-slate-200 focus:border-indigo-500 rounded-[18px]`} placeholder="Einstein Seminar Hall" value={name} onChange={(e) => setName(e.target.value)} readOnly={mode === 'assign'} />
+                                </div>
                             </div>
-                            <div>
-                                <label className={labelCls}>Venue Type</label>
-                                <select className={selectCls} value={type} onChange={(e) => setType(e.target.value)} disabled={mode === 'assign'}>
-                                    {venueTypes.map(t => <option key={t} value={t}>{t}</option>)}
-                                </select>
+                            <div className="space-y-2">
+                                <label className={labelCls}>Infrastructure Class</label>
+                                <div className="relative group">
+                                    <select className={`${selectCls} w-full h-[46px] border-2 border-slate-100 hover:border-slate-200 focus:border-indigo-500 rounded-[18px] appearance-none cursor-pointer font-bold`} value={type} onChange={(e) => setType(e.target.value)} disabled={mode === 'assign'}>
+                                        {venueTypes.map(t => <option key={t} value={t}>{t}</option>)}
+                                    </select>
+                                    <ChevronRight size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none rotate-90" />
+                                </div>
                             </div>
                         </div>
 
-                        <div>
-                            <label className={labelCls}>Location / Floor</label>
-                            <div className="relative"><MapPin size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                                <input type="text" className={inputCls} placeholder="e.g. Block A, 2nd Floor" value={location} onChange={(e) => setLocation(e.target.value)} readOnly={mode === 'assign'} /></div>
+                        <div className="space-y-2">
+                            <label className={labelCls}>Strategic Location</label>
+                            <div className="relative group">
+                                <MapPin size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+                                <input type="text" className={`${inputCls} !pl-11 border-2 border-slate-100 hover:border-slate-200 focus:border-indigo-500 rounded-[18px]`} placeholder="Block A, 2nd Floor" value={location} onChange={(e) => setLocation(e.target.value)} readOnly={mode === 'assign'} />
+                            </div>
                         </div>
 
-                        <div>
-                            <label className={labelCls}>Venue Image</label>
+                        <div className="space-y-2">
+                            <label className={labelCls}>Visual Asset</label>
                             {imagePreview ? (
-                                <div className="relative w-full h-40 rounded-xl overflow-hidden border border-slate-200">
-                                    <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
-                                    <button className="absolute top-2 right-2 w-8 h-8 bg-red-500 text-white rounded-lg flex items-center justify-center hover:bg-red-600" onClick={() => { setImagePreview(''); setImageFile(null); }}><Trash2 size={14} /></button>
+                                <div className="relative w-full h-48 rounded-[24px] overflow-hidden border-2 border-slate-100 group shadow-lg">
+                                    <img src={imagePreview} alt="Preview" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                                    <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors" />
+                                    <button className="absolute top-4 right-4 w-10 h-10 bg-white/90 backdrop-blur-md text-rose-500 rounded-xl flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all shadow-xl active:scale-90" onClick={() => { setImagePreview(''); setImageFile(null); }}>
+                                        <Trash2 size={18} />
+                                    </button>
                                 </div>
                             ) : (
-                                <label className="block border-2 border-dashed border-slate-200 rounded-xl p-8 text-center cursor-pointer hover:border-indigo-300 hover:bg-indigo-50/30 transition-all">
+                                <label className="block border-2 border-dashed border-slate-200 rounded-[24px] p-10 text-center cursor-pointer hover:border-indigo-300 hover:bg-indigo-50/50 transition-all group">
                                     <input type="file" accept="image/*" onChange={handleImageChange} hidden />
-                                    <Camera size={28} className="mx-auto text-slate-300 mb-2" />
-                                    <span className="block text-sm text-slate-500 font-semibold">Upload Venue Image</span>
-                                    <span className="block text-xs text-slate-400 mt-1">or click to browse files</span>
+                                    <div className="w-14 h-14 bg-slate-50 text-slate-400 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:bg-indigo-50 group-hover:text-indigo-500 transition-colors">
+                                        <Camera size={28} />
+                                    </div>
+                                    <span className="block text-[0.85rem] text-slate-600 font-black uppercase tracking-wider mb-1">Initialize Image</span>
+                                    <span className="block text-[0.65rem] text-slate-400 font-bold uppercase tracking-widest opacity-60">HEIC, JPEG, PNG approved</span>
                                 </label>
                             )}
                         </div>
 
-                        <div>
-                            <label className={labelCls}>Brief Description</label>
-                            <div className="relative"><AlignLeft size={16} className="absolute left-3 top-3 text-slate-400" />
-                                <textarea className="w-full py-2.5 pl-10 pr-3 rounded-xl border border-slate-200 bg-white text-[0.9rem] outline-none focus:border-indigo-500 resize-none"
-                                    placeholder="Add details about capacity, equipment, etc..." value={description} onChange={(e) => setDescription(e.target.value)} rows={3} /></div>
+                        <div className="space-y-2">
+                            <label className={labelCls}>Operational Narrative</label>
+                            <div className="relative group">
+                                <AlignLeft size={16} className="absolute left-4 top-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+                                <textarea className="w-full py-3.5 pl-11 pr-4 rounded-[18px] border-2 border-slate-100 bg-white text-[0.9rem] font-medium outline-none hover:border-slate-200 focus:border-indigo-500 transition-all resize-none custom-scrollbar"
+                                    placeholder="Define operational capacity and integrated equipment..." value={description} onChange={(e) => setDescription(e.target.value)} rows={3} />
+                            </div>
                         </div>
 
-                        <div>
-                            <label className={labelCls}>Assign Incharge (Owner)</label>
-                            <select className={selectCls} value={selectedIncharge?.id?.toString() || ''}
-                                onChange={(e) => { const p = facultyList.find(f => f.id.toString() === e.target.value); setSelectedIncharge(p || null); }}>
-                                <option value="">Select Incharge...</option>
-                                {facultyList.map(p => <option key={p.id} value={p.id.toString()}>{p.name} ({p.reg_no})</option>)}
-                            </select>
-                            {isFacultyLoading && <p className="text-xs text-indigo-400 mt-1">Loading incharges...</p>}
+                        <div className="space-y-2">
+                            <label className={labelCls}>Administrative Delegate</label>
+                            <div className="relative group">
+                                <select className={`${selectCls} w-full h-[46px] border-2 border-slate-100 hover:border-slate-200 focus:border-indigo-500 rounded-[18px] appearance-none cursor-pointer font-bold`} value={selectedIncharge?.id?.toString() || ''}
+                                    onChange={(e) => { const p = facultyList.find(f => f.id.toString() === e.target.value); setSelectedIncharge(p || null); }}>
+                                    <option value="">Search for delegate...</option>
+                                    {facultyList.map(p => <option key={p.id} value={p.id.toString()}>{p.name} — {p.reg_no}</option>)}
+                                </select>
+                                <ChevronRight size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none rotate-90" />
+                                {isFacultyLoading && <p className="text-[10px] font-black text-indigo-500 mt-2 uppercase tracking-widest animate-pulse">Retrieving delegates...</p>}
+                            </div>
                         </div>
 
                         {mode === 'assign' && (
-                            <div className="flex items-start gap-2.5 p-4 bg-blue-50 border border-blue-100 rounded-xl">
-                                <Info size={16} className="text-blue-500 mt-0.5 shrink-0" />
-                                <p className="text-[0.8rem] text-blue-700">The assigned incharge will receive notifications for all booking requests and maintenance alerts for this venue.</p>
-                            </div>
+                            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="flex items-start gap-4 p-5 bg-indigo-50/50 border border-indigo-100/50 rounded-[24px]">
+                                <div className="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center shrink-0">
+                                    <Info size={20} />
+                                </div>
+                                <p className="text-[0.75rem] font-bold text-indigo-900/70 leading-relaxed uppercase tracking-tight">The assigned delegate will maintain absolute governance over resource scheduling and operational status updates for this facility.</p>
+                            </motion.div>
                         )}
                     </div>
 
-                    <div className="flex justify-end gap-3 px-7 py-5 border-t border-slate-100 bg-slate-50/50">
-                        <button className="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-semibold text-sm hover:bg-slate-100" onClick={onClose}>Discard</button>
-                        <button className="px-5 py-2.5 rounded-xl bg-indigo-500 text-white font-bold text-sm flex items-center gap-2 hover:bg-indigo-600 transition-all disabled:opacity-60"
+                    {/* Footer */}
+                    <div className="flex flex-col sm:flex-row justify-end gap-3 px-6 py-5 sm:px-8 border-t border-slate-100 bg-slate-50/50 shrink-0">
+                        <button className="w-full sm:w-auto px-8 py-3.5 rounded-[18px] border-2 border-slate-100 text-slate-500 font-black text-xs uppercase tracking-widest hover:bg-white hover:border-slate-200 transition-all bg-transparent cursor-pointer active:scale-95" onClick={onClose}>Release</button>
+                        <button className="w-full sm:w-auto px-8 py-3.5 rounded-[18px] bg-slate-900 text-white font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-indigo-600 transition-all shadow-[0_15px_30px_-10px_rgba(0,0,0,0.2)] disabled:opacity-30 disabled:cursor-not-allowed border-none cursor-pointer active:scale-95"
                             onClick={handleSubmit} disabled={isLoading}>
-                            {isLoading ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <><Check size={18} /><span>{mode === 'create' ? 'Create Venue' : mode === 'edit' ? 'Save Changes' : 'Confirm Incharge'}</span></>}
+                            {isLoading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : (
+                                <>
+                                    <Check size={18} strokeWidth={3} />
+                                    <span>{mode === 'create' ? 'Commit Entry' : mode === 'edit' ? 'Update State' : 'Confirm Delegate'}</span>
+                                </>
+                            )}
                         </button>
                     </div>
                 </motion.div>

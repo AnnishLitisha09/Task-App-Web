@@ -529,7 +529,7 @@ const UniversalGovernancePage = () => {
     };
 
     return (
-        <div className="p-0 bg-white min-h-screen">
+        <div className="p-10 max-lg:p-8 max-md:p-6 max-sm:p-4 bg-[#fcfcfd] min-h-screen font-sans">
             <AnimatePresence mode="wait">
                 {view === 'list' ? (
                     <motion.div 
@@ -537,50 +537,49 @@ const UniversalGovernancePage = () => {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="flex flex-col gap-8"
+                        className="flex flex-col gap-10 max-md:gap-8"
                     >
                         {/* Header Section */}
-                        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
-                            <div>
-                                <div className="flex items-center gap-2 mb-2">
-                                    <div className="bg-indigo-600 p-1.5 rounded-lg text-white shadow-lg shadow-indigo-100">
-                                        <Users size={16} />
-                                    </div>
-                                    <span className="text-[0.7rem] font-bold text-indigo-600 uppercase tracking-widest">Global Governance</span>
+                        <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-8">
+                            <div className="space-y-1">
+                                <div className="flex items-center gap-2 text-indigo-500 text-[10px] uppercase tracking-[0.3em] mb-2 font-black opacity-80">
+                                    <Users size={12} strokeWidth={3} /> Global Governance
                                 </div>
-                                <h1 className="text-[2rem] font-extrabold text-slate-900 m-0 tracking-tight">System Control Matrix</h1>
-                                <p className="text-slate-500 mt-2 text-base">Oversee multi-role compliance, view performance logs, and manage institutional directives.</p>
+                                <h1 className="text-4xl max-md:text-3xl font-black text-slate-900 tracking-tighter leading-none">
+                                    System Control <span className="text-indigo-600">Matrix</span>
+                                </h1>
+                                <p className="text-xs text-slate-400 uppercase tracking-widest font-black opacity-60 mt-2">Institutional directives & multi-role compliance oversight</p>
                             </div>
 
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-3 self-end xl:self-auto">
                                 <button 
                                     onClick={fetchAllUsers}
-                                    className="p-3.5 rounded-2xl bg-slate-50 text-slate-500 hover:bg-slate-100 hover:text-indigo-600 transition-all border border-slate-200"
+                                    className="p-4 rounded-2xl bg-white text-slate-400 hover:text-indigo-600 hover:shadow-lg transition-all border border-slate-100 shadow-sm"
                                     title="Sync Database"
                                 >
-                                    <RefreshCw size={20} className={loading ? 'animate-spin' : ''} />
+                                    <RefreshCw size={20} className={loading ? 'animate-spin' : ''} strokeWidth={2.5} />
                                 </button>
-                                <div className="bg-emerald-50 text-emerald-700 px-5 py-3 rounded-2xl border border-emerald-100 flex items-center gap-3">
-                                    <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                                <div className="bg-emerald-50 text-emerald-700 px-6 py-3 rounded-2xl border border-emerald-100 flex items-center gap-4 shadow-sm">
+                                    <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
                                     <div className="flex flex-col">
-                                        <span className="text-[0.6rem] font-bold uppercase text-emerald-600 leading-none mb-1">Live Directory</span>
-                                        <span className="text-sm font-extrabold leading-none">{users.length} Active Accounts</span>
+                                        <span className="text-[0.6rem] font-black uppercase text-emerald-600 leading-none mb-1 tracking-widest">Live Registry</span>
+                                        <span className="text-sm font-black tracking-tight leading-none">{users.length} Active Accounts</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         {/* Search & Role Filters */}
-                        <div className="flex flex-col xl:flex-row gap-4">
-                            <div className="flex-1 flex flex-col md:flex-row gap-3">
+                        <div className="flex flex-col xl:flex-row gap-4 bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm">
+                            <div className="flex-1 flex flex-col md:flex-row gap-4">
                                 <div className="relative flex-1 group">
-                                    <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+                                    <Search size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-500 transition-colors" />
                                     <input 
                                         type="text" 
                                         placeholder="Search by name, ID, or email..." 
                                         value={searchQuery}
                                         onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
-                                        className="w-full h-14 pl-12 pr-4 bg-slate-50/50 border border-slate-200 rounded-2xl outline-none focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50/50 transition-all text-sm font-medium shadow-sm"
+                                        className="w-full h-14 pl-14 pr-6 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-indigo-100 transition-all text-sm font-bold text-slate-700 shadow-inner"
                                     />
                                 </div>
                                 

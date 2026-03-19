@@ -108,183 +108,198 @@ const ScoreboardPage = () => {
     const paginatedData = filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
     return (
-        <div className="h-full flex flex-col bg-white overflow-hidden font-sans text-slate-600">
+        <div className="h-full flex flex-col bg-[#fcfcfd] overflow-hidden font-sans text-slate-600">
             {/* --- HEADER SECTION --- */}
-            <div className="flex-none px-8 pt-6 pb-4 max-md:px-4">
-                <header className="flex justify-between items-end mb-6 max-md:flex-col max-md:items-stretch max-md:gap-4">
-                    <div>
-                        <div className="flex items-center gap-2 text-indigo-500 text-[10px] uppercase tracking-[0.3em] mb-2 font-medium">
-                            <Calendar size={12} /> Academic Session 2026
+            <div className="flex-none px-10 max-lg:px-8 max-md:px-6 max-sm:px-4 pt-10 pb-6 bg-white border-b border-slate-100">
+                <header className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-8 mb-4">
+                    <div className="space-y-1">
+                        <div className="flex items-center gap-2 text-indigo-500 text-[10px] uppercase tracking-[0.3em] mb-2 font-black opacity-80">
+                            <Calendar size={12} strokeWidth={3} /> Academic Inception 2026
                         </div>
-                        <h1 className="text-3xl font-light text-slate-900 tracking-tight max-md:text-2xl">
-                            Performance <span className="font-semibold">Scoreboard</span>
+                        <h1 className="text-4xl max-md:text-3xl font-black text-slate-900 tracking-tighter leading-none">
+                            Elite <span className="text-indigo-600">Scoreboard</span>
                         </h1>
                     </div>
 
                     {/* TABS */}
-                    <div className="bg-slate-50 p-1 rounded-xl border border-slate-200 shadow-sm flex gap-1 max-md:w-full">
+                    <div className="bg-slate-50 p-1.5 rounded-[22px] border border-slate-100 shadow-inner flex gap-1.5 w-full xl:w-auto overflow-x-auto no-scrollbar">
                         <button
                             onClick={() => { setActiveTab('students'); setDeptFilter('All Departments'); setYearFilter('All Years'); }}
-                            className={`px-6 py-2 rounded-lg text-sm font-semibold transition-all flex-1 ${activeTab === 'students' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                            className={`px-10 py-3 rounded-[18px] text-[10px] font-black uppercase tracking-[0.15em] transition-all flex-1 xl:flex-none flex items-center justify-center gap-3 ${activeTab === 'students' ? 'bg-white text-indigo-600 shadow-[0_10px_25px_-5px_rgba(99,102,241,0.2)] border border-indigo-50/50' : 'text-slate-400 hover:text-slate-600 active:scale-95'}`}
                         >
+                            <Users size={16} strokeWidth={2.5} />
                             Students
                         </button>
                         <button
                             onClick={() => { setActiveTab('faculty'); setDeptFilter('All Departments'); }}
-                            className={`px-6 py-2 rounded-lg text-sm font-semibold transition-all flex-1 ${activeTab === 'faculty' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                            className={`px-10 py-3 rounded-[18px] text-[10px] font-black uppercase tracking-[0.15em] transition-all flex-1 xl:flex-none flex items-center justify-center gap-3 ${activeTab === 'faculty' ? 'bg-white text-indigo-600 shadow-[0_10px_25px_-5px_rgba(99,102,241,0.2)] border border-indigo-50/50' : 'text-slate-400 hover:text-slate-600 active:scale-95'}`}
                         >
-                            Faculty
+                            <Trophy size={16} strokeWidth={2.5} />
+                            Faculty Members
                         </button>
                     </div>
                 </header>
             </div>
 
             {/* --- DASHBOARD CONTENT --- */}
-            <div className="flex-1 min-h-0 px-8 pb-8 grid grid-cols-12 gap-6 max-md:px-4 max-md:flex max-md:flex-col">
+            <div className="flex-1 min-h-0 px-10 max-lg:px-8 max-md:px-4 py-8 overflow-y-auto custom-scrollbar">
+                <div className="max-w-[1600px] mx-auto grid grid-cols-12 gap-8 max-xl:flex max-xl:flex-col">
 
-                {/* --- LEFT PANEL: TABLE (65%) --- */}
-                <div className="col-span-12 lg:col-span-8 flex flex-col bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden min-h-[400px]">
-                    {/* Toolbar */}
-                    <div className="flex-none p-4 border-b border-slate-100 flex gap-3 bg-white z-10 max-md:flex-col">
-                        <div className="relative flex-1">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" size={14} />
-                            <input
-                                type="text"
-                                placeholder={`Search ${activeTab}...`}
-                                className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-50 transition-all text-sm"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                            />
-                        </div>
-
-                        <div className="flex gap-2 max-md:grid max-md:grid-cols-2">
-                            <select
-                                className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-indigo-300 text-slate-600 cursor-pointer max-md:w-full"
-                                value={deptFilter}
-                                onChange={(e) => setDeptFilter(e.target.value)}
-                            >
-                                <option>All Departments</option>
-                                {departments.map(d => <option key={d} value={d}>{d}</option>)}
-                            </select>
-
-                            {activeTab === 'students' && (
-                                <select
-                                    className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-indigo-300 text-slate-600 cursor-pointer max-md:w-full"
-                                    value={yearFilter}
-                                    onChange={(e) => setYearFilter(e.target.value)}
-                                >
-                                    <option>All Years</option>
-                                    <option value="1">1st Year</option>
-                                    <option value="2">2nd Year</option>
-                                    <option value="3">3rd Year</option>
-                                    <option value="4">4th Year</option>
-                                </select>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Table Body */}
-                    <div className="flex-1 overflow-x-auto relative custom-scrollbar bg-white">
-                        <div className="min-w-[800px]">
-                            <div className="sticky top-0 bg-white/95 backdrop-blur-sm z-10 grid grid-cols-12 px-6 py-3 text-[10px] uppercase tracking-widest text-slate-400 font-bold border-b border-slate-100 shadow-sm">
-                                <div className="col-span-1">Rank</div>
-                                <div className="col-span-4">Name</div>
-                                <div className="col-span-3">Department</div>
-                                <div className="col-span-2 text-center">Score</div>
-                                <div className="col-span-2 text-right">Total</div>
+                    {/* --- LEFT PANEL: TABLE (70%) --- */}
+                    <div className="col-span-12 xl:col-span-8 flex flex-col bg-white rounded-[40px] border border-slate-100 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.03)] overflow-hidden min-h-[600px] max-md:min-h-0">
+                        {/* Toolbar */}
+                        <div className="flex-none p-6 border-b border-slate-50 flex flex-col md:flex-row gap-4 bg-white z-10">
+                            <div className="relative flex-1 group">
+                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-500 transition-colors" size={18} />
+                                <input
+                                    type="text"
+                                    placeholder={`Filter ${activeTab} via cipher or nomenclature...`}
+                                    className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border-2 border-slate-50 rounded-[20px] focus:outline-none focus:border-indigo-400 focus:bg-white focus:shadow-[0_10px_20px_-10px_rgba(99,102,241,0.1)] transition-all text-sm font-bold text-slate-700 placeholder:text-slate-300"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                />
                             </div>
 
-                            <div className="divide-y divide-slate-50">
-                                <AnimatePresence mode='wait'>
-                                    {paginatedData.map((user) => (
-                                        <motion.div
-                                            key={user.id}
-                                            layout
-                                            initial={{ opacity: 0, y: 5 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            exit={{ opacity: 0, y: -5 }}
-                                            transition={{ duration: 0.2 }}
-                                            className="grid grid-cols-12 items-center px-6 py-3 hover:bg-slate-50 transition-colors group cursor-default"
-                                        >
-                                            <div className="col-span-1">
-                                                <RankBadge rank={user.rank} />
-                                            </div>
-                                            <div className="col-span-4 flex items-center gap-3">
-                                                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-sm ${user.rank === 1 ? 'bg-yellow-400' :
-                                                    user.rank === 2 ? 'bg-slate-300' :
-                                                        user.rank === 3 ? 'bg-orange-300' : 'bg-indigo-100 text-indigo-500'
-                                                    }`}>
-                                                    {user.avatar}
-                                                </div>
-                                                <div>
-                                                    <div className="text-sm font-medium text-slate-900">{user.name}</div>
-                                                    <div className="text-[10px] text-slate-400">{activeTab === 'students' ? `${user.year}${['st', 'nd', 'rd', 'th'][(user.year - 1) % 10] || 'th'} Year` : (user.type || 'Faculty Member')}</div>
-                                                </div>
-                                            </div>
-                                            <div className="col-span-3 text-xs text-slate-500 font-medium">
-                                                <span className="bg-slate-100 px-2 py-1 rounded-md">{user.department}</span>
-                                            </div>
-                                            <div className="col-span-2 text-center">
-                                                <div className="text-xs font-semibold text-slate-700">{user.score}</div>
-                                                <div className="text-[9px] text-rose-400">-{user.penalty} pen</div>
-                                            </div>
-                                            <div className="col-span-2 text-right font-bold text-indigo-600 text-sm">
-                                                {user.total_score}
-                                            </div>
-                                        </motion.div>
-                                    ))}
-                                </AnimatePresence>
-                                {paginatedData.length === 0 && (
-                                    <div className="py-20 text-center text-slate-400 font-medium">No results found</div>
+                            <div className="flex gap-3 max-sm:grid max-sm:grid-cols-2">
+                                <select
+                                    className="px-5 py-3.5 bg-slate-50 border-2 border-slate-50 rounded-[18px] text-[10px] font-black uppercase tracking-wider text-slate-600 focus:border-indigo-400 focus:outline-none transition-all cursor-pointer min-w-[160px] shadow-sm appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M5%207.5L10%2012.5L15%207.5%22%20stroke%3D%22%2394a3b8%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E')] bg-size-[20px_20px] bg-position-[right_12px_center] bg-no-repeat"
+                                    value={deptFilter}
+                                    onChange={(e) => setDeptFilter(e.target.value)}
+                                >
+                                    <option>All Departments</option>
+                                    {departments.map(d => <option key={d} value={d}>{d}</option>)}
+                                </select>
+
+                                {activeTab === 'students' && (
+                                    <select
+                                        className="px-5 py-3.5 bg-slate-50 border-2 border-slate-50 rounded-[18px] text-[10px] font-black uppercase tracking-wider text-slate-600 focus:border-indigo-400 focus:outline-none transition-all cursor-pointer min-w-[120px] shadow-sm appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M5%207.5L10%2012.5L15%207.5%22%20stroke%3D%22%2394a3b8%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E')] bg-size-[20px_20px] bg-position-[right_12px_center] bg-no-repeat"
+                                        value={yearFilter}
+                                        onChange={(e) => setYearFilter(e.target.value)}
+                                    >
+                                        <option>All Years</option>
+                                        <option value="1">1st Year</option>
+                                        <option value="2">2nd Year</option>
+                                        <option value="3">3rd Year</option>
+                                        <option value="4">4th Year</option>
+                                    </select>
                                 )}
                             </div>
                         </div>
-                    </div>
 
-                    {/* Pagination Footer */}
-                    <Pagination
-                        currentPage={currentPage}
-                        totalPages={totalPages}
-                        onPageChange={setCurrentPage}
-                        itemsPerPage={itemsPerPage}
-                        onItemsPerPageChange={setItemsPerPage}
-                        totalItems={filteredData.length}
-                        showingCount={paginatedData.length}
-                    />
-                </div>
+                        {/* Table Body */}
+                        <div className="flex-1 overflow-x-auto relative custom-scrollbar bg-white">
+                            <div className="min-w-[900px]">
+                                <div className="sticky top-0 bg-white/95 backdrop-blur-md z-10 grid grid-cols-12 px-8 py-4 text-[10px] uppercase tracking-[0.2em] font-black text-slate-400 border-b border-slate-50 shadow-sm">
+                                    <div className="col-span-1">Rank</div>
+                                    <div className="col-span-4">Candidate Profile</div>
+                                    <div className="col-span-3">Core Department</div>
+                                    <div className="col-span-2 text-center">Score Delta</div>
+                                    <div className="col-span-2 text-right">Aggr. Points</div>
+                                </div>
 
-                {/* --- RIGHT PANEL: PODIUM & INFO (35%) --- */}
-                <div className="col-span-12 lg:col-span-4 flex flex-col gap-6">
-                    {/* Podium Card */}
-                    <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 relative">
-                        <h2 className="text-lg font-bold text-slate-800 mb-8 flex items-center gap-2">
-                            <Crown size={18} className="text-yellow-500" /> Top Performers
-                        </h2>
+                                <div className="divide-y divide-slate-50/50">
+                                    <AnimatePresence mode='wait'>
+                                        {paginatedData.map((user) => (
+                                            <motion.div
+                                                key={user.id}
+                                                layout
+                                                initial={{ opacity: 0, x: -10 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                exit={{ opacity: 0, x: 10 }}
+                                                transition={{ duration: 0.3 }}
+                                                className="grid grid-cols-12 items-center px-8 py-4 hover:bg-slate-50/50 transition-all group cursor-default"
+                                            >
+                                                <div className="col-span-1">
+                                                    <RankBadge rank={user.rank} />
+                                                </div>
+                                                <div className="col-span-4 flex items-center gap-4">
+                                                    <div className={`w-10 h-10 rounded-2xl flex items-center justify-center text-xs font-black text-white shadow-xl rotate-3 group-hover:rotate-0 transition-transform ${user.rank === 1 ? 'bg-linear-to-br from-yellow-300 to-yellow-500' :
+                                                        user.rank === 2 ? 'bg-linear-to-br from-slate-200 to-slate-400' :
+                                                            user.rank === 3 ? 'bg-linear-to-br from-orange-200 to-orange-400' : 'bg-linear-to-br from-indigo-50 to-indigo-100 text-indigo-500 shadow-none'
+                                                        }`}>
+                                                        {user.avatar}
+                                                    </div>
+                                                    <div>
+                                                        <div className="text-sm font-black text-slate-900 leading-none mb-1 uppercase tracking-tight">{user.name}</div>
+                                                        <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{activeTab === 'students' ? `${user.year}${['st', 'nd', 'rd', 'th'][(user.year - 1) % 10] || 'th'} Batch` : (user.type || 'Council Member')}</div>
+                                                    </div>
+                                                </div>
+                                                <div className="col-span-3">
+                                                    <span className="bg-slate-50 text-slate-600 px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-tight border border-slate-100">{user.department}</span>
+                                                </div>
+                                                <div className="col-span-2 text-center">
+                                                    <div className="text-xs font-black text-slate-900">+{user.score}</div>
+                                                    <div className="text-[9px] text-rose-500 font-black opacity-60">-{user.penalty} PEN</div>
+                                                </div>
+                                                <div className="col-span-2 text-right">
+                                                    <span className="text-lg font-black text-indigo-600 tracking-tighter">{user.total_score}</span>
+                                                </div>
+                                            </motion.div>
+                                        ))}
+                                    </AnimatePresence>
+                                    {paginatedData.length === 0 && (
+                                        <div className="py-24 text-center">
+                                            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-50 mb-4">
+                                                <Users size={24} className="text-slate-300" />
+                                            </div>
+                                            <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest leading-relaxed">No Data Detected in Current Sector</h3>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
 
-                        <div className="flex items-end justify-center gap-3 h-60 mb-2">
-                            {topThree[1] && <PodiumStep user={topThree[1]} rank={2} color="bg-slate-100" height="h-24" />}
-                            {topThree[0] && <PodiumStep user={topThree[0]} rank={1} color="bg-indigo-100" height="h-36" isGold />}
-                            {topThree[2] && <PodiumStep user={topThree[2]} rank={3} color="bg-orange-50" height="h-16" />}
+                        {/* Pagination Footer */}
+                        <div className="p-6 bg-slate-50/30 border-t border-slate-50">
+                            <Pagination
+                                currentPage={currentPage}
+                                totalPages={totalPages}
+                                onPageChange={setCurrentPage}
+                                itemsPerPage={itemsPerPage}
+                                onItemsPerPageChange={setItemsPerPage}
+                                totalItems={filteredData.length}
+                                showingCount={paginatedData.length}
+                            />
                         </div>
                     </div>
 
-                    {/* Quick Stats */}
-                    <div className="grid grid-cols-2 gap-4">
-                        <StatCard
-                            icon={<Users size={18} className="text-indigo-600" />}
-                            label={`Total ${activeTab === 'students' ? 'Students' : 'Faculty'}`}
-                            value={activeTab === 'students' ? stats.total_students : stats.total_faculty}
-                            bg="bg-indigo-50"
-                        />
-                        <StatCard
-                            icon={<Award size={18} className="text-emerald-600" />}
-                            label="Top Score"
-                            value={activeTab === 'students' ? stats.student_top_score : stats.faculty_top_score}
-                            bg="bg-emerald-50"
-                        />
+                    {/* --- RIGHT PANEL: PODIUM & INFO (30%) --- */}
+                    <div className="col-span-12 xl:col-span-4 flex flex-col gap-8">
+                        {/* Podium Card */}
+                        <div className="bg-white rounded-[40px] border border-slate-100 shadow-[0_25px_70px_-20px_rgba(99,102,241,0.1)] p-8 relative overflow-hidden group">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50/30 rounded-full blur-3xl -mr-16 -mt-16 transition-all group-hover:bg-indigo-100/40" />
+                            
+                            <h2 className="text-xl font-black text-slate-900 mb-10 flex items-center justify-between uppercase tracking-tight">
+                                <span>Hall of Valor</span>
+                                <Crown size={22} className="text-yellow-500 animate-pulse" />
+                            </h2>
+
+                            <div className="flex items-end justify-center gap-4 h-72 mb-4">
+                                {topThree[1] && <PodiumStep user={topThree[1]} rank={2} color="bg-slate-50" height="h-28" />}
+                                {topThree[0] && <PodiumStep user={topThree[0]} rank={1} color="bg-indigo-50" height="h-44" isGold />}
+                                {topThree[2] && <PodiumStep user={topThree[2]} rank={3} color="bg-orange-50" height="h-20" />}
+                            </div>
+                        </div>
+
+                        {/* Quick Stats */}
+                        <div className="grid grid-cols-2 xl:grid-cols-1 gap-4">
+                            <StatCard
+                                icon={<Users size={20} />}
+                                label={`Global ${activeTab === 'students' ? 'Students' : 'Faculty'}`}
+                                value={activeTab === 'students' ? stats.total_students : stats.total_faculty}
+                                color="text-indigo-600"
+                                bg="bg-indigo-50/50"
+                            />
+                            <StatCard
+                                icon={<Award size={20} />}
+                                label="Peak Performance"
+                                value={activeTab === 'students' ? stats.student_top_score : stats.faculty_top_score}
+                                color="text-emerald-600"
+                                bg="bg-emerald-50/50"
+                            />
+                        </div>
                     </div>
                 </div>
-
             </div>
         </div>
     );

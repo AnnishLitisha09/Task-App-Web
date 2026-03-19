@@ -38,20 +38,20 @@ const Pagination = ({
     };
 
     return (
-        <div className="flex flex-wrap justify-between items-center gap-4 px-6 py-4 bg-white border-t border-slate-100 rounded-b-[20px]">
-            <div className="flex items-center gap-4 max-sm:w-full max-sm:justify-between">
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                    Showing <span className="text-slate-700">{showingCount}</span> of <span className="text-slate-700">{totalItems}</span> items
+        <div className="flex flex-wrap justify-between items-center gap-y-4 gap-x-6 px-6 py-5 bg-white border-t border-slate-100 rounded-b-[24px] max-sm:px-4 max-sm:py-4">
+            <div className="flex items-center gap-4 max-[500px]:w-full max-[500px]:justify-between">
+                <p className="text-[0.7rem] font-bold text-slate-400 uppercase tracking-wider">
+                    Showing <span className="text-slate-800">{showingCount}</span> <span className="max-sm:hidden">of</span><span className="sm:hidden">/</span> <span className="text-slate-800">{totalItems}</span> <span className="max-[400px]:hidden">Items</span>
                 </p>
 
-                <div className="h-4 w-px bg-slate-200 max-sm:hidden"></div>
+                <div className="h-4 w-px bg-slate-200 max-[500px]:hidden"></div>
 
                 <div className="flex items-center gap-2">
-                    <span className="text-[0.7rem] font-bold text-slate-400 uppercase tracking-wider">Per Page:</span>
+                    <span className="text-[0.7rem] font-bold text-slate-400 uppercase tracking-wider max-[400px]:hidden">Per Page:</span>
                     <select
                         value={itemsPerPage}
                         onChange={(e) => onItemsPerPageChange(Number(e.target.value))}
-                        className="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs font-bold text-slate-600 outline-none cursor-pointer focus:border-indigo-500 transition-colors"
+                        className="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-[0.7rem] font-bold text-slate-600 outline-none cursor-pointer focus:border-indigo-500 hover:border-indigo-300 transition-all"
                     >
                         {[5, 10, 20, 50].map(size => (
                             <option key={size} value={size}>{size}</option>

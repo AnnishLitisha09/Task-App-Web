@@ -72,35 +72,57 @@ const CouponsPage = () => {
     const paginatedCoupons = coupons.slice(indexOfFirstItem, indexOfLastItem);
     const totalPages = Math.ceil(coupons.length / itemsPerPage);
 
+    // Auto-switch view based on screen size
+    useEffect(() => {
+        const handleResize = () => { if (window.innerWidth < 1024) setViewMode('grid'); };
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
     return (
-        <motion.div className="p-6 bg-white min-h-screen" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+        <motion.div className="p-10 max-lg:p-8 max-md:p-6 max-sm:p-4 bg-[#fcfcfd] min-h-screen font-sans" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             {/* Header */}
-            <div className="flex justify-between items-center mb-8">
-                <div className="flex items-center gap-4">
-                    <Ticket size={32} style={{ color: THEME_COLOR }} />
-                    <div><h1 className="text-2xl font-bold text-slate-900">Coupon Management</h1><p className="text-sm text-slate-500">Create and manage reward coupons</p></div>
+            <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-8 mb-12 max-md:mb-10">
+                <div className="flex items-center gap-6">
+                    <div className="w-16 h-16 max-sm:w-14 max-sm:h-14 rounded-[22px] bg-indigo-50 flex items-center justify-center text-indigo-600 shadow-lg shadow-indigo-100/50">
+                        <Ticket size={32} strokeWidth={2.5} className="max-sm:w-6 max-sm:h-6" />
+                    </div>
+                    <div>
+                        <h1 className="text-3xl max-md:text-2xl font-black text-slate-900 tracking-tight">Reward Protocols</h1>
+                        <p className="text-xs text-slate-400 mt-1 uppercase tracking-[0.2em] font-black opacity-70">Coupon Generation & Redemption Management</p>
+                    </div>
                 </div>
-                <div className="flex items-center gap-4">
-                    <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200">
-                        <button onClick={() => setViewMode('grid')} className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}>
-                            <LayoutGrid size={18} />
+
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full xl:w-auto">
+                    <div className="flex bg-slate-100 p-1.5 rounded-[18px] border border-slate-200 shadow-inner max-lg:hidden">
+                        <button onClick={() => setViewMode('grid')} className={`p-2.5 rounded-[13px] transition-all cursor-pointer ${viewMode === 'grid' ? 'bg-white text-indigo-600 shadow-md' : 'text-slate-400 hover:text-slate-600'}`}>
+                            <LayoutGrid size={20} strokeWidth={2.5} />
                         </button>
-                        <button onClick={() => setViewMode('table')} className={`p-2 rounded-lg transition-all ${viewMode === 'table' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}>
-                            <List size={18} />
+                        <button onClick={() => setViewMode('table')} className={`p-2.5 rounded-[13px] transition-all cursor-pointer ${viewMode === 'table' ? 'bg-white text-indigo-600 shadow-md' : 'text-slate-400 hover:text-slate-600'}`}>
+                            <List size={20} strokeWidth={2.5} />
                         </button>
                     </div>
-                    <button className="flex items-center gap-2 text-white px-5 py-2.5 rounded-xl font-bold border-none cursor-pointer shadow-[0_4px_12px_rgba(99,102,241,0.2)]" style={{ backgroundColor: THEME_COLOR }} onClick={handleCreateNew}>
-                        <Plus size={18} />Create Coupon
+                    <button className="flex items-center justify-center gap-3 bg-slate-900 hover:bg-indigo-600 text-white px-8 py-4 rounded-[22px] text-xs font-black uppercase tracking-[0.2em] shadow-xl transition-all active:scale-95 border-none cursor-pointer" onClick={handleCreateNew}>
+                        <Plus size={20} strokeWidth={3} />
+                        <span>Issue Coupon</span>
                     </button>
                 </div>
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-5 mb-8 max-md:grid-cols-1">
-                {[{ icon: Gift, label: 'Total Coupons', val: coupons.length }, { icon: Sparkles, label: 'Active Coupons', val: couponStats.active_coupons }, { icon: TrendingUp, label: 'Total Issued', val: couponStats.total_issued }].map((s, i) => (
-                    <div key={i} className="bg-white p-5 rounded-2xl border border-slate-200 flex items-center gap-4 shadow-sm">
-                        <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${THEME_COLOR}15`, color: THEME_COLOR }}><s.icon size={20} /></div>
-                        <div><p className="text-[0.78rem] font-bold text-slate-400 uppercase mb-1">{s.label}</p><h4 className="text-2xl font-extrabold text-slate-800">{s.val}</h4></div>
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-6 mb-12 max-md:mb-10">
+                {[{ icon: Gift, label: 'Total Registry', val: coupons.length, color: '#6366f1' }, 
+                  { icon: Sparkles, label: 'Active State', val: couponStats.active_coupons, color: '#10b981' }, 
+                  { icon: TrendingUp, label: 'Circulation', val: couponStats.total_issued, color: '#f59e0b' }].map((s, i) => (
+                    <div key={i} className="bg-white p-6 rounded-[32px] border border-slate-100 flex items-center gap-5 shadow-[0_15px_40px_-15px_rgba(0,0,0,0.03)] hover:shadow-[0_25px_50px_-15px_rgba(0,0,0,0.07)] hover:border-indigo-100 hover:-translate-y-1 transition-all group">
+                        <div className="w-16 h-16 max-sm:w-14 max-sm:h-14 rounded-2xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 shadow-lg font-bold" style={{ backgroundColor: `${s.color}15`, color: s.color }}>
+                            <s.icon size={28} strokeWidth={2.5} className="max-sm:w-6 max-sm:h-6" />
+                        </div>
+                        <div className="flex-1">
+                            <span className="block text-[0.65rem] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">{s.label}</span>
+                            <h3 className="text-3xl max-sm:text-2xl font-black text-slate-900 tracking-tighter leading-none">{s.val}</h3>
+                        </div>
                     </div>
                 ))}
             </div>

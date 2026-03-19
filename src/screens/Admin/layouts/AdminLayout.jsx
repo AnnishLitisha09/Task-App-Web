@@ -50,7 +50,8 @@ const AdminLayout = ({ user: initialUser, onLogout }) => {
         switch (activeTab) {
             case 'Dashboard': return <AdminDashboard />;
             case 'Users': return <UsersPage />;
-            case 'Departments': return <DepartmentsPage />;            case 'Infrastructure': return <InfrastructurePage />;
+            case 'Departments': return <DepartmentsPage />;
+            case 'Infrastructure': return <InfrastructurePage />;
             case 'Directives': return <TasksPage />;
             case 'Task Titles': return <TaskTitlesPage />;
             case 'Scoreboard': return <ScoreboardPage />;
@@ -85,7 +86,7 @@ const AdminLayout = ({ user: initialUser, onLogout }) => {
 
             <main className="flex-1 flex flex-col min-w-0">
                 {/* Header */}
-                <header className="h-[72px] bg-white/95 backdrop-blur-sm border-b border-slate-100 px-10 flex items-center justify-between sticky top-0 z-90 max-lg:px-5 max-md:h-16 max-md:px-4">
+                <header className="h-[72px] bg-white/95 backdrop-blur-sm border-b border-slate-100 px-10 flex items-center justify-between sticky top-0 z-90 max-lg:px-6 max-md:h-16 max-md:px-4">
                     <div className="flex items-center">
                         <button
                             className="hidden max-lg:flex bg-transparent text-slate-500 cursor-pointer p-2 mr-3"
@@ -93,7 +94,7 @@ const AdminLayout = ({ user: initialUser, onLogout }) => {
                         >
                             {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
                         </button>
-                        <h2 className="text-lg font-bold text-slate-800 max-md:text-[1.1rem]">
+                        <h2 className="text-lg font-bold text-slate-800 max-md:text-[1rem] truncate max-w-[150px] sm:max-w-none">
                             {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
                         </h2>
                     </div>
@@ -101,16 +102,15 @@ const AdminLayout = ({ user: initialUser, onLogout }) => {
                     <div className="flex items-center gap-5 max-md:gap-3">
                         <button 
                             onClick={() => setActiveTab('Notifications')}
-                            className={`max-[480px]:hidden bg-transparent cursor-pointer relative p-[5px] grid place-items-center transition-colors ${activeTab === 'Notifications' ? 'text-indigo-500' : 'text-slate-500 hover:text-indigo-500'}`}
+                            className={`bg-transparent cursor-pointer relative p-[5px] grid place-items-center transition-colors ${activeTab === 'Notifications' ? 'text-indigo-500' : 'text-slate-500 hover:text-indigo-500'}`}
                         >
                             <Bell size={20} />
-                            {/* We could fetch real unread count here if we had a global state */}
                             <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-rose-500 border-2 border-white rounded-full"></span>
                         </button>
-                        <div className="hidden max-[480px]:hidden w-px h-6 bg-slate-200"></div>
+                        <div className="w-px h-6 bg-slate-200 block max-sm:hidden"></div>
 
                         <div className="flex items-center gap-3.5">
-                            <div className="hidden flex-col items-end max-md:hidden">
+                            <div className="flex flex-col items-end max-[540px]:hidden">
                                 <span className="text-sm font-bold text-slate-900">{displayName}</span>
                                 <button className="flex items-center gap-1 text-[11px] font-semibold text-indigo-500 bg-none border-none cursor-pointer p-0">
                                     <Edit2 size={10} />
@@ -121,14 +121,14 @@ const AdminLayout = ({ user: initialUser, onLogout }) => {
                                 <img
                                     src={user.avatar || `https://ui-avatars.com/api/?name=${displayName}&background=6366f1&color=fff&bold=true&rounded=true`}
                                     alt="User"
-                                    className="w-10 h-10 rounded-[10px] object-cover border-2 border-slate-50 max-md:w-[34px] max-md:h-[34px]"
+                                    className="w-10 h-10 rounded-[10px] object-cover border-2 border-slate-50 max-md:w-[36px] max-md:h-[36px]"
                                 />
                             </div>
                         </div>
                     </div>
                 </header>
 
-                <section className="p-10 flex-1 flex flex-col min-w-0 max-lg:p-5 max-md:p-4">
+                <section className="p-10 flex-1 flex flex-col min-w-0 max-lg:p-6 max-md:p-4 max-sm:p-3">
                     {renderContent()}
                 </section>
             </main>

@@ -304,111 +304,123 @@ const ResourcesPage = () => {
     return (
         <div className="h-full flex flex-col bg-[#fcfcfd] overflow-hidden font-sans text-slate-600">
             {/* --- HEADER --- */}
-            <div className="flex-none px-8 pt-6 pb-4 bg-white border-b border-slate-50">
-                <div className="flex justify-between items-start mb-6">
-                    <div>
-                        <h1 className="text-2xl font-black text-slate-900 tracking-tight">Resource Management</h1>
-                        <p className="text-xs text-slate-400 mt-1 uppercase tracking-widest font-black">System Inventory & Venue Operations</p>
+            <div className="flex-none px-10 max-lg:px-8 max-md:px-6 max-sm:px-4 pt-8 pb-6 bg-white border-b border-slate-100">
+                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-10">
+                    <div className="space-y-1">
+                        <h1 className="text-3xl max-md:text-2xl font-black text-slate-900 tracking-tight">Resource Management</h1>
+                        <p className="text-[10px] sm:text-xs text-slate-400 uppercase tracking-[0.2em] font-black opacity-70">Strategic Asset Governance & Infrastructure Logic</p>
                     </div>
                     
-                    <div className="flex bg-slate-100 p-1 rounded-2xl border border-slate-200 shadow-inner">
+                    <div className="flex bg-slate-50 p-1.5 rounded-[22px] border border-slate-100 shadow-inner w-full lg:w-auto overflow-x-auto no-scrollbar pb-1.5 lg:pb-1.5">
                         {[
                             { id: 'assets', label: 'Asset Master', icon: Box },
-                            { id: 'venues', label: 'Assignment', icon: MapPin },
+                            { id: 'venues', label: 'Allocation', icon: MapPin },
                             { id: 'maintenance', label: 'Maintenance', icon: Wrench }
                         ].map(tab => (
                             <button 
                                 key={tab.id}
                                 onClick={() => setViewType(tab.id)}
-                                className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase transition-all flex items-center gap-2 ${viewType === tab.id ? 'bg-white text-indigo-600 shadow-md' : 'text-slate-400 hover:text-slate-600'}`}
+                                className={`px-6 sm:px-8 py-3 rounded-[18px] text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-3 shrink-0 ${viewType === tab.id ? 'bg-white text-indigo-600 shadow-[0_10px_25px_-5px_rgba(99,102,241,0.2)]' : 'text-slate-400 hover:text-slate-600 active:scale-95'}`}
                             >
-                                <tab.icon size={14} />
-                                {tab.label}
+                                <tab.icon size={16} strokeWidth={2.5} />
+                                <span className="max-sm:hidden">{tab.label}</span>
+                                <span className="sm:hidden">{tab.label.split(' ')[0]}</span>
                             </button>
                         ))}
                     </div>
                 </div>
 
                 {/* Stats Overview */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-6 mb-10 max-sm:gap-4">
                     {stats.map((stat, idx) => (
                         <motion.div key={idx} 
-                            initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.1 }}
-                            className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-5 hover:border-indigo-100 transition-colors"
+                            initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.1 }}
+                            className="bg-white p-6 max-sm:p-5 rounded-[32px] border border-slate-100 shadow-[0_15px_40px_-15px_rgba(0,0,0,0.03)] flex items-center gap-6 hover:border-indigo-100 hover:shadow-[0_25px_50px_-15px_rgba(0,0,0,0.07)] transition-all group"
                         >
-                            <div className="w-14 h-14 rounded-2xl flex items-center justify-center font-bold" style={{ backgroundColor: `${stat.color}15`, color: stat.color }}>
-                                <stat.icon size={28} />
+                            <div className="w-16 h-16 max-sm:w-14 max-sm:h-14 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110 shadow-lg" style={{ backgroundColor: `${stat.color}15`, color: stat.color }}>
+                                <stat.icon size={32} strokeWidth={2.5} className="max-sm:w-6 max-sm:h-6" />
                             </div>
-                            <div>
-                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-[2px]">{stat.label}</span>
-                                <h3 className="text-2xl font-black text-slate-800 tracking-tight">{stat.value}</h3>
+                            <div className="flex-1">
+                                <span className="block text-[0.65rem] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">{stat.label}</span>
+                                <h3 className="text-3xl max-sm:text-2xl font-black text-slate-900 tracking-tighter leading-none">{stat.value}</h3>
                             </div>
                         </motion.div>
                     ))}
                 </div>
 
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <div className="relative flex-1 max-w-md">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+                    <div className="relative w-full md:max-w-md group">
+                        <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-500 transition-colors" size={20} />
                         <input
                             type="text"
-                            placeholder={viewType === 'assets' ? "Search master catalog..." : "Search venue inventory..."}
-                            className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50 transition-all text-sm shadow-sm"
+                            placeholder={viewType === 'assets' ? "Query master catalog..." : "Query regional inventory..."}
+                            className="w-full pl-14 pr-6 py-4 bg-slate-50/50 border-2 border-slate-100 rounded-[22px] focus:outline-none focus:border-indigo-400 focus:bg-white focus:shadow-[0_15px_30px_-10px_rgba(99,102,241,0.1)] transition-all text-[0.95rem] font-bold text-slate-700 placeholder:text-slate-300"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
                     </div>
 
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-4 w-full md:w-auto">
                         {viewType === 'assets' ? (
                             <>
                                 <input ref={bulkInputRef} type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={handleBulkUploadAssets} />
                                 <button
                                     onClick={() => bulkInputRef.current?.click()}
                                     disabled={isBulkUploading}
-                                    className="flex items-center gap-2 border border-indigo-300 text-indigo-600 bg-indigo-50 px-5 py-3 rounded-2xl text-sm font-black hover:bg-indigo-100 transition-all disabled:opacity-60"
+                                    className="flex-1 md:flex-none flex items-center justify-center gap-3 border-2 border-indigo-100 text-indigo-600 bg-white px-8 py-4 rounded-[22px] text-xs font-black uppercase tracking-widest hover:bg-indigo-50 hover:border-indigo-300 transition-all disabled:opacity-50 active:scale-95 shadow-sm"
                                 >
-                                    <Upload size={16} />{isBulkUploading ? 'Uploading…' : 'Bulk Upload'}
+                                    <Upload size={18} strokeWidth={2.5} />
+                                    <span>{isBulkUploading ? 'Syncing…' : 'Batch Sync'}</span>
                                 </button>
                                 <button
                                     onClick={handleCreate}
-                                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-2xl text-sm font-black shadow-xl shadow-indigo-100 transition-all flex items-center gap-2 active:scale-95"
+                                    className="flex-1 md:flex-none bg-slate-900 hover:bg-indigo-600 text-white px-8 py-4 rounded-[22px] text-xs font-black uppercase tracking-[0.2em] shadow-[0_20px_40px_-10px_rgba(0,0,0,0.2)] transition-all flex items-center justify-center gap-3 active:scale-95 border-none cursor-pointer"
                                 >
-                                    <Plus size={18} /> New Master Record
+                                    <Plus size={20} strokeWidth={3} /> 
+                                    <span>Register New</span>
                                 </button>
                             </>
                         ) : viewType === 'venues' ? (
-                            <button className="flex items-center gap-2 bg-slate-900 text-white px-6 py-3 rounded-2xl text-sm font-black shadow-xl shadow-slate-200 hover:bg-slate-800 transition-all active:scale-95">
-                                <ArrowRightLeft size={18} />
+                            <button className="w-full md:w-auto flex items-center justify-center gap-3 bg-slate-900 hover:bg-indigo-600 text-white px-8 py-4 rounded-[22px] text-xs font-black uppercase tracking-[0.2em] shadow-xl transition-all active:scale-95 border-none cursor-pointer">
+                                <ArrowRightLeft size={20} strokeWidth={2.5} />
                                 <span>Batch Allocate</span>
                             </button>
                         ) : (
                             <button 
                                 onClick={() => setIsIncidentModalOpen(true)}
-                                className="bg-rose-600 hover:bg-rose-700 text-white px-6 py-3 rounded-2xl text-sm font-black shadow-xl shadow-rose-100 transition-all flex items-center gap-2"
+                                className="w-full md:w-auto bg-rose-600 hover:bg-rose-700 text-white px-8 py-4 rounded-[22px] text-xs font-black uppercase tracking-[0.2em] shadow-xl shadow-rose-100 transition-all flex items-center justify-center gap-3 border-none cursor-pointer"
                             >
-                                <Plus size={18} /> Log Incident
+                                <Plus size={20} strokeWidth={3} /> 
+                                <span>Log Protocol Incident</span>
                             </button>
                         )}
                     </div>
                 </div>
             </div>
+
             {/* Bulk Upload Result Banner */}
             <AnimatePresence>
                 {bulkResult && (
-                    <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-                        className={`mx-8 mb-4 p-4 rounded-xl flex items-start gap-3 border ${bulkResult.error ? 'bg-red-50 border-red-200 text-red-700' : 'bg-emerald-50 border-emerald-200 text-emerald-800'}`}>
-                        {bulkResult.error ? <AlertTriangle size={18} className="mt-0.5 shrink-0" /> : <CheckCircle2 size={18} className="mt-0.5 shrink-0" />}
-                        <div className="flex-1 text-sm">
+                    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+                        className={`mx-10 max-md:mx-6 max-sm:mx-4 mt-6 p-6 rounded-[28px] flex items-start gap-4 border-2 ${bulkResult.error ? 'bg-rose-50 border-rose-100 text-rose-700' : 'bg-emerald-50 border-emerald-100 text-emerald-800'} shadow-lg`}>
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${bulkResult.error ? 'bg-rose-500 text-white' : 'bg-emerald-500 text-white'}`}>
+                            {bulkResult.error ? <AlertTriangle size={20} /> : <CheckCircle2 size={20} />}
+                        </div>
+                        <div className="flex-1 pt-1">
                             {bulkResult.error
-                                ? <p className="font-bold">Upload failed: {bulkResult.error}</p>
-                                : <><p className="font-bold">Bulk Upload Complete!</p>
-                                    <p className="text-xs mt-0.5">✅ Created: {(bulkResult.results || []).filter(r => r.status === 'created').length} &nbsp;⏭ Skipped: {(bulkResult.results || []).filter(r => r.status === 'skipped').length} &nbsp;❌ Failed: {(bulkResult.results || []).filter(r => r.status === 'failed').length}</p>
-                                    <p className="text-xs italic mt-0.5 opacity-70">Required columns: name, quantity, status (optional), venue_name (optional)</p>
+                                ? <p className="font-black uppercase tracking-tight text-sm">Deployment Failure: {bulkResult.error}</p>
+                                : <>
+                                    <p className="font-black uppercase tracking-tight text-sm">Batch Ingestion Successful</p>
+                                    <div className="flex gap-4 mt-2">
+                                        <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-emerald-500" /> <span className="text-[10px] font-black uppercase">Created: {(bulkResult.results || []).filter(r => r.status === 'created').length}</span></div>
+                                        <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-amber-500" /> <span className="text-[10px] font-black uppercase">Skipped: {(bulkResult.results || []).filter(r => r.status === 'skipped').length}</span></div>
+                                        <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-rose-500" /> <span className="text-[10px] font-black uppercase">Failed: {(bulkResult.results || []).filter(r => r.status === 'failed').length}</span></div>
+                                    </div>
+                                    <p className="text-[9px] font-bold uppercase tracking-widest mt-3 opacity-60 flex items-center gap-2 italic"><Info size={10} /> Schema: name, quantity, [status], [venue_name]</p>
                                 </>
                             }
                         </div>
-                        <button onClick={() => setBulkResult(null)} className="text-slate-400 hover:text-slate-600"><X size={16} /></button>
+                        <button onClick={() => setBulkResult(null)} className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:bg-white hover:text-slate-900 transition-all border-none bg-transparent cursor-pointer"><X size={20} /></button>
                     </motion.div>
                 )}
             </AnimatePresence>

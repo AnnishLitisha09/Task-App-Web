@@ -62,64 +62,66 @@ const AdminDashboard = () => {
     };
 
     return (
-        <div className="p-10 bg-white min-h-screen flex flex-col box-border font-['Inter',sans-serif] max-md:p-6">
+        <div className="p-10 bg-white min-h-screen flex flex-col box-border font-['Inter',sans-serif] max-lg:p-8 max-md:p-6 max-sm:p-4">
             {/* Header */}
-            <header className="flex justify-between items-start mb-10 max-md:flex-col max-md:gap-4 max-md:items-stretch">
-                <div>
-                    <h1 className="text-[2rem] font-extrabold text-slate-900 m-0 tracking-[-0.5px] max-md:text-[1.75rem]">Dashboard Overview</h1>
-                    <p className="text-slate-500 mt-1.5 text-base">Welcome to the <strong>AdminSphere</strong> Institutional Portal</p>
+            <header className="flex justify-between items-start mb-10 max-md:mb-8 max-sm:mb-6 max-md:flex-col max-md:gap-4 max-md:items-stretch">
+                <div className="min-w-0">
+                    <h1 className="text-[2rem] font-extrabold text-slate-900 m-0 tracking-[-0.5px] max-md:text-[1.75rem] max-sm:text-[1.5rem] truncate">Dashboard Overview</h1>
+                    <p className="text-slate-500 mt-1.5 text-base max-sm:text-sm">Welcome to the <strong>AdminSphere</strong> Institutional Portal</p>
                 </div>
-                <div className="flex items-center gap-2 px-4 py-2 bg-white text-green-800 rounded-full text-[0.8rem] font-bold border border-green-100 shadow-sm">
+                <div className="flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-700 rounded-full text-[0.75rem] font-bold border border-emerald-100 shadow-sm w-fit">
                     <CheckCircle2 size={16} />
                     <span>System Status: Optimal</span>
                 </div>
             </header>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-6 mb-10 max-md:grid-cols-2 max-md:gap-4 max-[480px]:grid-cols-1">
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-6 mb-10 max-lg:gap-5 max-md:grid-cols-2 max-sm:grid-cols-2 max-md:mb-8">
                 {stats.map((stat, i) => (
                     <motion.div
                         key={i}
-                        className="bg-white p-6 rounded-2xl border border-slate-200 flex items-center gap-5 shadow-[0_1px_3px_rgba(0,0,0,0.02)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_12px_20px_-8px_rgba(0,0,0,0.05)] hover:border-indigo-500 max-md:p-5"
+                        className="bg-white p-6 rounded-2xl border border-slate-200 flex items-center gap-5 shadow-[0_1px_3px_rgba(0,0,0,0.02)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_12px_20px_-8px_rgba(0,0,0,0.05)] hover:border-indigo-500 max-lg:p-5 max-sm:p-4"
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: i * 0.1 }}
                     >
-                        <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0" style={{ background: `${stat.color}10`, color: stat.color }}>
-                            <stat.icon size={22} />
+                        <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 max-sm:w-11 max-sm:h-11" style={{ background: `${stat.color}10`, color: stat.color }}>
+                            <stat.icon size={22} className="max-sm:size-5" />
                         </div>
-                        <div>
-                            <h3 className="text-[1.6rem] font-extrabold text-slate-900 m-0 max-md:text-[1.4rem]">{isLoading ? '...' : stat.value}</h3>
-                            <p className="text-[0.8rem] font-bold text-slate-400 uppercase tracking-[0.05em] mt-0.5">{stat.label}</p>
+                        <div className="min-w-0">
+                            <h3 className="text-[1.6rem] font-extrabold text-slate-900 m-0 max-md:text-[1.4rem] max-sm:text-[1.25rem] truncate">{isLoading ? '...' : stat.value}</h3>
+                            <p className="text-[0.8rem] font-bold text-slate-400 uppercase tracking-[0.05em] mt-0.5 truncate">{stat.label}</p>
                         </div>
                     </motion.div>
                 ))}
             </div>
 
             {/* System Reports Panel */}
-            <section className="bg-white rounded-[20px] border border-slate-200 grow flex flex-col overflow-hidden shadow-[0_4px_6px_-1px_rgba(0,0,0,0.05)]">
-                <div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-white">
+            <section className="bg-white rounded-[24px] border border-slate-200 grow flex flex-col overflow-hidden shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
+                <div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-white max-sm:px-5 max-sm:py-5">
                     <div className="flex items-center gap-3">
-                        <ShieldAlert size={20} className="text-indigo-500" />
+                        <div className="p-2 bg-indigo-50 text-indigo-500 rounded-lg">
+                            <ShieldAlert size={20} />
+                        </div>
                         <div>
-                            <h2 className="text-[1.25rem] font-extrabold text-slate-900 m-0">System Reports & Analytics</h2>
-                            <p className="text-xs text-slate-500 mt-1">Download comprehensive administrative data and utilisation logs.</p>
+                            <h2 className="text-[1.25rem] font-extrabold text-slate-900 m-0 max-sm:text-base">System Reports & Analytics</h2>
+                            <p className="text-xs text-slate-500 mt-1 max-sm:hidden">Download comprehensive administrative data and utilisation logs.</p>
                         </div>
                     </div>
                 </div>
 
-                <div className="p-8 grid grid-cols-2 gap-6 max-md:grid-cols-1">
+                <div className="p-8 grid grid-cols-2 gap-6 max-lg:grid-cols-1 max-sm:p-5 max-sm:gap-4">
                     {/* Venue Report Card */}
-                    <div className="border border-slate-200 rounded-2xl p-6 flex items-start gap-5 hover:border-indigo-300 transition-colors shadow-sm bg-slate-50/50">
-                        <div className="w-14 h-14 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center shrink-0">
+                    <div className="group border border-slate-200 rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center gap-5 hover:border-indigo-300 transition-all shadow-sm bg-white hover:shadow-md">
+                        <div className="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center shrink-0 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
                             <Building2 size={28} />
                         </div>
-                        <div className="flex-1">
-                            <h3 className="text-lg font-black text-slate-900">Venue Utilisation Report</h3>
-                            <p className="text-sm text-slate-500 mt-1 mb-4">View occupancy, booking trends, and maintenance logs across all institutional venues.</p>
+                        <div className="flex-1 min-w-0">
+                            <h3 className="text-lg font-bold text-slate-900 max-sm:text-base">Venue Utilisation Report</h3>
+                            <p className="text-sm text-slate-500 mt-1 mb-4 line-clamp-2 max-sm:text-xs">View occupancy, booking trends, and maintenance logs across all institutional venues.</p>
                             <button 
                                 onClick={() => handleDownloadReport('venue')}
-                                className="flex items-center gap-2 bg-white border border-slate-200 px-4 py-2.5 rounded-xl text-sm font-bold text-slate-700 hover:text-indigo-600 hover:border-indigo-600 hover:shadow-md transition-all active:scale-95"
+                                className="flex items-center gap-2 bg-white border border-slate-200 px-4 py-2.5 rounded-xl text-sm font-bold text-slate-700 hover:text-indigo-600 hover:border-indigo-600 hover:shadow-sm transition-all active:scale-95 max-sm:w-full max-sm:justify-center"
                             >
                                 <ArrowUpRight size={16} />
                                 Download .xlsx
@@ -128,16 +130,16 @@ const AdminDashboard = () => {
                     </div>
 
                     {/* Resource Report Card */}
-                    <div className="border border-slate-200 rounded-2xl p-6 flex items-start gap-5 hover:border-green-300 transition-colors shadow-sm bg-slate-50/50">
-                        <div className="w-14 h-14 bg-green-100 text-green-600 rounded-2xl flex items-center justify-center shrink-0">
+                    <div className="group border border-slate-200 rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center gap-5 hover:border-emerald-300 transition-all shadow-sm bg-white hover:shadow-md">
+                        <div className="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center shrink-0 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
                             <MapPin size={28} />
                         </div>
-                        <div className="flex-1">
-                            <h3 className="text-lg font-black text-slate-900">Resource Inventory Report</h3>
-                            <p className="text-sm text-slate-500 mt-1 mb-4">Full breakdown of physical resources, health statuses, and asset tracking histories.</p>
+                        <div className="flex-1 min-w-0">
+                            <h3 className="text-lg font-bold text-slate-900 max-sm:text-base">Resource Inventory Report</h3>
+                            <p className="text-sm text-slate-500 mt-1 mb-4 line-clamp-2 max-sm:text-xs">Full breakdown of physical resources, health statuses, and asset tracking histories.</p>
                             <button 
                                 onClick={() => handleDownloadReport('resource')}
-                                className="flex items-center gap-2 bg-white border border-slate-200 px-4 py-2.5 rounded-xl text-sm font-bold text-slate-700 hover:text-green-600 hover:border-green-600 hover:shadow-md transition-all active:scale-95"
+                                className="flex items-center gap-2 bg-white border border-slate-200 px-4 py-2.5 rounded-xl text-sm font-bold text-slate-700 hover:text-emerald-600 hover:border-emerald-600 hover:shadow-sm transition-all active:scale-95 max-sm:w-full max-sm:justify-center"
                             >
                                 <ArrowUpRight size={16} />
                                 Download .xlsx

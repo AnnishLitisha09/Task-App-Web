@@ -142,51 +142,78 @@ const TasksPage = () => {
         return <CheckCircle2 size={14} className="text-slate-400" />;
     };
 
+    // Auto-switch view based on screen size
+    React.useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth < 1024) setViewMode('grid');
+        };
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
     return (
         <motion.div
-            className="p-6 w-full bg-white min-h-screen max-md:p-4"
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0 }}
+            className="p-10 max-lg:p-8 max-md:p-6 max-sm:p-4 w-full bg-[#fcfcfd] min-h-screen font-sans"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
         >
+            <div className="mb-10 max-md:mb-8">
+                <h1 className="text-3xl max-md:text-2xl font-black text-slate-900 tracking-tight">Directives & Governance</h1>
+                <p className="text-xs text-slate-400 mt-1 uppercase tracking-[0.2em] font-black opacity-70">Operational Command & Task Verification System</p>
+            </div>
+
             {/* Stats Grid */}
-            <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-6 mb-10 max-md:grid-cols-1 max-md:gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-12 max-md:mb-10 max-sm:gap-4">
                 {stats.map((stat, idx) => (
-                    <motion.div key={idx} className="bg-white border border-slate-200 p-6 rounded-2xl flex items-center gap-5 transition-all shadow-sm hover:-translate-y-1"
-                        initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: idx * 0.1 }} whileHover={{ y: -5 }}>
-                        <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: `${stat.color}15`, color: stat.color }}>
-                            <stat.icon size={24} />
+                    <motion.div key={idx} className="bg-white border border-slate-100 p-6 max-sm:p-5 rounded-[28px] flex items-center gap-6 shadow-[0_15px_40px_-15px_rgba(0,0,0,0.03)] hover:shadow-[0_25px_50px_-15px_rgba(0,0,0,0.07)] hover:border-indigo-100 hover:-translate-y-1 transition-all group"
+                        initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.1 }}>
+                        <div className="w-14 h-14 max-sm:w-12 max-sm:h-12 rounded-2xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 shadow-lg" style={{ backgroundColor: `${stat.color}15`, color: stat.color }}>
+                            <stat.icon size={28} strokeWidth={2.5} className="max-sm:w-6 max-sm:h-6" />
                         </div>
                         <div className="flex-1">
-                            <span className="block text-[0.8rem] font-bold text-slate-400 uppercase tracking-[0.05em] mb-1">{stat.label}</span>
-                            <h3 className="text-[1.5rem] font-extrabold text-slate-800 m-0">{stat.value}</h3>
+                            <span className="block text-[0.65rem] font-black text-slate-400 uppercase tracking-[0.15em] mb-1">{stat.label}</span>
+                            <h3 className="text-2xl max-sm:text-xl font-black text-slate-900 tracking-tighter leading-none">{stat.value}</h3>
                         </div>
                     </motion.div>
                 ))}
             </div>
 
             {/* Header / Actions */}
-            <div className="flex justify-between items-center mb-10 gap-6 max-md:flex-col max-md:items-stretch max-md:gap-4">
-                <div className="relative flex-1 max-w-[480px] max-md:max-w-none">
-                    <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                    <input type="text" placeholder="Search directives, categories..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full py-3 pl-10 pr-3.5 bg-white border border-slate-200 rounded-xl text-[0.95rem] outline-none transition-all focus:border-indigo-500 focus:shadow-[0_0_0_4px_rgba(99,102,241,0.1)]" />
+            <div className="flex flex-col xl:flex-row justify-between items-stretch xl:items-center gap-6 mb-12 max-md:mb-10">
+                <div className="relative flex-1 max-w-2xl group">
+                    <Search size={20} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-500 transition-colors" />
+                    <input type="text" placeholder="Search directives, categories or protocols..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full py-4 pl-14 pr-6 bg-white border-2 border-slate-100 rounded-[22px] text-[0.95rem] font-bold text-slate-700 outline-none transition-all focus:border-indigo-400 focus:shadow-[0_15px_30px_-10px_rgba(99,102,241,0.1)] placeholder:text-slate-300" />
                 </div>
-                <div className="flex gap-3 items-center max-md:flex-col max-md:items-stretch">
-                    <div className="flex gap-2 max-md:grid max-md:grid-cols-2">
-                        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="py-2.5 px-4 bg-white border border-slate-200 rounded-[10px] text-[0.85rem] font-semibold text-slate-600 outline-none max-md:w-full">
-                            <option value="all">All Status</option><option value="Active">Active</option><option value="Review">Review</option><option value="Completed">Completed</option>
+                
+                <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center">
+                    <div className="flex gap-3 items-stretch">
+                        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} 
+                            className="bg-white border-2 border-slate-100 rounded-[18px] px-5 py-3 text-xs font-black uppercase tracking-wider text-slate-600 focus:border-indigo-400 focus:outline-none transition-all cursor-pointer min-w-[140px] shadow-sm appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M5%207.5L10%2012.5L15%207.5%22%20stroke%3D%22%2394a3b8%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E')] bg-size-[20px_20px] bg-position-[right_12px_center] bg-no-repeat">
+                            <option value="all">Statuses</option>
+                            <option value="Active">Active</option>
+                            <option value="Review">In Review</option>
+                            <option value="Completed">Success</option>
                         </select>
-                        <select value={priorityFilter} onChange={(e) => setPriorityFilter(e.target.value)} className="py-2.5 px-4 bg-white border border-slate-200 rounded-[10px] text-[0.85rem] font-semibold text-slate-600 outline-none max-md:w-full">
-                            <option value="all">All Priority</option><option value="Critical">Critical</option><option value="High">High</option><option value="Medium">Medium</option><option value="Low">Low</option>
+                        <select value={priorityFilter} onChange={(e) => setPriorityFilter(e.target.value)} 
+                            className="bg-white border-2 border-slate-100 rounded-[18px] px-5 py-3 text-xs font-black uppercase tracking-wider text-slate-600 focus:border-indigo-400 focus:outline-none transition-all cursor-pointer min-w-[140px] shadow-sm appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M5%207.5L10%2012.5L15%207.5%22%20stroke%3D%22%2394a3b8%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E')] bg-size-[20px_20px] bg-position-[right_12px_center] bg-no-repeat">
+                            <option value="all">Priorities</option>
+                            <option value="Critical">Critical</option>
+                            <option value="High">Priority</option>
+                            <option value="Medium">Standard</option>
+                            <option value="Low">Low</option>
                         </select>
                     </div>
-                    <div className="flex gap-3 items-center">
-                        <div className="flex bg-slate-100 p-1 rounded-[10px] border border-slate-200">
-                            <button className={`p-2 rounded-[7px] border-none cursor-pointer flex ${viewMode === 'grid' ? 'bg-white text-indigo-500 shadow-sm' : 'bg-transparent text-slate-500'}`} onClick={() => setViewMode('grid')}><LayoutGrid size={18} /></button>
-                            <button className={`p-2 rounded-[7px] border-none cursor-pointer flex ${viewMode === 'table' ? 'bg-white text-indigo-500 shadow-sm' : 'bg-transparent text-slate-500'}`} onClick={() => setViewMode('table')}><List size={18} /></button>
+
+                    <div className="flex items-center gap-4">
+                        <div className="flex bg-slate-100 p-1.5 rounded-[18px] border border-slate-200 shadow-inner max-lg:hidden">
+                            <button className={`p-2.5 rounded-[13px] border-none cursor-pointer flex transition-all ${viewMode === 'grid' ? 'bg-white text-indigo-600 shadow-md' : 'bg-transparent text-slate-400 hover:text-slate-600'}`} onClick={() => setViewMode('grid')}><LayoutGrid size={20} strokeWidth={2.5} /></button>
+                            <button className={`p-2.5 rounded-[13px] border-none cursor-pointer flex transition-all ${viewMode === 'table' ? 'bg-white text-indigo-600 shadow-md' : 'bg-transparent text-slate-400 hover:text-slate-600'}`} onClick={() => setViewMode('table')}><List size={20} strokeWidth={2.5} /></button>
                         </div>
-                        <button className="flex items-center gap-2 bg-indigo-500 text-white px-5 py-2.5 rounded-xl font-bold border-none cursor-pointer shadow-[0_4px_12px_rgba(99,102,241,0.2)] flex-1 justify-center whitespace-nowrap" onClick={() => setIsCreating(true)}>
-                            <Plus size={18} /><span className="max-sm:hidden">Create Directive</span><span className="sm:hidden">Create</span>
+                        <button className="flex-1 sm:flex-none flex items-center justify-center gap-3 bg-slate-900 hover:bg-indigo-600 text-white px-8 py-4 rounded-[22px] text-xs font-black uppercase tracking-[0.2em] shadow-xl transition-all active:scale-95 border-none cursor-pointer" onClick={() => setIsCreating(true)}>
+                            <Plus size={20} strokeWidth={3} />
+                            <span>Issue New Directive</span>
                         </button>
                     </div>
                 </div>
