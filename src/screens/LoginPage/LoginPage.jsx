@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { GoogleLogin } from '@react-oauth/google';
-import { Mail, Lock, AlertCircle, Eye, EyeOff, Bolt } from 'lucide-react';
+import { Mail, Lock, AlertCircle, Eye, EyeOff, Bolt, Loader2 } from 'lucide-react';
+import api from '../../utils/api';
 
 /* ─── colour tokens (matching index.css :root vars) ─── */
 // --primary-color : #2d62ed
@@ -20,7 +21,7 @@ const LoginPage = ({ onLoginSuccess }) => {
     const [error, setError] = useState('');
     const [googleLoading, setGoogleLoading] = useState(false);
 
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
         const trimmedEmail = email.trim().toLowerCase();
 
@@ -29,63 +30,60 @@ const LoginPage = ({ onLoginSuccess }) => {
             return;
         }
 
-        const sessions = {
-            'admin@gmail.com': { role: 'admin', title: 'Administrator', scope: 'full' },
-        };
+        try {
+            const data = await api('auth/login', {
+                method: 'POST',
+                body: { email: trimmedEmail, password }
+            });
 
-        if (sessions[trimmedEmail]) {
-            const user = sessions[trimmedEmail];
-            // Explicitly verify admin role for web portal
-            if (user.role !== 'admin' && user.role !== 'ADMIN') {
-                showErrorMessage('Access Denied: Only administrators can access the web portal.');
+            // --- RESTRICT TO ADMIN ONLY ---
+            if (data.role?.toUpperCase() !== 'ADMIN') {
+                showErrorMessage('Access Denied: This web portal is strictly for Administrators.');
                 return;
             }
-            localStorage.setItem('isLoggedIn', 'true');
-            localStorage.setItem('userEmail', trimmedEmail);
-            localStorage.setItem('userRole', user.role);
-            localStorage.setItem('userTitle', user.title);
-            localStorage.setItem('userScope', user.scope);
-            localStorage.setItem('userId', '1'); // Mock Admin ID
-            localStorage.setItem('token', 'mock_admin_token');
-            onLoginSuccess({ ...user, email: trimmedEmail, user_id: '1' });
-        } else {
-            showErrorMessage('Invalid credentials. This portal is restricted to administrators.');
+
+            // Map backend response to what App.jsx expects
+            onLoginSuccess({
+                email: trimmedEmail,
+                user_id: data.user_id,
+                role: data.role || 'ADMIN',
+                title: data.user_name || data.specific_role || 'Institutional Admin',
+                scope: data.scope_details || 'full',
+                token: data.token
+            });
+
+        } catch (err) {
+            console.error('Login Error:', err);
+            showErrorMessage(err.message || 'Invalid credentials or connection failed');
         }
     };
 
     const handleGoogleSuccess = async (credentialResponse) => {
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/google`, {
+            setGoogleLoading(true);
+            const data = await api('auth/google', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ token: credentialResponse.credential })
+                body: { token: credentialResponse.credential }
             });
 
-            if (response.ok) {
-                const data = await response.json();
-
-                // --- RESTRICT TO ADMIN ONLY ---
-                if (data.role !== 'ADMIN' && data.role !== 'admin') {
-                    showErrorMessage('Access Denied: Web access is strictly for Administrators.');
-                    setGoogleLoading(false);
-                    return;
-                }
-
-                onLoginSuccess({
-                    email: data.email,
-                    user_id: data.user_id,
-                    role: data.role || 'admin',
-                    title: data.name || data.title || 'Institutional Admin',
-                    scope: data.scope || 'full',
-                    token: data.token
-                });
-            } else {
-                showErrorMessage('Backend authentication failed');
+            // --- RESTRICT TO ADMIN ONLY ---
+            if (data.role?.toUpperCase() !== 'ADMIN') {
+                showErrorMessage('Access Denied: Web access is strictly for Administrators.');
                 setGoogleLoading(false);
+                return;
             }
+
+            onLoginSuccess({
+                email: data.email || email, // data.email might be returned or inferred
+                user_id: data.user_id,
+                role: data.role || 'ADMIN',
+                title: data.user_name || data.specific_role || 'Institutional Admin',
+                scope: data.scope_details || 'full',
+                token: data.token
+            });
         } catch (err) {
             console.error('Google Auth Error:', err);
-            showErrorMessage('Connection to auth server failed');
+            showErrorMessage(err.message || 'Connection to auth server failed');
             setGoogleLoading(false);
         }
     };
