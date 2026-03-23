@@ -16,28 +16,29 @@ function App() {
     const initAuth = async () => {
       const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
       if (isLoggedIn) {
+        const email   = localStorage.getItem('userEmail');
+        const role    = localStorage.getItem('userRole');
+        const title   = localStorage.getItem('userTitle');
+        const scope   = localStorage.getItem('userScope');
+        const userId  = localStorage.getItem('userId');
+
+        // Restore user immediately so refresh never shows the login page
+        setUser({ email, role, title, scope, userId });
+
         try {
-          // Verify session with backend
+          // Verify session with backend in the background
           const context = await api('auth/context');
-          
-          const role = localStorage.getItem('userRole')?.toUpperCase();
           const backendRole = context.role?.toUpperCase();
 
-          // Strict Role Check: Only ADMINs allowed on web
-          if (role !== 'ADMIN' && backendRole !== 'ADMIN') {
-            console.error("Access Denied: Not an admin");
+          // Only log out if the backend explicitly says this is NOT an admin
+          if (role?.toUpperCase() !== 'ADMIN' && backendRole !== 'ADMIN') {
+            console.error('Access Denied: Not an admin');
             handleLogout();
-          } else {
-            const email = localStorage.getItem('userEmail');
-            const title = localStorage.getItem('userTitle');
-            const scope = localStorage.getItem('userScope');
-            const userId = localStorage.getItem('userId');
-            setUser({ email, role, title, scope, userId });
           }
         } catch (err) {
-          // If 401 occurs, api.js utility already handles redirect
-          console.error("Session verification failed", err);
-          handleLogout();
+          // Network errors, 500s, etc. — keep the user logged in.
+          // api.js already handles 401 by clearing localStorage + redirecting.
+          console.warn('Session check failed (network/server error) — keeping session alive:', err.message);
         }
       }
       setIsInitialized(true);

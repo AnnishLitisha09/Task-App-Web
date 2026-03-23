@@ -18,6 +18,7 @@ const LoginPage = ({ onLoginSuccess }) => {
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
+    const [googleLoading, setGoogleLoading] = useState(false);
 
     const handleLogin = (e) => {
         e.preventDefault();
@@ -62,10 +63,11 @@ const LoginPage = ({ onLoginSuccess }) => {
 
             if (response.ok) {
                 const data = await response.json();
-                
+
                 // --- RESTRICT TO ADMIN ONLY ---
                 if (data.role !== 'ADMIN' && data.role !== 'admin') {
                     showErrorMessage('Access Denied: Web access is strictly for Administrators.');
+                    setGoogleLoading(false);
                     return;
                 }
 
@@ -79,11 +81,18 @@ const LoginPage = ({ onLoginSuccess }) => {
                 });
             } else {
                 showErrorMessage('Backend authentication failed');
+                setGoogleLoading(false);
             }
         } catch (err) {
             console.error('Google Auth Error:', err);
             showErrorMessage('Connection to auth server failed');
+            setGoogleLoading(false);
         }
+    };
+
+    const handleGoogleError = () => {
+        setGoogleLoading(false);
+        showErrorMessage('Google Login Failed');
     };
 
     const showErrorMessage = (msg) => {
@@ -104,6 +113,75 @@ const LoginPage = ({ onLoginSuccess }) => {
     return (
         /* login-container */
         <div className="relative min-h-screen flex items-center justify-center px-5 overflow-hidden bg-white">
+
+            {/* ── Google Auth Loading Overlay ── */}
+            <AnimatePresence>
+                {googleLoading && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.25 }}
+                        className="fixed inset-0 z-50 flex flex-col items-center justify-center"
+                        style={{ backdropFilter: 'blur(12px)', background: 'rgba(255,255,255,0.75)' }}
+                    >
+                        {/* Spinner ring */}
+                        <div style={{ position: 'relative', width: '72px', height: '72px', marginBottom: '24px' }}>
+                            {/* Outer ring */}
+                            <motion.div
+                                style={{
+                                    position: 'absolute', inset: 0,
+                                    borderRadius: '50%',
+                                    border: '3px solid rgba(45,98,237,0.15)',
+                                }}
+                            />
+                            {/* Spinning arc */}
+                            <motion.div
+                                style={{
+                                    position: 'absolute', inset: 0,
+                                    borderRadius: '50%',
+                                    border: '3px solid transparent',
+                                    borderTopColor: '#2d62ed',
+                                    borderRightColor: '#2d62ed',
+                                }}
+                                animate={{ rotate: 360 }}
+                                transition={{ repeat: Infinity, duration: 0.9, ease: 'linear' }}
+                            />
+                            {/* Google G icon in centre */}
+                            <div
+                                style={{
+                                    position: 'absolute', inset: 0,
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                }}
+                            >
+                                <svg width="28" height="28" viewBox="0 0 24 24">
+                                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
+                                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                                </svg>
+                            </div>
+                        </div>
+
+                        <motion.p
+                            style={{
+                                fontSize: '16px',
+                                fontWeight: 700,
+                                color: '#1a1c1e',
+                                marginBottom: '6px',
+                                letterSpacing: '-0.2px'
+                            }}
+                            animate={{ opacity: [1, 0.5, 1] }}
+                            transition={{ repeat: Infinity, duration: 1.6, ease: 'easeInOut' }}
+                        >
+                            Authenticating with Google…
+                        </motion.p>
+                        <p style={{ fontSize: '13px', color: '#42474e', opacity: 0.6 }}>
+                            Please wait while we verify your account
+                        </p>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {/* bg-glow  — absolute top-[-150px] left-[-150px] 400×400 circle, blur-[80px] */}
             <div
@@ -314,15 +392,22 @@ const LoginPage = ({ onLoginSuccess }) => {
                     <div className="flex-1 border-b" style={{ borderColor: '#e2e8f0' }} />
                 </motion.div>
 
-                {/* Google auth */}
+                {/* Google auth — wrapped to detect click */}
                 <motion.div variants={itemVariants} className="flex justify-center">
-                    <GoogleLogin
-                        onSuccess={handleGoogleSuccess}
-                        onError={() => showErrorMessage('Google Login Failed')}
-                        useOneTap
-                        theme="outline"
-                        width="100%"
-                    />
+                    {/* Invisible click-capture overlay triggers loading state */}
+                    <div
+                        className="relative w-full flex justify-center"
+                        onClick={() => setGoogleLoading(true)}
+                        style={{ cursor: 'pointer' }}
+                    >
+                        <GoogleLogin
+                            onSuccess={handleGoogleSuccess}
+                            onError={handleGoogleError}
+                            useOneTap
+                            theme="outline"
+                            width="100%"
+                        />
+                    </div>
                 </motion.div>
 
                 {/* footer-section */}
