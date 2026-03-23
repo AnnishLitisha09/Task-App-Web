@@ -99,7 +99,7 @@ const VenueModal: React.FC<VenueModalProps> = ({ isOpen, onClose, venueData, mod
                                 {mode === 'assign' ? <UserPlus size={24} strokeWidth={2.5} /> : <MapPin size={24} strokeWidth={2.5} />}
                             </div>
                             <div className="min-w-0">
-                                <h2 className="text-xl sm:text-2xl font-black text-slate-800 m-0 leading-tight truncate">
+                                <h2 className="text-xl sm:text-2xl font-bold text-slate-800 m-0 leading-tight truncate">
                                     {mode === 'create' ? 'Establish Venue' : mode === 'edit' ? 'Update Infrastructure' : 'Delegate Authority'}
                                 </h2>
                                 <p className="text-xs sm:text-sm font-bold text-slate-400 m-0 mt-0.5 uppercase tracking-widest italic opacity-70 truncate">
@@ -118,7 +118,7 @@ const VenueModal: React.FC<VenueModalProps> = ({ isOpen, onClose, venueData, mod
                             <motion.div 
                                 initial={{ opacity: 0, y: -10 }} 
                                 animate={{ opacity: 1, y: 0 }}
-                                className="flex items-center gap-3 px-4 py-3.5 bg-rose-50 border border-rose-100 rounded-2xl text-rose-600 text-[0.75rem] font-black uppercase tracking-tight"
+                                className="flex items-center gap-3 px-4 py-3.5 bg-rose-50 border border-rose-100 rounded-2xl text-rose-600 text-[0.75rem] font-bold uppercase tracking-tight"
                             >
                                 <AlertCircle size={18} />
                                 <span>{error}</span>
@@ -168,7 +168,7 @@ const VenueModal: React.FC<VenueModalProps> = ({ isOpen, onClose, venueData, mod
                                     <div className="w-14 h-14 bg-slate-50 text-slate-400 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:bg-indigo-50 group-hover:text-indigo-500 transition-colors">
                                         <Camera size={28} />
                                     </div>
-                                    <span className="block text-[0.85rem] text-slate-600 font-black uppercase tracking-wider mb-1">Initialize Image</span>
+                                    <span className="block text-[0.85rem] text-slate-600 font-bold uppercase tracking-wider mb-1">Initialize Image</span>
                                     <span className="block text-[0.65rem] text-slate-400 font-bold uppercase tracking-widest opacity-60">HEIC, JPEG, PNG approved</span>
                                 </label>
                             )}
@@ -192,7 +192,7 @@ const VenueModal: React.FC<VenueModalProps> = ({ isOpen, onClose, venueData, mod
                                     {facultyList.map(p => <option key={p.id} value={p.id.toString()}>{p.name} — {p.reg_no}</option>)}
                                 </select>
                                 <ChevronRight size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none rotate-90" />
-                                {isFacultyLoading && <p className="text-[10px] font-black text-indigo-500 mt-2 uppercase tracking-widest animate-pulse">Retrieving delegates...</p>}
+                                {isFacultyLoading && <p className="text-[10px] font-bold text-indigo-500 mt-2 uppercase tracking-widest animate-pulse">Retrieving delegates...</p>}
                             </div>
                         </div>
 
@@ -208,8 +208,8 @@ const VenueModal: React.FC<VenueModalProps> = ({ isOpen, onClose, venueData, mod
 
                     {/* Footer */}
                     <div className="flex flex-col sm:flex-row justify-end gap-3 px-6 py-5 sm:px-8 border-t border-slate-100 bg-slate-50/50 shrink-0">
-                        <button className="w-full sm:w-auto px-8 py-3.5 rounded-[18px] border-2 border-slate-100 text-slate-500 font-black text-xs uppercase tracking-widest hover:bg-white hover:border-slate-200 transition-all bg-transparent cursor-pointer active:scale-95" onClick={onClose}>Release</button>
-                        <button className="w-full sm:w-auto px-8 py-3.5 rounded-[18px] bg-slate-900 text-white font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-indigo-600 transition-all shadow-[0_15px_30px_-10px_rgba(0,0,0,0.2)] disabled:opacity-30 disabled:cursor-not-allowed border-none cursor-pointer active:scale-95"
+                        <button className="w-full sm:w-auto px-8 py-3.5 rounded-[18px] border-2 border-slate-100 text-slate-500 font-bold text-xs uppercase tracking-widest hover:bg-white hover:border-slate-200 transition-all bg-transparent cursor-pointer active:scale-95" onClick={onClose}>Release</button>
+                        <button className="w-full sm:w-auto px-8 py-3.5 rounded-[18px] bg-slate-900 text-white font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-indigo-600 transition-all shadow-[0_15px_30px_-10px_rgba(0,0,0,0.2)] disabled:opacity-30 disabled:cursor-not-allowed border-none cursor-pointer active:scale-95"
                             onClick={handleSubmit} disabled={isLoading}>
                             {isLoading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : (
                                 <>

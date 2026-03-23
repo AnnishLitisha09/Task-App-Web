@@ -67,7 +67,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, taskData, mode, 
                                 <ClipboardList size={20} />
                             </div>
                             <div>
-                                <h2 className="text-base font-extrabold text-slate-900">{mode === 'create' ? 'Create Directive' : 'Edit Directive'}</h2>
+                                <h2 className="text-base font-bold text-slate-900">{mode === 'create' ? 'Create Directive' : 'Edit Directive'}</h2>
                                 <p className="text-[0.75rem] text-slate-400">Set up academic workflow and requirements</p>
                             </div>
                         </div>

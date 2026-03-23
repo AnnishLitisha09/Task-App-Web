@@ -51,6 +51,7 @@ const CreateTask = ({ onCancel, onSuccess }) => {
         startDate: new Date().toISOString().split('T')[0],
         endDate: new Date().toISOString().split('T')[0],
         startTime: '09:00', endTime: '17:00',
+        time_quota_hours: 2.5,
         task_title_id: '',
         is_faculty: false, faculty_ids: [],
         is_mandatory_flag: false
@@ -104,7 +105,7 @@ const CreateTask = ({ onCancel, onSuccess }) => {
     }, []);
 
     const hi = (key, value) => setTaskData(prev => ({ ...prev, [key]: value }));
-    const addSubTask = () => hi('subTasks', [...taskData.subTasks, { id: Date.now(), title: '', assigneeId: 'Select Assignee', order: taskData.subTasks.length + 1 }]);
+    const addSubTask = () => hi('subTasks', [...taskData.subTasks, { id: Date.now(), title: '', assigneeId: 'Select Assignee', duration: 1.0, order: taskData.subTasks.length + 1 }]);
     const removeSubTask = (id) => hi('subTasks', taskData.subTasks.filter(s => s.id !== id));
     const updateSubTask = (id, key, val) => hi('subTasks', taskData.subTasks.map(s => s.id === id ? { ...s, [key]: val } : s));
     const nextStep = () => setCurrentStep(prev => Math.min(prev + 1, 3));
@@ -194,12 +195,14 @@ const CreateTask = ({ onCancel, onSuccess }) => {
                 task_type_data.start_date = taskData.selectedDate;
                 task_type_data.end_date = taskData.selectedDate;
                 task_type_data.start_time = `${taskData.startTime}:00`;
-                task_type_data.end_time = `${taskData.endTime}:00`;
+                task_type_data.end_time = taskData.taskCategory === 'Self Log' ? `${taskData.endTime}:00` : null;
+                task_type_data.time_quota_hours = taskData.time_quota_hours;
             } else {
                 task_type_data.start_date = taskData.startDate;
                 task_type_data.end_date = taskData.endDate;
                 task_type_data.start_time = `${taskData.startTime}:00`;
-                task_type_data.end_time = `${taskData.endTime}:00`;
+                task_type_data.end_time = taskData.taskCategory === 'Self Log' ? `${taskData.endTime}:00` : null;
+                task_type_data.time_quota_hours = taskData.time_quota_hours;
             }
 
             const payload = {
@@ -224,6 +227,15 @@ const CreateTask = ({ onCancel, onSuccess }) => {
                 is_mandatory: taskData.is_mandatory_flag,
                 closure_ids: [1]
             };
+
+            if (taskData.isPackageTask) {
+                payload.sub_tasks = taskData.subTasks.map(s => ({
+                    title: s.title,
+                    assignee_id: s.assigneeId === 'Select Assignee' ? null : s.assigneeId,
+                    order_index: s.order,
+                    allocated_hours: parseFloat(s.duration) || 0
+                }));
+            }
 
             Object.keys(payload).forEach(key => {
                 if (payload[key] === null || payload[key] === undefined) return;
@@ -302,27 +314,38 @@ const CreateTask = ({ onCancel, onSuccess }) => {
                         <option value="">No Venue / Remote</option>
                         {venues.map(v => <option key={v.venue_id} value={v.venue_id}>{v.name} ({v.location})</option>)}</select></div>
             </div>
-            <div className="border-t border-dashed border-slate-200 pt-4"><p className="text-[0.7rem] font-extrabold text-slate-400 uppercase tracking-[0.08em] mb-4">Time Configuration</p>
-                {taskData.taskType === 'Fixed Time Task' ? (
-                    <div className="space-y-4">
-                        <div><label className={labelCls}>Select Date</label>
-                            <div className="relative"><Calendar size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                                <input type="date" className={`${inputCls} pl-10`} value={taskData.selectedDate} onChange={(e) => hi('selectedDate', e.target.value)} /></div></div>
-                        <div className="grid grid-cols-2 gap-4">
-                            {[{ label: 'Start Time', key: 'startTime' }, { label: 'End Time', key: 'endTime' }].map(({ label, key }) => (
-                                <div key={key}><label className={labelCls}>{label}</label>
-                                    <div className="relative"><Clock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                                        <input type="time" className={`${inputCls} pl-10`} value={taskData[key]} onChange={(e) => hi(key, e.target.value)} /></div></div>
-                            ))}</div></div>
-                ) : (
-                    <div className="grid grid-cols-2 gap-4">
-                        {[{ label: 'Valid From', key: 'startDate' }, { label: 'Valid Until', key: 'endDate' }].map(({ label, key }) => (
-                            <div key={key}><label className={labelCls}>{label}</label>
+            {!taskData.isPackageTask && (
+                <div className="border-t border-dashed border-slate-200 pt-4">
+                    <p className="text-[0.7rem] font-extrabold text-slate-400 uppercase tracking-[0.08em] mb-4">Time Configuration</p>
+                    {taskData.taskType === 'Fixed Time Task' ? (
+                        <div className="space-y-4">
+                            <div><label className={labelCls}>Select Date</label>
                                 <div className="relative"><Calendar size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                                    <input type="date" className={`${inputCls} pl-10`} value={taskData[key]} onChange={(e) => hi(key, e.target.value)} /></div></div>
-                        ))}</div>
-                )}
-            </div>
+                                    <input type="date" className={`${inputCls} pl-10`} value={taskData.selectedDate} onChange={(e) => hi('selectedDate', e.target.value)} /></div></div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div><label className={labelCls}>Start Time</label>
+                                    <div className="relative"><Clock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                                        <input type="time" className={`${inputCls} pl-10`} value={taskData.startTime} onChange={(e) => hi('startTime', e.target.value)} /></div></div>
+                                {taskData.taskCategory === 'Self Log' ? (
+                                    <div><label className={labelCls}>End Time</label>
+                                        <div className="relative"><Clock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                                            <input type="time" className={`${inputCls} pl-10`} value={taskData.endTime} onChange={(e) => hi('endTime', e.target.value)} /></div></div>
+                                ) : (
+                                    <div><label className={labelCls}>Duration (Hours)</label>
+                                        <div className="relative"><Clock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                                            <input type="number" step="0.5" className={`${inputCls} pl-10`} value={taskData.time_quota_hours} onChange={(e) => hi('time_quota_hours', parseFloat(e.target.value))} /></div></div>
+                                )}
+                            </div></div>
+                    ) : (
+                        <div className="grid grid-cols-2 gap-4">
+                            {[{ label: 'Valid From', key: 'startDate' }, { label: 'Valid Until', key: 'endDate' }].map(({ label, key }) => (
+                                <div key={key}><label className={labelCls}>{label}</label>
+                                    <div className="relative"><Calendar size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                                        <input type="date" className={`${inputCls} pl-10`} value={taskData[key]} onChange={(e) => hi(key, e.target.value)} /></div></div>
+                            ))}</div>
+                    )}
+                </div>
+            )}
             <ToggleRow label="Allow Pause" desc="Allow assignees to pause and resume the task" checked={taskData.allowPause} onChange={(e) => hi('allowPause', e.target.checked)} />
         </div>
     );
@@ -427,7 +450,10 @@ const CreateTask = ({ onCancel, onSuccess }) => {
                                     initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
                                     <span className="w-7 h-7 bg-indigo-100 text-indigo-600 rounded-lg flex items-center justify-center font-bold text-xs shrink-0">{idx + 1}</span>
                                     <input className={`${inputCls} flex-1`} placeholder="Step Title" value={sub.title} onChange={(e) => updateSubTask(sub.id, 'title', e.target.value)} />
-                                    <select className="bg-transparent border-none text-xs font-bold text-slate-500 outline-none" value={sub.assigneeId} onChange={(e) => updateSubTask(sub.id, 'assigneeId', e.target.value)}>
+                                    <div className="w-24 shrink-0">
+                                        <input type="number" step="0.5" className={`${inputCls}`} placeholder="Hours" value={sub.duration} onChange={(e) => updateSubTask(sub.id, 'duration', e.target.value)} />
+                                    </div>
+                                    <select className="bg-transparent border-none text-xs font-bold text-slate-500 outline-none w-32 shrink-0" value={sub.assigneeId} onChange={(e) => updateSubTask(sub.id, 'assigneeId', e.target.value)}>
                                         <option>Select Assignee</option>
                                         {allUsers.map(u => <option key={u.user_id} value={u.user_id}>{u.name}</option>)}
                                     </select>

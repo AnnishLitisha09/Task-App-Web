@@ -94,7 +94,7 @@ const CouponsPage = () => {
 
     return (
         <motion.div
-            className="p-4 sm:p-6 lg:p-8 xl:p-10 bg-[#fcfcfd] min-h-screen font-sans"
+            className="p-4 sm:p-6 lg:p-8 xl:p-10 bg-white min-h-screen font-sans"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
         >
@@ -105,8 +105,8 @@ const CouponsPage = () => {
                         <Ticket size={26} strokeWidth={2.5} />
                     </div>
                     <div>
-                        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Reward Protocols</h1>
-                        <p className="text-xs text-slate-400 mt-1 uppercase tracking-[0.2em] font-black opacity-70">
+                        <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Reward Protocols</h1>
+                        <p className="text-xs text-slate-400 mt-1 uppercase tracking-widest font-bold opacity-70">
                             Coupon Generation &amp; Redemption
                         </p>
                     </div>
@@ -132,7 +132,7 @@ const CouponsPage = () => {
                     </div>
 
                     <button
-                        className="flex-1 sm:flex-none flex items-center justify-center gap-2.5 bg-slate-900 hover:bg-indigo-600 text-white px-5 sm:px-8 py-3.5 sm:py-4 rounded-[20px] sm:rounded-[22px] text-xs font-black uppercase tracking-[0.2em] shadow-xl transition-all active:scale-95 border-none cursor-pointer whitespace-nowrap"
+                        className="flex-1 sm:flex-none flex items-center justify-center gap-2.5 bg-slate-900 hover:bg-indigo-600 text-white px-5 sm:px-8 py-3.5 sm:py-4 rounded-[20px] sm:rounded-[22px] text-xs font-bold uppercase tracking-widest shadow-xl transition-all active:scale-95 border-none cursor-pointer whitespace-nowrap"
                         onClick={handleCreateNew}
                     >
                         <Plus size={18} strokeWidth={3} />
@@ -162,12 +162,12 @@ const CouponsPage = () => {
                                 <s.icon size={24} strokeWidth={2.5} className="hidden sm:block" />
                             </div>
                             <div className="flex-1 min-w-0">
-                                <span className="hidden sm:block text-[0.65rem] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">{s.label}</span>
-                                <h3 className="text-lg sm:text-3xl font-black text-slate-900 tracking-tighter leading-none">{s.val}</h3>
+                                <span className="hidden sm:block text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest mb-1">{s.label}</span>
+                                <h3 className="text-lg sm:text-2xl font-bold text-slate-900 tracking-tight leading-none">{s.val}</h3>
                             </div>
                         </div>
                         {/* Label visible only on mobile (below number) */}
-                        <p className="sm:hidden text-[8px] font-black text-slate-400 uppercase tracking-widest truncate mt-1">{s.label}</p>
+                        <p className="sm:hidden text-[8px] font-bold text-slate-400 uppercase tracking-widest truncate mt-1">{s.label}</p>
                     </div>
                 ))}
             </div>
@@ -216,7 +216,7 @@ const CouponsPage = () => {
                                     </div>
                                 </div>
                                 <span
-                                    className="px-2.5 py-1 rounded-lg text-[0.7rem] font-extrabold uppercase"
+                                    className="px-2.5 py-1 rounded-lg text-[0.7rem] font-bold uppercase"
                                     style={{ backgroundColor: `${THEME_COLOR}20`, color: THEME_COLOR }}
                                 >
                                     {coupon.remaining_count > 0 ? 'Active' : 'Depleted'}
@@ -225,7 +225,7 @@ const CouponsPage = () => {
 
                             {/* Card body */}
                             <div className="p-5">
-                                <h3 className="text-base font-extrabold text-slate-800 mb-3">{coupon.name}</h3>
+                                <h3 className="text-base font-bold text-slate-800 mb-3">{coupon.name}</h3>
                                 <div className="flex flex-col gap-2 mb-4">
                                     <div className="flex items-center gap-2 text-slate-500 text-[0.85rem]">
                                         <Calendar size={14} />
@@ -264,7 +264,7 @@ const CouponsPage = () => {
                 <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="w-full text-left min-w-[640px]">
-                            <thead className="bg-slate-50/50 border-b border-slate-100 text-[10px] uppercase tracking-widest text-slate-400 font-bold">
+                            <thead className="bg-white border-b border-slate-100 text-[10px] uppercase tracking-widest text-slate-400 font-bold">
                                 <tr>
                                     <th className="px-4 sm:px-6 py-4">Coupon Name</th>
                                     <th className="px-4 sm:px-6 py-4">Validity</th>
@@ -369,7 +369,7 @@ const CouponsPage = () => {
                             onClick={(e) => e.stopPropagation()}
                         >
                             <div className="flex justify-between items-center px-6 sm:px-7 py-4 sm:py-5 border-b border-slate-100">
-                                <h2 className="text-base font-extrabold text-slate-900">
+                                <h2 className="text-base font-bold text-slate-900">
                                     {selectedCoupon ? 'Edit Coupon' : 'Create New Coupon'}
                                 </h2>
                                 <button className="w-8 h-8 flex items-center justify-center text-slate-400 hover:bg-slate-100 rounded-lg" onClick={() => setIsModalOpen(false)}>

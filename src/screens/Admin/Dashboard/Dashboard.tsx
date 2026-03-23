@@ -39,7 +39,7 @@ const AdminDashboard = () => {
                 method: 'GET',
                 responseType: 'blob' // We will assume the frontend `api` handles blob or we fetch it natively if needed.
             });
-            
+
             // Note: Since standard api wrapper might not support blob easily, using fetch directly:
             const token = localStorage.getItem('token');
             const res = await fetch(`http://localhost:5000/api${endpoint}`, {
@@ -119,7 +119,7 @@ const AdminDashboard = () => {
                         <div className="flex-1 min-w-0">
                             <h3 className="text-lg font-bold text-slate-900 max-sm:text-base">Venue Utilisation Report</h3>
                             <p className="text-sm text-slate-500 mt-1 mb-4 line-clamp-2 max-sm:text-xs">View occupancy, booking trends, and maintenance logs across all institutional venues.</p>
-                            <button 
+                            <button
                                 onClick={() => handleDownloadReport('venue')}
                                 className="flex items-center gap-2 bg-white border border-slate-200 px-4 py-2.5 rounded-xl text-sm font-bold text-slate-700 hover:text-indigo-600 hover:border-indigo-600 hover:shadow-sm transition-all active:scale-95 max-sm:w-full max-sm:justify-center"
                             >
@@ -137,7 +137,7 @@ const AdminDashboard = () => {
                         <div className="flex-1 min-w-0">
                             <h3 className="text-lg font-bold text-slate-900 max-sm:text-base">Resource Inventory Report</h3>
                             <p className="text-sm text-slate-500 mt-1 mb-4 line-clamp-2 max-sm:text-xs">Full breakdown of physical resources, health statuses, and asset tracking histories.</p>
-                            <button 
+                            <button
                                 onClick={() => handleDownloadReport('resource')}
                                 className="flex items-center gap-2 bg-white border border-slate-200 px-4 py-2.5 rounded-xl text-sm font-bold text-slate-700 hover:text-emerald-600 hover:border-emerald-600 hover:shadow-sm transition-all active:scale-95 max-sm:w-full max-sm:justify-center"
                             >

@@ -75,7 +75,7 @@ const DepartmentModal: React.FC<DepartmentModalProps> = ({ isOpen, onClose, dept
                                 {mode === 'assign' ? <UserPlus size={20} /> : <Building2 size={20} />}
                             </div>
                             <div>
-                                <h2 className="text-base font-extrabold text-slate-900">
+                                <h2 className="text-base font-bold text-slate-900">
                                     {mode === 'create' ? 'Create New Department' : mode === 'edit' ? 'Edit Department' : 'Assign HOD'}
                                 </h2>
                                 <p className="text-[0.75rem] text-slate-400">{mode === 'assign' ? `Selecting Authority for ${deptName}` : 'Manage institutional structures'}</p>

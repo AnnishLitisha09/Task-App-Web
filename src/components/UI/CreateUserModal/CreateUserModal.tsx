@@ -481,7 +481,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                                     <UserPlus size={24} strokeWidth={2.5} />
                                 </div>
                                 <div className="min-w-0">
-                                    <h2 className="text-xl sm:text-2xl font-black text-slate-800 m-0 leading-tight truncate">
+                                    <h2 className="text-xl sm:text-2xl font-bold text-slate-800 m-0 leading-tight truncate">
                                         {isEdit ? 'Refine Profile' : 'New Identity'}
                                     </h2>
                                     <p className="text-xs sm:text-sm font-bold text-slate-400 m-0 mt-0.5 uppercase tracking-widest italic opacity-70">
@@ -496,13 +496,13 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
 
                         {/* Progress Stepper */}
                         <div className="flex items-center gap-2 px-6 py-4 sm:px-8 bg-slate-50/50 border-b border-slate-100 shrink-0 overflow-x-auto no-scrollbar">
-                            <div className={`flex items-center gap-2.5 px-4 py-2 rounded-xl text-xs sm:text-sm font-black transition-all whitespace-nowrap ${step >= 1 ? 'text-indigo-600 bg-white shadow-sm ring-1 ring-slate-100' : 'text-slate-400'}`}>
-                                <div className={`w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-black ${step >= 1 ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-500'}`}>{step > 1 ? <Check size={14} strokeWidth={3} /> : '01'}</div>
+                            <div className={`flex items-center gap-2.5 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap ${step >= 1 ? 'text-indigo-600 bg-white shadow-sm ring-1 ring-slate-100' : 'text-slate-400'}`}>
+                                <div className={`w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-bold ${step >= 1 ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-500'}`}>{step > 1 ? <Check size={14} strokeWidth={3} /> : '01'}</div>
                                 <span className="uppercase tracking-wider">Classification</span>
                             </div>
                             <div className={`h-[2px] min-w-[20px] flex-1 transition-colors ${step > 1 ? 'bg-indigo-600' : 'bg-slate-200/50'}`}></div>
-                            <div className={`flex items-center gap-2.5 px-4 py-2 rounded-xl text-xs sm:text-sm font-black transition-all whitespace-nowrap ${step === 2 ? 'text-indigo-600 bg-white shadow-sm ring-1 ring-slate-100' : 'text-slate-400'}`}>
-                                <div className={`w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-black ${step === 2 ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-500'}`}>02</div>
+                            <div className={`flex items-center gap-2.5 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap ${step === 2 ? 'text-indigo-600 bg-white shadow-sm ring-1 ring-slate-100' : 'text-slate-400'}`}>
+                                <div className={`w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-bold ${step === 2 ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-500'}`}>02</div>
                                 <span className="uppercase tracking-wider">Parameters</span>
                             </div>
                         </div>
@@ -521,10 +521,10 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                                         <div className="space-y-4">
                                             <div className="flex items-center gap-2">
                                                 <div className="w-1 h-4 bg-indigo-500 rounded-full"></div>
-                                                <span className="text-[0.65rem] font-black text-slate-400 uppercase tracking-[0.2em]">Contact Vector</span>
+                                                <span className="text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest">Contact Vector</span>
                                             </div>
                                             <div className="flex flex-col gap-2">
-                                                <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Email Identifier</label>
+                                                <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Email Identifier</label>
                                                 <input
                                                     type="email"
                                                     placeholder="identifier@institution.edu"
@@ -539,10 +539,10 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                                         <div className="space-y-4">
                                             <div className="flex items-center gap-2">
                                                 <div className="w-1 h-4 bg-amber-500 rounded-full"></div>
-                                                <span className="text-[0.65rem] font-black text-slate-400 uppercase tracking-[0.2em]">Domain Assignment</span>
+                                                <span className="text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest">Domain Assignment</span>
                                             </div>
                                             <div className="flex flex-col gap-2">
-                                                <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Entity Category</label>
+                                                <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Entity Category</label>
                                                 <div className="relative group">
                                                     <select
                                                         value={category}
@@ -574,9 +574,9 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                                                 <div className="w-8 h-8 rounded-lg bg-indigo-500 text-white flex items-center justify-center font-bold text-xs uppercase">
                                                     {category.substring(0, 1)}
                                                 </div>
-                                                <span className="text-xs font-black text-indigo-700 uppercase tracking-widest">{category} Profile Details</span>
+                                                <span className="text-xs font-bold text-indigo-700 uppercase tracking-widest">{category} Profile Details</span>
                                             </div>
-                                            <div className="text-[10px] font-black text-indigo-400 uppercase tracking-widest italic">{email}</div>
+                                            <div className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest italic">{email}</div>
                                         </div>
                                         {renderCategoryFields()}
                                     </motion.div>
@@ -592,7 +592,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                                         <motion.div 
                                             initial={{ opacity: 0, scale: 0.9 }} 
                                             animate={{ opacity: 1, scale: 1 }}
-                                            className="flex items-center gap-2.5 text-[0.7rem] font-black uppercase tracking-tight text-rose-600 bg-rose-50 border border-rose-100 px-4 py-2.5 rounded-xl w-full sm:w-fit"
+                                            className="flex items-center gap-2.5 text-[0.7rem] font-bold uppercase tracking-tight text-rose-600 bg-rose-50 border border-rose-100 px-4 py-2.5 rounded-xl w-full sm:w-fit"
                                         >
                                             <AlertCircle size={16} />
                                             <span>{error}</span>
@@ -602,11 +602,11 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                             </div>
 
                             <div className="flex gap-3 w-full sm:w-auto">
-                                <button className="flex-1 sm:flex-none px-8 py-3.5 rounded-2xl font-black text-xs uppercase tracking-widest text-slate-500 bg-white border-2 border-slate-100 hover:bg-slate-50 hover:border-slate-200 transition-all border-none cursor-pointer active:scale-95" onClick={step === 1 ? onClose : () => setStep(1)} disabled={isLoading}>
+                                <button className="flex-1 sm:flex-none px-8 py-3.5 rounded-2xl font-bold text-xs uppercase tracking-widest text-slate-500 bg-white border-2 border-slate-100 hover:bg-slate-50 hover:border-slate-200 transition-all border-none cursor-pointer active:scale-95" onClick={step === 1 ? onClose : () => setStep(1)} disabled={isLoading}>
                                     {step === 1 ? 'Cancel' : 'Return'}
                                 </button>
                                 <button
-                                    className="flex-1 sm:flex-none flex items-center justify-center gap-3 px-8 py-3.5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] text-white bg-slate-900 border-none hover:bg-indigo-600 transition-all shadow-[0_15px_30px_-10px_rgba(0,0,0,0.2)] disabled:opacity-30 disabled:cursor-not-allowed active:scale-95"
+                                    className="flex-1 sm:flex-none flex items-center justify-center gap-3 px-8 py-3.5 rounded-2xl font-bold text-xs uppercase tracking-widest text-white bg-slate-900 border-none hover:bg-indigo-600 transition-all shadow-[0_15px_30px_-10px_rgba(0,0,0,0.2)] disabled:opacity-30 disabled:cursor-not-allowed active:scale-95"
                                     onClick={step === 1 ? () => setStep(2) : handleFinalize}
                                     disabled={isLoading || (step === 1 && !isEdit && (!category || !email))}
                                 >

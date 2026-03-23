@@ -65,7 +65,7 @@ const AdminLayout = ({ user: initialUser, onLogout }) => {
             default:
                 return (
                     <div className="flex flex-col items-center justify-center p-16 text-slate-500">
-                        <h2 className="text-2xl font-bold text-slate-800 mb-2">Coming Soon</h2>
+                        <h2 className="text-xl font-semibold text-slate-800 mb-2">Coming Soon</h2>
                         <p>Page is under construction.</p>
                     </div>
                 );
@@ -86,7 +86,7 @@ const AdminLayout = ({ user: initialUser, onLogout }) => {
 
             <main className="flex-1 flex flex-col min-w-0">
                 {/* Header */}
-                <header className="h-[72px] bg-white/95 backdrop-blur-sm border-b border-slate-100 px-10 flex items-center justify-between sticky top-0 z-90 max-lg:px-6 max-md:h-16 max-md:px-4">
+                <header className="h-[72px] bg-white border-b border-slate-100 px-10 flex items-center justify-between sticky top-0 z-90 max-lg:px-6 max-md:h-16 max-md:px-4">
                     <div className="flex items-center">
                         <button
                             className="hidden max-lg:flex bg-transparent text-slate-500 cursor-pointer p-2 mr-3"
@@ -94,7 +94,7 @@ const AdminLayout = ({ user: initialUser, onLogout }) => {
                         >
                             {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
                         </button>
-                        <h2 className="text-lg font-bold text-slate-800 max-md:text-[1rem] truncate max-w-[150px] sm:max-w-none">
+                        <h2 className="text-base font-semibold text-slate-800 max-md:text-[1rem] truncate max-w-[150px] sm:max-w-none">
                             {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
                         </h2>
                     </div>
@@ -111,7 +111,7 @@ const AdminLayout = ({ user: initialUser, onLogout }) => {
 
                         <div className="flex items-center gap-3.5">
                             <div className="flex flex-col items-end max-[540px]:hidden">
-                                <span className="text-sm font-bold text-slate-900">{displayName}</span>
+                                <span className="text-sm font-semibold text-slate-900">{displayName}</span>
                                 <button className="flex items-center gap-1 text-[11px] font-semibold text-indigo-500 bg-none border-none cursor-pointer p-0">
                                     <Edit2 size={10} />
                                     Manage Profile

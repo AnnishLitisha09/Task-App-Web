@@ -116,10 +116,10 @@ const InfrastructurePage = () => {
 
                 {/* ── Page Header ── */}
                 <div className="mb-6 sm:mb-8">
-                    <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mb-1">
+                    <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight mb-1">
                         Infrastructure
                     </h1>
-                    <p className="text-slate-500 font-medium text-sm sm:text-base">
+                    <p className="text-slate-500 font-medium text-xs sm:text-sm">
                         Manage venues, facilities and in-charge assignments.
                     </p>
                 </div>
@@ -144,14 +144,14 @@ const InfrastructurePage = () => {
                                     <s.icon size={22} strokeWidth={2} className="hidden sm:block" />
                                 </div>
                                 <div className="min-w-0">
-                                    <p className="hidden sm:block text-[0.7rem] font-black text-slate-400 uppercase tracking-[0.15em] mb-1 group-hover:text-slate-500 transition-colors">
+                                    <p className="hidden sm:block text-[0.65rem] font-bold text-slate-400 uppercase tracking-wider mb-1 group-hover:text-slate-500 transition-colors">
                                         {s.label}
                                     </p>
-                                    <h3 className="text-lg sm:text-2xl font-black text-slate-800 tabular-nums leading-none">{s.value}</h3>
+                                    <h3 className="text-lg sm:text-xl font-bold text-slate-800 tabular-nums leading-none">{s.value}</h3>
                                 </div>
                             </div>
                             {/* Label visible only on mobile (below number) */}
-                            <p className="sm:hidden text-[8px] font-black text-slate-400 uppercase tracking-widest truncate mt-1">{s.label}</p>
+                            <p className="sm:hidden text-[8px] font-bold text-slate-400 uppercase tracking-widest truncate mt-1">{s.label}</p>
                         </motion.div>
                     ))}
                 </div>
@@ -167,7 +167,7 @@ const InfrastructurePage = () => {
                                 placeholder="Search by name, in-charge or location..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full pl-11 pr-5 py-3.5 sm:py-4 rounded-[20px] border border-slate-200 bg-slate-50/30 text-sm sm:text-[0.95rem] font-medium outline-none focus:bg-white focus:border-indigo-500 focus:shadow-[0_0_0_5px_rgba(99,102,241,0.1)] transition-all placeholder:text-slate-400"
+                                className="w-full pl-11 pr-5 py-3 sm:py-3.5 rounded-xl border border-slate-200 bg-white text-sm font-medium outline-none focus:border-indigo-500 focus:shadow-sm transition-all placeholder:text-slate-400"
                             />
                         </div>
 
@@ -191,16 +191,16 @@ const InfrastructurePage = () => {
                             <button
                                 onClick={() => bulkInputRef.current?.click()}
                                 disabled={isBulkUploading}
-                                className="flex items-center justify-center gap-2 bg-white border border-slate-200 text-slate-700 px-4 sm:px-6 py-3.5 sm:py-4 rounded-[18px] font-black text-xs uppercase tracking-wider hover:bg-slate-50 hover:border-indigo-300 transition-all disabled:opacity-50 active:scale-95 shadow-sm whitespace-nowrap"
+                                className="flex items-center justify-center gap-2 bg-white border border-slate-200 text-slate-700 px-4 py-2.5 rounded-xl font-bold text-[10px] uppercase tracking-wider hover:bg-slate-50 hover:border-indigo-300 transition-all disabled:opacity-50 active:scale-95 shadow-sm whitespace-nowrap"
                             >
-                                <Upload size={16} className="shrink-0" />
+                                <Upload size={14} className="shrink-0" />
                                 <span className="hidden sm:inline">Bulk</span>
                             </button>
                             <button
-                                className="flex items-center justify-center gap-2 bg-slate-900 border-none text-white px-4 sm:px-6 py-3.5 sm:py-4 rounded-[18px] font-black text-xs uppercase tracking-wider hover:bg-indigo-600 transition-all shadow-[0_10px_30px_-5px_rgba(0,0,0,0.1)] active:scale-95 whitespace-nowrap"
+                                className="flex items-center justify-center gap-2 bg-slate-900 border-none text-white px-4 py-2.5 rounded-xl font-bold text-[10px] uppercase tracking-wider hover:bg-indigo-600 transition-all shadow-sm active:scale-95 whitespace-nowrap"
                                 onClick={handleCreate}
                             >
-                                <Plus size={17} className="shrink-0" />
+                                <Plus size={15} className="shrink-0" />
                                 <span>Add Venue</span>
                             </button>
                         </div>
@@ -219,12 +219,12 @@ const InfrastructurePage = () => {
                             <div className={`p-2 rounded-xl scale-110 ${bulkResult.error ? 'bg-rose-100/50' : 'bg-emerald-100/50'}`}>
                                 {bulkResult.error ? <AlertCircle size={20} className="shrink-0" /> : <CheckCircle2 size={20} className="shrink-0" />}
                             </div>
-                            <div className="flex-1 min-w-0">
+                             <div className="flex-1 min-w-0">
                                 {bulkResult.error
-                                    ? <p className="font-black text-sm uppercase tracking-tight">Deployment Error: {bulkResult.error}</p>
+                                    ? <p className="font-bold text-[10px] uppercase tracking-tight">Deployment Error: {bulkResult.error}</p>
                                     : <div className="space-y-1">
-                                        <p className="font-black text-sm uppercase tracking-tight text-emerald-800">Operational Update Dispatched</p>
-                                        <div className="flex flex-wrap gap-3 text-xs font-bold opacity-80">
+                                        <p className="font-bold text-[10px] uppercase tracking-tight text-emerald-800">Operational Update Dispatched</p>
+                                        <div className="flex flex-wrap gap-3 text-[10px] font-semibold opacity-80">
                                             <span>SUCCESS: {(bulkResult.results || []).filter(r => r.status === 'created').length}</span>
                                             <span>UNCHANGED: {(bulkResult.results || []).filter(r => r.status === 'skipped').length}</span>
                                             <span>FAILURES: {(bulkResult.results || []).filter(r => r.status === 'failed').length}</span>
@@ -243,18 +243,18 @@ const InfrastructurePage = () => {
                 {isLoading ? (
                     <div className="py-20 sm:py-24 flex flex-col items-center justify-center gap-5 text-slate-300">
                         <div className="w-12 h-12 border-4 border-slate-100 border-t-indigo-500 rounded-full animate-spin" />
-                        <p className="text-[0.65rem] font-black uppercase tracking-[0.2em] text-slate-400 text-center">
+                        <p className="text-[0.65rem] font-bold uppercase tracking-widest text-slate-400 text-center">
                             Restoring Inventory State...
                         </p>
                     </div>
                 ) : paginatedVenues.length === 0 ? (
-                    <div className="py-16 sm:py-24 flex flex-col items-center justify-center gap-6 bg-slate-50/50 rounded-[32px] sm:rounded-[40px] border-2 border-dashed border-slate-200">
-                        <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-3xl flex items-center justify-center shadow-lg text-slate-200 ring-8 ring-slate-50/50">
-                            <MapPin size={36} strokeWidth={1.5} />
+                    <div className="py-16 sm:py-24 flex flex-col items-center justify-center gap-6 bg-white rounded-3xl border border-dashed border-slate-200">
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-200">
+                            <MapPin size={36} strokeWidth={1} />
                         </div>
                         <div className="text-center px-6">
-                            <h3 className="text-lg font-black text-slate-800 mb-1">Infrastructure Point Not Found</h3>
-                            <p className="text-sm font-medium text-slate-400">Modify your parameters or initialize a new venue point above.</p>
+                            <h3 className="text-base font-bold text-slate-800 mb-1">Infrastructure Point Not Found</h3>
+                            <p className="text-xs font-medium text-slate-400">Modify your parameters or initialize a new venue point above.</p>
                         </div>
                     </div>
                 ) : viewMode === 'grid' ? (
@@ -278,12 +278,12 @@ const InfrastructurePage = () => {
                                         ) : (
                                             <div className="w-full h-full flex flex-col items-center justify-center text-slate-200 gap-3">
                                                 <Box size={44} strokeWidth={1} />
-                                                <span className="text-[9px] font-black uppercase tracking-[0.3em] opacity-60">Visual Missing</span>
+                                                <span className="text-[9px] font-bold uppercase tracking-wider opacity-60">Visual Missing</span>
                                             </div>
                                         )}
                                         {/* Status badge */}
                                         <div className="absolute top-3 left-3">
-                                            <span className={`px-2.5 py-1 rounded-xl text-[0.65rem] font-black uppercase tracking-wider backdrop-blur-md border border-white/20 shadow-lg ${
+                                            <span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-tight backdrop-blur-md border border-white/20 shadow-sm ${
                                                 (v.status || 'available') === 'available' ? 'bg-emerald-500/90 text-white' : 'bg-amber-500/90 text-white'
                                             }`}>
                                                 {v.status || 'available'}
@@ -312,12 +312,12 @@ const InfrastructurePage = () => {
                                     <div className="p-5 sm:p-6 flex flex-col flex-1">
                                         <div className="flex justify-between items-start mb-4">
                                             <div className="min-w-0 pr-3">
-                                                <h3 className="text-lg sm:text-xl font-black text-slate-900 truncate mb-1" title={v.name}>
+                                                <h3 className="text-base sm:text-lg font-bold text-slate-900 truncate mb-1" title={v.name}>
                                                     {v.name}
                                                 </h3>
                                                 <div className="flex items-center gap-1.5 text-slate-400">
-                                                    <MapPin size={11} className="shrink-0" />
-                                                    <span className="text-[10px] font-bold uppercase tracking-widest truncate">
+                                                    <MapPin size={10} className="shrink-0" />
+                                                    <span className="text-[10px] font-semibold uppercase tracking-wider truncate">
                                                         {v.location || 'Central Complex'}
                                                     </span>
                                                 </div>
@@ -328,15 +328,15 @@ const InfrastructurePage = () => {
                                         </div>
 
                                         <div className="grid grid-cols-2 gap-3 mb-5">
-                                            <div className="bg-slate-50/50 p-3 rounded-[18px] border border-slate-100/50">
-                                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5">Category</p>
-                                                <p className="text-[0.8rem] font-extrabold text-slate-700 truncate">
+                                            <div className="bg-white p-3 rounded-xl border border-slate-100">
+                                                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tight mb-1">Category</p>
+                                                <p className="text-xs font-semibold text-slate-700 truncate">
                                                     {v.venue_type || v.type || 'Institutional'}
                                                 </p>
                                             </div>
-                                            <div className="bg-slate-50/50 p-3 rounded-[18px] border border-slate-100/50">
-                                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1.5">In-Charge</p>
-                                                <p className={`text-[0.8rem] font-extrabold truncate ${hasIncharge ? 'text-indigo-600' : 'text-slate-300'}`}>
+                                            <div className="bg-white p-3 rounded-xl border border-slate-100">
+                                                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tight mb-1">In-Charge</p>
+                                                <p className={`text-xs font-semibold truncate ${hasIncharge ? 'text-indigo-600' : 'text-slate-300'}`}>
                                                     {hasIncharge || 'Unassigned'}
                                                 </p>
                                             </div>
@@ -344,10 +344,10 @@ const InfrastructurePage = () => {
 
                                         <div className="mt-auto">
                                             <button
-                                                className="w-full flex items-center justify-center gap-2 bg-slate-900 text-white py-3.5 rounded-2xl text-[0.7rem] font-black uppercase tracking-widest hover:bg-indigo-600 transition-all active:scale-[0.97] border-none cursor-pointer"
+                                                className="w-full flex items-center justify-center gap-2 bg-slate-900 text-white py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-wider hover:bg-indigo-600 transition-all active:scale-[0.97] border-none cursor-pointer"
                                                 onClick={(e) => { e.stopPropagation(); handleAssignIncharge(v); }}
                                             >
-                                                <UserPlus size={15} />
+                                                <UserPlus size={14} />
                                                 <span>Assign Privileges</span>
                                             </button>
                                         </div>
@@ -364,7 +364,7 @@ const InfrastructurePage = () => {
                                 <thead className="bg-slate-50/40 border-b border-slate-100/50">
                                     <tr>
                                         {['Unit Identity', 'Classification', 'State', 'Delegate', 'Actions'].map((h, i) => (
-                                            <th key={i} className={`px-5 lg:px-8 py-5 text-[0.65rem] font-black uppercase tracking-[0.2em] text-slate-400 ${i === 4 ? 'text-right' : 'text-left'}`}>
+                                            <th key={i} className={`px-5 lg:px-8 py-4 text-[0.65rem] font-bold uppercase tracking-wider text-slate-400 ${i === 4 ? 'text-right' : 'text-left'}`}>
                                                 {h}
                                             </th>
                                         ))}
@@ -382,18 +382,18 @@ const InfrastructurePage = () => {
                                                         }
                                                     </div>
                                                     <div className="min-w-0">
-                                                        <p className="text-sm sm:text-base font-black text-slate-900 truncate max-w-[160px] lg:max-w-[240px]">{v.name}</p>
-                                                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">{v.location || 'Institutional Facility'}</p>
+                                                        <p className="text-sm font-bold text-slate-900 truncate max-w-[160px] lg:max-w-[240px]">{v.name}</p>
+                                                        <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">{v.location || 'Institutional Facility'}</p>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td className="px-5 lg:px-8 py-4 lg:py-6">
                                                 <div className="bg-slate-100/50 inline-block px-3 py-1 rounded-lg">
-                                                    <p className="text-xs font-black text-slate-700 uppercase tracking-tight">{v.venue_type || v.type || 'General'}</p>
+                                                    <p className="text-xs font-bold text-slate-700 uppercase tracking-tight">{v.venue_type || v.type || 'General'}</p>
                                                 </div>
                                             </td>
                                             <td className="px-5 lg:px-8 py-4 lg:py-6">
-                                                <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[0.65rem] font-black uppercase tracking-[0.05em] border-2 shadow-sm ${
+                                                <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[0.65rem] font-bold uppercase tracking-wider border-2 shadow-sm ${
                                                     (v.status || 'available') === 'available' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100'
                                                 }`}>
                                                     <div className={`w-1.5 h-1.5 rounded-full ${(v.status || 'available') === 'available' ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
@@ -401,7 +401,7 @@ const InfrastructurePage = () => {
                                                 </span>
                                             </td>
                                             <td className="px-5 lg:px-8 py-4 lg:py-6">
-                                                <p className={`text-sm font-black ${ (v.incharge?.name || v.owner_name) ? 'text-slate-800' : 'text-slate-300' }`}>
+                                                <p className={`text-sm font-bold ${ (v.incharge?.name || v.owner_name) ? 'text-slate-800' : 'text-slate-300' }`}>
                                                     {v.incharge?.name || v.owner_name || 'PENDING'}
                                                 </p>
                                             </td>

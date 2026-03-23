@@ -53,8 +53,8 @@ const Sidebar = ({ onLogout, isOpen, onClose, activeTab, setActiveTab, userTitle
                             <ShieldCheck size={24} strokeWidth={2.5} />
                         </div>
                         <div className="min-w-0">
-                            <span className="text-lg font-extrabold text-slate-900 tracking-tight block max-md:text-base truncate">AdminSphere</span>
-                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.5px] block truncate">Management Suite</span>
+                            <span className="text-lg font-bold text-slate-900 tracking-tight block max-md:text-base truncate">AdminSphere</span>
+                            <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.5px] block truncate">Management Suite</span>
                         </div>
                     </div>
                 </div>
@@ -63,7 +63,7 @@ const Sidebar = ({ onLogout, isOpen, onClose, activeTab, setActiveTab, userTitle
                 <nav className="flex-1 overflow-y-auto px-4 custom-scrollbar">
                     {navGroups.map((group, gi) => (
                         <div key={gi} className={gi > 0 ? 'mt-6' : ''}>
-                            <span className="pl-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 block opacity-80">{group.groupLabel}</span>
+                            <span className="pl-3 text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-3 block opacity-80">{group.groupLabel}</span>
                             {group.items.map((item) => {
                                 const isActive = activeTab === item.label;
                                 return (
@@ -77,8 +77,8 @@ const Sidebar = ({ onLogout, isOpen, onClose, activeTab, setActiveTab, userTitle
                                         onClick={() => setActiveTab(item.label)}
                                     >
                                         <div className="flex items-center gap-3 z-2">
-                                            <item.icon size={20} strokeWidth={isActive ? 2.5 : 2} />
-                                            <span className={`text-sm ${isActive ? 'font-bold' : 'font-semibold'}`}>{item.label}</span>
+                                            <item.icon size={20} strokeWidth={isActive ? 2 : 1.5} />
+                                            <span className={`text-sm ${isActive ? 'font-semibold text-indigo-700' : 'font-medium'}`}>{item.label}</span>
                                         </div>
                                         {isActive && (
                                             <motion.div
@@ -99,18 +99,18 @@ const Sidebar = ({ onLogout, isOpen, onClose, activeTab, setActiveTab, userTitle
                 </nav>
 
                 {/* Footer */}
-                <div className="px-4 py-5 border-t border-slate-100 flex flex-col gap-2.5 bg-slate-50/30">
+                <div className="px-4 py-5 border-t border-slate-100 flex flex-col gap-2.5 bg-white">
                     <button className="flex items-center gap-3 p-2.5 rounded-xl bg-white border border-slate-100 text-left cursor-pointer w-full shadow-sm hover:border-indigo-200 transition-colors">
                         <div className="w-9 h-9 bg-indigo-500 text-white rounded-lg grid place-items-center text-xs font-extrabold shadow-sm shrink-0">
                             {userTitle ? userTitle.substring(0, 2).toUpperCase() : 'AD'}
                         </div>
                         <div className="flex flex-col min-w-0">
-                            <span className="text-[13px] font-bold text-slate-900 block truncate">{userTitle || 'Admin User'}</span>
+                            <span className="text-[13px] font-semibold text-slate-900 block truncate">{userTitle || 'Admin User'}</span>
                             <span className="text-[11px] font-medium text-slate-500 truncate">{userRole || 'Super Admin'}</span>
                         </div>
                     </button>
                     <button
-                        className="flex items-center gap-2.5 px-3 py-2.5 bg-transparent border-none text-rose-500 text-sm font-bold cursor-pointer rounded-xl transition-all hover:bg-rose-50 w-full active:scale-[0.98]"
+                        className="flex items-center gap-2.5 px-3 py-2.5 bg-transparent border-none text-rose-500 text-sm font-semibold cursor-pointer rounded-xl transition-all hover:bg-rose-50 w-full active:scale-[0.98]"
                         onClick={onLogout}
                     >
                         <LogOut size={18} />

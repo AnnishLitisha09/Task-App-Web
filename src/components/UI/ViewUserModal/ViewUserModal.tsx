@@ -86,7 +86,7 @@ const ViewUserModal: React.FC<ViewUserModalProps> = ({ isOpen, onClose, user, on
                                 ].map((s, i) => (
                                     <div key={i} className="text-center p-3 bg-slate-50 rounded-xl border border-slate-100">
                                         <span className="block text-[0.7rem] text-slate-400 font-semibold mb-1">{s.label}</span>
-                                        <span className={`text-lg font-extrabold ${s.cls}`}>{s.value}</span>
+                                        <span className={`text-lg font-bold ${s.cls}`}>{s.value}</span>
                                     </div>
                                 ))}
                             </div>

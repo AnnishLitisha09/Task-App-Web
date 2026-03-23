@@ -62,25 +62,25 @@ const ActiveSessionsPage = () => {
 
     return (
         <motion.div 
-            className="p-10 max-lg:p-8 max-md:p-6 max-sm:p-4 bg-[#fcfcfd] min-h-screen font-sans flex flex-col gap-10 max-md:gap-8"
+            className="p-10 max-lg:p-8 max-md:p-6 max-sm:p-4 bg-white min-h-screen font-sans flex flex-col gap-10 max-md:gap-8"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
         >
             <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-8">
                 <div className="space-y-1">
-                    <div className="flex items-center gap-2 text-indigo-500 text-[10px] uppercase tracking-[0.3em] mb-2 font-black opacity-80">
+                    <div className="flex items-center gap-2 text-indigo-500 text-[10px] uppercase tracking-[0.3em] mb-2 font-bold opacity-80">
                         <Monitor size={12} strokeWidth={3} /> Security Protocols
                     </div>
-                    <h1 className="text-4xl max-md:text-3xl font-black text-slate-900 tracking-tighter leading-none">
+                    <h1 className="text-3xl max-md:text-2xl font-bold text-slate-900 tracking-tight leading-none">
                         Active <span className="text-indigo-600">Sessions</span>
                     </h1>
-                    <p className="text-xs text-slate-400 uppercase tracking-widest font-black opacity-60 mt-2">Live authentication monitoring & system access control</p>
+                    <p className="text-xs text-slate-400 uppercase tracking-widest font-bold opacity-60 mt-2">Live authentication monitoring & system access control</p>
                 </div>
 
                 <div className="flex items-center gap-3 self-end xl:self-auto uppercase">
                     <button 
                         onClick={fetchSessions}
-                        className="flex items-center gap-3 px-8 py-4 bg-white text-slate-600 rounded-[22px] text-xs font-black tracking-widest border-2 border-slate-50 shadow-sm transition-all hover:bg-slate-50 hover:border-indigo-100 active:scale-95"
+                        className="flex items-center gap-3 px-8 py-4 bg-white text-slate-600 rounded-[22px] text-xs font-bold tracking-widest border-2 border-slate-50 shadow-sm transition-all hover:bg-slate-50 hover:border-indigo-100 active:scale-95"
                     >
                         <RefreshCcw size={18} className={isLoading ? "animate-spin" : ""} strokeWidth={2.5} />
                         Refresh Registry
@@ -96,8 +96,8 @@ const ActiveSessionsPage = () => {
                             <stat.icon size={28} strokeWidth={2.5} />
                         </div>
                         <div className="flex-1">
-                            <span className="block text-[0.65rem] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">{stat.label}</span>
-                            <h3 className="text-3xl max-sm:text-2xl font-black text-slate-900 tracking-tighter leading-none">{stat.value}</h3>
+                            <span className="block text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest mb-1">{stat.label}</span>
+                            <h3 className="text-2xl max-sm:text-xl font-bold text-slate-900 tracking-tight leading-none">{stat.value}</h3>
                         </div>
                     </div>
                 ))}
@@ -122,11 +122,11 @@ const ActiveSessionsPage = () => {
                 <div className="overflow-x-auto custom-scrollbar">
                     <table className="w-full border-collapse min-w-[800px]">
                         <thead>
-                            <tr className="border-b border-slate-50 bg-slate-50/50">
-                                <th className="text-left py-6 px-8 text-[0.65rem] font-black text-slate-400 uppercase tracking-[0.2em]">Personnel Registry</th>
-                                <th className="text-left py-6 px-8 text-[0.65rem] font-black text-slate-400 uppercase tracking-[0.2em]">Access Level</th>
-                                <th className="text-left py-6 px-8 text-[0.65rem] font-black text-slate-400 uppercase tracking-[0.2em]">Live Status</th>
-                                <th className="text-right py-6 px-8 text-[0.65rem] font-black text-slate-400 uppercase tracking-[0.2em]">Actions</th>
+                            <tr className="border-b border-slate-50 bg-white">
+                                <th className="text-left py-6 px-8 text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest">Personnel Registry</th>
+                                <th className="text-left py-6 px-8 text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest">Access Level</th>
+                                <th className="text-left py-6 px-8 text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest">Live Status</th>
+                                <th className="text-right py-6 px-8 text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-50">
@@ -143,40 +143,40 @@ const ActiveSessionsPage = () => {
                                             <div className="w-20 h-20 rounded-full bg-slate-50 flex items-center justify-center mb-2">
                                                 <ShieldAlert size={40} strokeWidth={1.5} />
                                             </div>
-                                            <p className="font-black uppercase tracking-widest text-xs">Security Protocol: No Active Sessions</p>
+                                            <p className="font-bold uppercase tracking-widest text-xs">Security Protocol: No Active Sessions</p>
                                         </div>
                                     </td>
                                 </tr>
                             ) : (
                                 filteredSessions.map(session => (
-                                    <tr key={session.user_id} className="group hover:bg-slate-50/50 transition-all">
+                                    <tr key={session.user_id} className="group hover:bg-white transition-all">
                                         <td className="py-6 px-8">
                                             <div className="flex items-center gap-4">
-                                                <div className="w-12 h-12 rounded-[14px] bg-indigo-50 text-indigo-600 flex items-center justify-center font-black text-sm shadow-sm">
+                                                <div className="w-12 h-12 rounded-[14px] bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-sm shadow-sm">
                                                     {session.name.substring(0, 2).toUpperCase()}
                                                 </div>
                                                 <div>
-                                                    <span className="block font-black text-slate-800 tracking-tight">{session.name}</span>
+                                                    <span className="block font-bold text-slate-800 tracking-tight">{session.name}</span>
                                                     <span className="text-[0.7rem] text-slate-400 font-bold uppercase tracking-wide">{session.email}</span>
                                                 </div>
                                             </div>
                                         </td>
                                         <td className="py-6 px-8">
-                                            <span className="px-3 py-1 bg-slate-100 text-slate-600 rounded-lg text-[10px] font-black uppercase tracking-widest border border-slate-200">
+                                            <span className="px-3 py-1 bg-slate-100 text-slate-600 rounded-lg text-[10px] font-bold uppercase tracking-widest border border-slate-200">
                                                 {session.role}
                                             </span>
                                         </td>
                                         <td className="py-6 px-8">
                                             <div className="flex items-center gap-2.5">
                                                 <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
-                                                <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Active Connection</span>
+                                                <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">Active Connection</span>
                                             </div>
                                         </td>
                                         <td className="py-6 px-8 text-right">
                                             <button 
                                                 onClick={() => handleLogoutUser(session.user_id)}
                                                 disabled={actionLoading === session.user_id}
-                                                className="inline-flex items-center gap-2 px-6 py-3 bg-rose-50 text-rose-500 rounded-2xl font-black text-[10px] uppercase tracking-widest border border-rose-100 cursor-pointer transition-all hover:bg-rose-500 hover:text-white hover:shadow-lg hover:shadow-rose-200 active:scale-95 disabled:opacity-50"
+                                                className="inline-flex items-center gap-2 px-6 py-3 bg-rose-50 text-rose-500 rounded-2xl font-bold text-[10px] uppercase tracking-widest border border-rose-100 cursor-pointer transition-all hover:bg-rose-500 hover:text-white hover:shadow-lg hover:shadow-rose-200 active:scale-95 disabled:opacity-50"
                                             >
                                                 {actionLoading === session.user_id ? (
                                                     <RefreshCcw size={14} className="animate-spin" />

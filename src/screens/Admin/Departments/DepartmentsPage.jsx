@@ -82,10 +82,10 @@ const DepartmentsPage = () => {
         >
             {/* ── Page Header ── */}
             <div className="mb-8 lg:mb-10">
-                <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mb-2">
+                <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight mb-2">
                     Academic Divisions
                 </h1>
-                <p className="text-slate-500 font-medium text-sm sm:text-base">
+                <p className="text-slate-500 font-medium text-sm">
                     Management and governance of institutional departments and leadership.
                 </p>
             </div>
@@ -111,16 +111,16 @@ const DepartmentsPage = () => {
                                 <stat.icon size={22} strokeWidth={2.5} className="hidden sm:block" />
                             </div>
                             <div className="sm:text-right">
-                                <span className="hidden sm:block text-[0.65rem] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">
+                                <span className="hidden sm:block text-[0.65rem] font-bold text-slate-400 uppercase tracking-wider mb-1">
                                     {stat.label}
                                 </span>
-                                <h3 className="text-lg sm:text-3xl font-black text-slate-900 leading-none">
+                                <h3 className="text-lg sm:text-2xl font-bold text-slate-900 leading-none">
                                     {stat.value}
                                 </h3>
                             </div>
                         </div>
                         {/* Label visible only on mobile (below number) */}
-                        <p className="sm:hidden text-[8px] font-black text-slate-400 uppercase tracking-widest truncate">{stat.label}</p>
+                        <p className="sm:hidden text-[8px] font-bold text-slate-400 uppercase tracking-widest truncate">{stat.label}</p>
                         {/* Bottom subtitle row — desktop only */}
                         <div className="hidden sm:flex items-center gap-2 pt-4 border-t border-slate-50">
                             <div className={`w-1.5 h-1.5 rounded-full ${
@@ -128,7 +128,7 @@ const DepartmentsPage = () => {
                                 stat.color === 'emerald' ? 'bg-emerald-500' :
                                 'bg-amber-500'
                             }`} />
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                                 {stat.subtitle}
                             </p>
                         </div>
@@ -161,7 +161,7 @@ const DepartmentsPage = () => {
                                 title="Grid view"
                             >
                                 <LayoutGrid size={16} strokeWidth={2.5} />
-                                <span className="text-[11px] font-black uppercase tracking-wider">Grid</span>
+                                <span className="text-[11px] font-bold uppercase tracking-wider">Grid</span>
                             </button>
                             <button
                                 className={`px-4 py-2.5 rounded-[14px] border-none cursor-pointer flex items-center gap-2 transition-all ${viewMode === 'table' ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-100' : 'bg-transparent text-slate-400 hover:text-slate-600'}`}
@@ -169,16 +169,16 @@ const DepartmentsPage = () => {
                                 title="List view"
                             >
                                 <List size={16} strokeWidth={2.5} />
-                                <span className="text-[11px] font-black uppercase tracking-wider">List</span>
+                                <span className="text-[11px] font-bold uppercase tracking-wider">List</span>
                             </button>
                         </div>
 
                         {/* Add Division button */}
                         <button
-                            className="bg-slate-900 text-white py-3.5 sm:py-4 px-5 sm:px-8 rounded-[20px] sm:rounded-[22px] flex items-center justify-center gap-2 sm:gap-3 font-black text-[10px] sm:text-xs uppercase tracking-[0.2em] border-none cursor-pointer shadow-xl hover:bg-indigo-600 hover:-translate-y-0.5 active:translate-y-0 transition-all whitespace-nowrap"
+                            className="bg-slate-900 text-white py-3 sm:py-3.5 px-5 sm:px-6 rounded-xl flex items-center justify-center gap-2 font-bold text-[10px] sm:text-xs uppercase tracking-wider border-none cursor-pointer shadow-sm hover:bg-indigo-600 hover:-translate-y-0.5 active:translate-y-0 transition-all whitespace-nowrap"
                             onClick={handleCreate}
                         >
-                            <Plus size={18} strokeWidth={3} />
+                            <Plus size={16} strokeWidth={2.5} />
                             <span>Add Division</span>
                         </button>
                     </div>
@@ -189,16 +189,16 @@ const DepartmentsPage = () => {
             {isLoading ? (
                 <div className="py-20 sm:py-24 flex flex-col items-center justify-center gap-5 text-slate-300">
                     <div className="w-12 h-12 sm:w-14 sm:h-14 border-4 border-slate-100 border-t-indigo-500 rounded-full animate-spin" />
-                    <p className="text-[0.65rem] font-black uppercase tracking-[0.2em] text-slate-400 text-center">
+                    <p className="text-[0.65rem] font-bold uppercase tracking-widest text-slate-400 text-center">
                         Restoring Organizational State...
                     </p>
                 </div>
             ) : filteredDepartments.length === 0 ? (
-                <div className="py-16 sm:py-24 bg-slate-50/30 rounded-[32px] sm:rounded-[40px] border-2 border-dashed border-slate-100 flex flex-col items-center text-center px-6">
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-3xl flex items-center justify-center shadow-xl mb-5 sm:mb-6 text-slate-200">
+                <div className="py-16 sm:py-24 bg-white rounded-3xl sm:rounded-[40px] border border-dashed border-slate-200 flex flex-col items-center text-center px-6">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 bg-slate-50 rounded-3xl flex items-center justify-center mb-5 sm:mb-6 text-slate-300">
                         <Building2 size={36} strokeWidth={1} />
                     </div>
-                    <h3 className="text-lg sm:text-xl font-black text-slate-800 mb-2">No Divisions Found</h3>
+                    <h3 className="text-base sm:text-lg font-bold text-slate-800 mb-2">No Divisions Found</h3>
                     <p className="text-slate-400 font-medium max-w-xs text-sm">
                         No institutional departments match your current search criteria.
                     </p>
@@ -217,8 +217,8 @@ const DepartmentsPage = () => {
                         >
                             {/* Card header */}
                             <div className="flex justify-between items-start mb-6">
-                                <div className="w-14 h-14 bg-slate-50 text-indigo-500 rounded-3xl flex items-center justify-center shadow-inner group-hover:bg-indigo-500 group-hover:text-white transition-all duration-500 group-hover:rotate-6 flex-shrink-0">
-                                    <h2 className="text-xl font-black">{dept.name.substring(0, 2).toUpperCase()}</h2>
+                                <div className="w-14 h-14 bg-slate-50 text-indigo-500 rounded-2xl flex items-center justify-center group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-all duration-300 flex-shrink-0">
+                                    <h2 className="text-lg font-bold">{dept.name.substring(0, 2).toUpperCase()}</h2>
                                 </div>
                                 {/* Action buttons — always visible on mobile, hover-revealed on desktop */}
                                 <div className="flex gap-2 lg:translate-y-2 lg:opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
@@ -242,7 +242,7 @@ const DepartmentsPage = () => {
                             {/* Card body */}
                             <div className="mb-6 flex-1">
                                 <h3
-                                    className="text-lg sm:text-xl font-black text-slate-900 mb-5 truncate"
+                                    className="text-base sm:text-lg font-bold text-slate-900 mb-5 truncate"
                                     title={dept.name}
                                 >
                                     {dept.name}
@@ -250,29 +250,29 @@ const DepartmentsPage = () => {
 
                                 <div className="space-y-3">
                                     {/* Faculty count */}
-                                    <div className="flex items-center justify-between p-3.5 bg-slate-50 rounded-2xl border border-slate-100/50">
+                                    <div className="flex items-center justify-between p-3.5 bg-slate-50 rounded-xl border border-slate-100/50">
                                         <div className="flex items-center gap-2.5">
                                             <Users size={15} className="text-slate-400 flex-shrink-0" />
-                                            <span className="text-[10px] sm:text-[11px] font-black text-slate-500 uppercase tracking-widest">
+                                            <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-widest">
                                                 Instructional Cohort
                                             </span>
                                         </div>
-                                        <span className="text-sm font-black text-slate-900">{dept.faculty_count || 0}</span>
+                                        <span className="text-sm font-bold text-slate-900">{dept.faculty_count || 0}</span>
                                     </div>
 
                                     {/* HOD / Leadership */}
-                                    <div className={`flex items-center justify-between p-3.5 rounded-2xl border ${
+                                    <div className={`flex items-center justify-between p-3.5 rounded-xl border ${
                                         dept.hod_name || dept.hod?.name
                                             ? 'bg-emerald-50/50 border-emerald-100 text-emerald-800'
                                             : 'bg-rose-50/50 border-rose-100 text-rose-800'
                                     }`}>
                                         <div className="flex items-center gap-2.5 min-w-0">
                                             <UserCheck size={15} className="opacity-60 flex-shrink-0" />
-                                            <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest opacity-60">
+                                            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest opacity-60">
                                                 Executive Lead
                                             </span>
                                         </div>
-                                        <span className="text-xs font-black truncate max-w-[120px] sm:max-w-[150px] ml-2">
+                                        <span className="text-xs font-bold truncate max-w-[120px] sm:max-w-[150px] ml-2">
                                             {dept.hod_name || dept.hod?.name || 'UNDESIGNATED'}
                                         </span>
                                     </div>
@@ -282,10 +282,10 @@ const DepartmentsPage = () => {
                             {/* Card footer */}
                             <div className="pt-5 border-t border-slate-50">
                                 <button
-                                    className="w-full bg-slate-900 text-white py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 transition-all hover:bg-indigo-600 shadow-lg"
+                                    className="w-full bg-slate-900 text-white py-2.5 rounded-xl font-bold text-[10px] uppercase tracking-wider flex items-center justify-center gap-2 transition-all hover:bg-indigo-600 shadow-sm"
                                     onClick={(e) => { e.stopPropagation(); handleAssignHOD(dept); }}
                                 >
-                                    <UserPlus size={15} strokeWidth={3} />
+                                    <UserPlus size={14} strokeWidth={2.5} />
                                     <span>{dept.user_id ? 'Reassign Authority' : 'Delegate Authority'}</span>
                                 </button>
                             </div>
@@ -297,12 +297,12 @@ const DepartmentsPage = () => {
                 <div className="bg-white rounded-[28px] sm:rounded-[40px] border border-slate-100 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.03)] overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="w-full border-collapse min-w-[800px]">
-                            <thead className="bg-slate-50/40 border-b border-slate-100/50">
+                            <thead className="bg-white border-b border-slate-100">
                                 <tr>
                                     {['Academic Division', 'Executive Leadership', 'Faculty Cohort', 'Actions'].map((h, i) => (
                                         <th
                                             key={i}
-                                            className={`px-5 lg:px-8 py-5 lg:py-6 text-[0.65rem] font-black uppercase tracking-[0.2em] text-slate-400 ${i === 3 ? 'text-right' : 'text-left'}`}
+                                            className={`px-5 lg:px-8 py-4 text-[0.65rem] font-bold uppercase tracking-wider text-slate-400 ${i === 3 ? 'text-right' : 'text-left'}`}
                                         >
                                             {h}
                                         </th>
@@ -315,16 +315,16 @@ const DepartmentsPage = () => {
                                         {/* Division name */}
                                         <td className="px-5 lg:px-8 py-4 lg:py-6">
                                             <div className="flex items-center gap-4">
-                                                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center group-hover:scale-110 transition-transform group-hover:bg-indigo-500 group-hover:text-white flex-shrink-0">
-                                                    <span className="text-xs sm:text-sm font-black group-hover:rotate-12 transition-transform">
+                                                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center flex-shrink-0">
+                                                    <span className="text-xs sm:text-sm font-bold">
                                                         {dept.name.substring(0, 2).toUpperCase()}
                                                     </span>
                                                 </div>
                                                 <div className="min-w-0">
-                                                    <p className="text-sm sm:text-base font-black text-slate-900 truncate max-w-[180px] lg:max-w-[280px]">
+                                                    <p className="text-sm font-bold text-slate-900 truncate max-w-[180px] lg:max-w-[280px]">
                                                         {dept.name}
                                                     </p>
-                                                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider italic">
+                                                    <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wider italic">
                                                         Institutional Core
                                                     </p>
                                                 </div>
@@ -333,12 +333,12 @@ const DepartmentsPage = () => {
 
                                         {/* HOD / Leadership */}
                                         <td className="px-5 lg:px-8 py-4 lg:py-6">
-                                            <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-[0.68rem] font-black uppercase tracking-tight ${
+                                            <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-tight ${
                                                 dept.hod_name || dept.hod?.name
                                                     ? 'bg-emerald-50 text-emerald-600 border border-emerald-100'
                                                     : 'bg-rose-50 text-rose-600 border border-rose-100'
                                             }`}>
-                                                <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${dept.hod_name || dept.hod?.name ? 'bg-emerald-500' : 'bg-rose-500 animate-pulse'}`} />
+                                                <div className={`w-1 h-1 rounded-full flex-shrink-0 ${dept.hod_name || dept.hod?.name ? 'bg-emerald-500' : 'bg-rose-500 animate-pulse'}`} />
                                                 <span className="truncate max-w-[120px] lg:max-w-none">
                                                     {dept.hod_name || dept.hod?.name || 'Awaiting Delegation'}
                                                 </span>
@@ -350,12 +350,12 @@ const DepartmentsPage = () => {
                                             <div className="flex items-center gap-3">
                                                 <div className="hidden sm:flex -space-x-3">
                                                     {[1, 2, 3].map(i => (
-                                                        <div key={i} className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 border-white bg-slate-100 text-[9px] flex items-center justify-center font-black text-slate-400">
+                                                        <div key={i} className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 border-white bg-slate-100 text-[9px] flex items-center justify-center font-bold text-slate-400">
                                                             ?
                                                         </div>
                                                     ))}
                                                 </div>
-                                                <span className="text-sm font-black text-slate-900 bg-slate-100 px-3 py-1 rounded-full">
+                                                <span className="text-sm font-bold text-slate-900 bg-slate-100 px-3 py-1 rounded-full">
                                                     {dept.faculty_count || 0}
                                                 </span>
                                             </div>

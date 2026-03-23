@@ -163,8 +163,8 @@ const UsersPage = () => {
             {/* Header */}
             <div className="flex justify-between items-center mb-10 max-md:mb-8 max-sm:mb-6 max-md:flex-col max-md:items-stretch max-md:gap-6">
                 <div className="min-w-0">
-                    <h1 className="text-[2rem] text-slate-800 font-extrabold m-0 tracking-[-0.5px] max-md:text-[1.75rem] max-sm:text-[1.5rem] truncate">User Directory</h1>
-                    <p className="text-slate-500 text-base mt-1.5 max-sm:text-sm">Manage institutional profiles and credentials</p>
+                    <h1 className="text-2xl text-slate-800 font-bold m-0 tracking-tight max-md:text-xl max-sm:text-lg truncate">User Directory</h1>
+                    <p className="text-slate-500 text-sm mt-1.5 max-sm:text-xs">Manage institutional profiles and credentials</p>
                 </div>
                 <div className="flex gap-3 max-md:grid max-md:grid-cols-2 max-sm:gap-2">
                     <label className="flex items-center gap-2 bg-white border border-slate-200 text-slate-600 px-[22px] py-2.5 rounded-xl font-bold cursor-pointer transition-all hover:bg-slate-50 hover:border-slate-300 active:scale-95 max-md:px-4 max-md:justify-center">
@@ -212,8 +212,8 @@ const UsersPage = () => {
                             <stat.icon size={18} />
                         </div>
                         <div className="min-w-0">
-                            <p className="text-[0.8rem] font-semibold text-slate-400 m-0 uppercase tracking-[0.5px] truncate">{stat.label}</p>
-                            <h4 className="text-[1.4rem] font-bold text-slate-800 m-0 truncate">{stat.value}</h4>
+                            <p className="text-[0.65rem] font-semibold text-slate-400 m-0 uppercase tracking-wider truncate">{stat.label}</p>
+                            <h4 className="text-xl font-bold text-slate-800 m-0 truncate">{stat.value}</h4>
                         </div>
                     </div>
                 ))}
@@ -309,14 +309,14 @@ const UsersPage = () => {
                                     <table className="w-full border-collapse">
                                         <thead>
                                             <tr>
-                                                <th className="bg-slate-50 px-4 py-3 text-left text-[0.7rem] font-bold text-slate-500 uppercase border-b border-slate-100 min-w-[200px]">User Name</th>
-                                                <th className="bg-slate-50 px-4 py-3 text-left text-[0.7rem] font-bold text-slate-500 uppercase border-b border-slate-100 min-w-[120px]">Category</th>
-                                                <th className="bg-slate-50 px-4 py-3 text-left text-[0.7rem] font-bold text-slate-500 uppercase border-b border-slate-100 min-w-[150px]">Department</th>
-                                                <th className="bg-slate-50 px-4 py-3 text-left text-[0.7rem] font-bold text-slate-500 uppercase border-b border-slate-100 min-w-[120px]">Year / Role</th>
-                                                <th className="bg-slate-50 px-4 py-3 text-left text-[0.7rem] font-bold text-slate-500 uppercase border-b border-slate-100 min-w-[100px]">Credit Score</th>
-                                                <th className="bg-slate-50 px-4 py-3 text-left text-[0.7rem] font-bold text-slate-500 uppercase border-b border-slate-100 min-w-[100px]">Penalty</th>
-                                                <th className="bg-slate-50 px-4 py-3 text-left text-[0.7rem] font-bold text-slate-500 uppercase border-b border-slate-100 min-w-[100px]">Status</th>
-                                                <th className="bg-slate-50 px-4 py-3 text-right text-[0.7rem] font-bold text-slate-500 uppercase border-b border-slate-100 min-w-[120px]">Actions</th>
+                                                <th className="bg-white px-4 py-3 text-left text-[0.65rem] font-bold text-slate-500 uppercase border-b border-slate-100 min-w-[200px]">User Name</th>
+                                                <th className="bg-white px-4 py-3 text-left text-[0.65rem] font-bold text-slate-500 uppercase border-b border-slate-100 min-w-[120px]">Category</th>
+                                                <th className="bg-white px-4 py-3 text-left text-[0.65rem] font-bold text-slate-500 uppercase border-b border-slate-100 min-w-[150px]">Department</th>
+                                                <th className="bg-white px-4 py-3 text-left text-[0.65rem] font-bold text-slate-500 uppercase border-b border-slate-100 min-w-[120px]">Year / Role</th>
+                                                <th className="bg-white px-4 py-3 text-left text-[0.65rem] font-bold text-slate-500 uppercase border-b border-slate-100 min-w-[100px]">Credit Score</th>
+                                                <th className="bg-white px-4 py-3 text-left text-[0.65rem] font-bold text-slate-500 uppercase border-b border-slate-100 min-w-[100px]">Penalty</th>
+                                                <th className="bg-white px-4 py-3 text-left text-[0.65rem] font-bold text-slate-500 uppercase border-b border-slate-100 min-w-[100px]">Status</th>
+                                                <th className="bg-white px-4 py-3 text-right text-[0.65rem] font-bold text-slate-500 uppercase border-b border-slate-100 min-w-[120px]">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -432,8 +432,8 @@ const CardView = ({ user, handleView, handleEdit, handleDeleteClick, getCatBadge
             <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-indigo-500 text-white rounded-xl grid place-items-center font-bold text-sm">{(user.name || 'U').charAt(0)}</div>
                 <div>
-                    <h4 className="font-bold text-slate-800 text-[1rem] leading-tight">{user.name || 'Unknown'}</h4>
-                    <span className="text-[0.75rem] text-slate-500">{user.email || 'N/A'}</span>
+                    <h4 className="font-semibold text-slate-800 text-sm leading-tight">{user.name || 'Unknown'}</h4>
+                    <span className="text-xs text-slate-500">{user.email || 'N/A'}</span>
                 </div>
             </div>
             <span className={`px-2 py-0.5 rounded-lg text-[0.65rem] font-bold capitalize ${getCatBadgeClass(user.role)}`}>
@@ -458,11 +458,11 @@ const CardView = ({ user, handleView, handleEdit, handleDeleteClick, getCatBadge
             <div className="flex gap-4">
                 <div className="flex flex-col">
                     <span className="text-[0.6rem] font-bold text-slate-400 uppercase tracking-wider">Score</span>
-                    <span className={`text-[1rem] font-extrabold ${(user.score || 0) > 0 ? 'text-emerald-500' : 'text-slate-700'}`}>{user.score || 0}</span>
+                    <span className={`text-base font-bold ${(user.score || 0) > 0 ? 'text-emerald-500' : 'text-slate-700'}`}>{user.score || 0}</span>
                 </div>
                 <div className="flex flex-col">
                     <span className="text-[0.6rem] font-bold text-slate-400 uppercase tracking-wider">Penalty</span>
-                    <span className={`text-[1rem] font-extrabold ${(user.penalty || 0) > 0 ? 'text-red-500' : 'text-slate-700'}`}>{user.penalty || 0}</span>
+                    <span className={`text-base font-bold ${(user.penalty || 0) > 0 ? 'text-red-500' : 'text-slate-700'}`}>{user.penalty || 0}</span>
                 </div>
             </div>
             <div className="flex gap-2">

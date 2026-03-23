@@ -100,10 +100,10 @@ const TaskTitlesPage = () => {
     }, []);
 
     return (
-        <motion.div className="p-10 max-lg:p-8 max-md:p-6 max-sm:p-4 h-full overflow-y-auto bg-[#fcfcfd] min-h-screen font-sans" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+        <motion.div className="p-10 max-lg:p-8 max-md:p-6 max-sm:p-4 h-full overflow-y-auto bg-white min-h-screen font-sans" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <div className="mb-10 max-md:mb-8">
-                <h1 className="text-3xl max-md:text-2xl font-black text-slate-900 tracking-tight">Task Dictionary & Registry</h1>
-                <p className="text-xs text-slate-400 mt-1 uppercase tracking-[0.2em] font-black opacity-70">Cataloging & Protocol Naming Conventions</p>
+                <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Task Dictionary & Registry</h1>
+                <p className="text-xs text-slate-400 mt-1.5 uppercase tracking-widest font-bold opacity-70">Cataloging & Protocol Naming Conventions</p>
             </div>
 
             {/* Stats */}
@@ -115,8 +115,8 @@ const TaskTitlesPage = () => {
                             <stat.icon size={32} strokeWidth={2.5} className="max-sm:w-6 max-sm:h-6" />
                         </div>
                         <div className="flex-1">
-                            <span className="block text-[0.65rem] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">{stat.label}</span>
-                            <h3 className="text-3xl max-sm:text-2xl font-black text-slate-900 tracking-tighter leading-none">{stat.value}</h3>
+                            <span className="block text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest mb-1">{stat.label}</span>
+                            <h3 className="text-2xl max-sm:text-xl font-bold text-slate-900 tracking-tight leading-none">{stat.value}</h3>
                         </div>
                     </motion.div>
                 ))}
@@ -141,12 +141,12 @@ const TaskTitlesPage = () => {
                         <button
                             onClick={() => bulkInputRef.current?.click()}
                             disabled={isBulkUploading}
-                            className="flex-1 sm:flex-none flex items-center justify-center gap-3 border-2 border-indigo-100 text-indigo-600 bg-white px-8 py-4 rounded-[22px] text-xs font-black uppercase tracking-widest hover:bg-indigo-50 hover:border-indigo-300 transition-all disabled:opacity-50 active:scale-95 shadow-sm"
+                            className="flex-1 sm:flex-none flex items-center justify-center gap-3 border-2 border-indigo-100 text-indigo-600 bg-white px-8 py-4 rounded-[22px] text-xs font-bold uppercase tracking-widest hover:bg-indigo-50 hover:border-indigo-300 transition-all disabled:opacity-50 active:scale-95 shadow-sm"
                         >
                             <Upload size={18} strokeWidth={2.5} />
                             <span>{isBulkUploading ? 'Ingesting…' : 'Batch Ingest'}</span>
                         </button>
-                        <button onClick={handleCreate} className="flex-1 sm:flex-none bg-slate-900 hover:bg-indigo-600 text-white px-8 py-4 rounded-[22px] text-xs font-black uppercase tracking-[0.2em] shadow-xl transition-all active:scale-95 border-none cursor-pointer flex items-center justify-center gap-3">
+                        <button onClick={handleCreate} className="flex-1 sm:flex-none bg-slate-900 hover:bg-indigo-600 text-white px-8 py-4 rounded-[22px] text-xs font-bold uppercase tracking-widest shadow-xl transition-all active:scale-95 border-none cursor-pointer flex items-center justify-center gap-3">
                             <Plus size={20} strokeWidth={3} />
                             <span>Append Title</span>
                         </button>
@@ -195,7 +195,7 @@ const TaskTitlesPage = () => {
                                 </div>
                             </div>
                             <div>
-                                <h3 className="text-[1.25rem] font-extrabold text-slate-800 m-0 mb-3 leading-tight">{title.task_title}</h3>
+                                <h3 className="text-[1.25rem] font-bold text-slate-800 m-0 mb-3 leading-tight">{title.task_title}</h3>
                                 <div className="flex flex-col gap-2.5">
                                     <div className="flex items-center gap-2.5 text-slate-500 text-[0.9rem]">
                                         <Users size={14} className="text-slate-400" />

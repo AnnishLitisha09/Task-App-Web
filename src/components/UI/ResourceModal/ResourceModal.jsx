@@ -4,7 +4,7 @@ import { X, Check, Search, AlertCircle, Info, Box, AlignLeft, UserPlus, Monitor,
 import api from '../../../utils/api';
 
 const inputCls = "w-full py-3 pl-10 pr-3 rounded-2xl border border-slate-200 bg-white text-[0.9rem] text-slate-800 outline-none transition-all focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50";
-const labelCls = "block text-[10px] font-black text-slate-400 uppercase tracking-[2px] mb-2";
+const labelCls = "block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2";
 
 const ResourceModal = ({ isOpen, onClose, resourceData, mode, onSuccess }) => {
     const [name, setName] = useState('');
@@ -73,10 +73,10 @@ const ResourceModal = ({ isOpen, onClose, resourceData, mode, onSuccess }) => {
                                 <Box size={24} />
                             </div>
                             <div>
-                                <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight">
+                                <h2 className="text-xl font-bold text-slate-900 uppercase tracking-tight">
                                     {mode === 'create' ? 'Define Master Asset' : 'Refine Asset Specs'}
                                 </h2>
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Inventory Master Record</p>
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Inventory Master Record</p>
                             </div>
                         </div>
                         <button className="w-10 h-10 flex items-center justify-center text-slate-400 hover:bg-slate-50 rounded-xl transition-colors" onClick={onClose}>
@@ -155,11 +155,11 @@ const ResourceModal = ({ isOpen, onClose, resourceData, mode, onSuccess }) => {
                     </div>
 
                     <div className="flex justify-end gap-3 px-8 py-6 border-t border-slate-50 bg-slate-50/30">
-                        <button className="px-6 py-3 rounded-2xl text-slate-500 font-black text-xs uppercase tracking-widest hover:bg-slate-100 transition-colors" onClick={onClose}>
+                        <button className="px-6 py-3 rounded-2xl text-slate-500 font-bold text-xs uppercase tracking-widest hover:bg-slate-100 transition-colors" onClick={onClose}>
                             Cancel
                         </button>
                         <button 
-                            className="px-8 py-3 rounded-2xl bg-indigo-600 text-white font-black text-xs uppercase tracking-[2px] flex items-center gap-3 hover:bg-indigo-700 shadow-xl shadow-indigo-100 transition-all active:scale-95 disabled:opacity-60"
+                            className="px-8 py-3 rounded-2xl bg-indigo-600 text-white font-bold text-xs uppercase tracking-widest flex items-center gap-3 hover:bg-indigo-700 shadow-xl shadow-indigo-100 transition-all active:scale-95 disabled:opacity-60"
                             onClick={handleSubmit} 
                             disabled={isLoading}
                         >

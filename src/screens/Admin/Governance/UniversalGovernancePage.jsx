@@ -61,12 +61,12 @@ const UserCard = ({ user, onClick }) => {
                 </div>
                 <div className="flex flex-col items-end">
                     <span 
-                        className="text-[0.65rem] font-black px-2 py-0.5 rounded-full uppercase tracking-wider"
+                        className="text-[0.65rem] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider"
                         style={{ background: role.bg, color: role.color }}
                     >
                         {role.label}
                     </span>
-                    <span className="text-sm font-extrabold text-slate-900 mt-1">{user.score || 0} pts</span>
+                    <span className="text-sm font-bold text-slate-900 mt-1">{user.score || 0} pts</span>
                 </div>
             </div>
             
@@ -125,12 +125,12 @@ const TaskDetailDrawer = ({ task, onClose }) => {
                 <div className="p-6 border-b border-slate-100 flex items-start justify-between sticky top-0 bg-white z-10">
                     <div>
                         <div className="flex items-center gap-2 mb-2">
-                            <span className="text-[0.65rem] font-black px-2 py-0.5 rounded-full uppercase tracking-wider"
+                            <span className="text-[0.65rem] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider"
                                 style={{ background: sColor.bg, color: sColor.text }}>
                                 {sColor.label}
                             </span>
                         </div>
-                        <h3 className="text-lg font-extrabold text-slate-900 leading-tight">{task.title || task.task_title}</h3>
+                        <h3 className="text-lg font-bold text-slate-900 leading-tight">{task.title || task.task_title}</h3>
                     </div>
                     <button onClick={onClose} className="p-2 rounded-xl bg-slate-100 text-slate-500 hover:bg-slate-200 transition-colors border-none">
                         <X size={18} />
@@ -146,7 +146,7 @@ const TaskDetailDrawer = ({ task, onClose }) => {
                             { icon: Layers, label: 'Task Type', value: detail?.task_types?.[0]?.task_name || detail?.task_type || task.task_type || '—' },
                         ].map(({ icon: Icon, label, value }) => (
                             <div key={label} className="bg-slate-50 rounded-xl p-3 border border-slate-100 shadow-sm">
-                                <div className="flex items-center gap-1.5 text-slate-400 text-[0.65rem] font-black uppercase mb-1">
+                                <div className="flex items-center gap-1.5 text-slate-400 text-[0.65rem] font-bold uppercase mb-1">
                                     <Icon size={12} /> {label}
                                 </div>
                                 <p className="text-slate-800 text-sm font-bold m-0">{value}</p>
@@ -162,14 +162,14 @@ const TaskDetailDrawer = ({ task, onClose }) => {
                         <>
                             {detail?.description && (
                                 <div>
-                                    <h4 className="text-[0.65rem] font-black text-slate-400 uppercase tracking-widest mb-2">Detailed Directive</h4>
+                                    <h4 className="text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest mb-2">Detailed Directive</h4>
                                     <p className="text-sm text-slate-600 leading-relaxed bg-slate-100 p-4 rounded-2xl border border-slate-200">{detail.description}</p>
                                 </div>
                             )}
 
                             {(detail?.assignees?.length > 0 || detail?.assignments?.length > 0) && (
                                 <div>
-                                    <h4 className="text-[0.65rem] font-black text-slate-400 uppercase tracking-widest mb-3">
+                                    <h4 className="text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest mb-3">
                                         Target Personnel ({(detail?.assignees || detail?.assignments).length})
                                     </h4>
                                     <div className="flex flex-col gap-2">
@@ -215,12 +215,12 @@ const EditTaskModal = ({ task, onSave, onClose }) => {
                 initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }}
             >
                 <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between">
-                    <h3 className="text-lg font-black text-slate-900 m-0">Modify Directive</h3>
+                    <h3 className="text-lg font-bold text-slate-900 m-0">Modify Directive</h3>
                     <button onClick={onClose} className="p-2 bg-slate-50 text-slate-400 rounded-xl hover:text-indigo-600 border-none transition-colors"><X size={20}/></button>
                 </div>
                 <div className="p-8 space-y-5">
                     <div className="space-y-2">
-                        <label className="text-[0.65rem] font-black text-slate-400 uppercase tracking-widest pl-1">Directive Title</label>
+                        <label className="text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest pl-1">Directive Title</label>
                         <input 
                             value={formData.title} 
                             onChange={e => setFormData({...formData, title: e.target.value})}
@@ -229,7 +229,7 @@ const EditTaskModal = ({ task, onSave, onClose }) => {
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <label className="text-[0.65rem] font-black text-slate-400 uppercase tracking-widest pl-1">Location</label>
+                            <label className="text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest pl-1">Location</label>
                             <input 
                                 value={formData.location} 
                                 onChange={e => setFormData({...formData, location: e.target.value})}
@@ -237,7 +237,7 @@ const EditTaskModal = ({ task, onSave, onClose }) => {
                             />
                         </div>
                         <div className="space-y-2">
-                            <label className="text-[0.65rem] font-black text-slate-400 uppercase tracking-widest pl-1">Priority</label>
+                            <label className="text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest pl-1">Priority</label>
                             <select 
                                 value={formData.priority}
                                 onChange={e => setFormData({...formData, priority: e.target.value})}
@@ -304,7 +304,7 @@ const UserTaskControl = ({ user, onBack, onAssign, onView, onUpdateStatus }) => 
                         <X size={20} />
                     </button>
                     <div>
-                        <h2 className="text-xl font-extrabold text-slate-900 m-0">{user.name}</h2>
+                        <h2 className="text-xl font-bold text-slate-900 m-0">{user.name}</h2>
                         <p className="text-sm text-slate-500 m-0">
                             {user.role?.toUpperCase()} • {user.reg_no || user.email}
                         </p>
@@ -331,14 +331,14 @@ const UserTaskControl = ({ user, onBack, onAssign, onView, onUpdateStatus }) => 
                         </div>
                         <div>
                             <span className="block text-[0.7rem] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">{s.label}</span>
-                            <span className="text-lg font-extrabold text-slate-900 leading-none">{s.value}</span>
+                            <span className="text-lg font-bold text-slate-900 leading-none">{s.value}</span>
                         </div>
                     </div>
                 ))}
             </div>
 
             <div className="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden min-h-[400px]">
-                <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                <div className="px-6 py-4 border-b border-slate-100 bg-white flex justify-between items-center">
                     <h3 className="text-sm font-bold text-slate-800 m-0 flex items-center gap-2">
                         <Clipboard size={16} className="text-indigo-500" /> Managed Directives
                     </h3>
@@ -529,7 +529,7 @@ const UniversalGovernancePage = () => {
     };
 
     return (
-        <div className="p-10 max-lg:p-8 max-md:p-6 max-sm:p-4 bg-[#fcfcfd] min-h-screen font-sans">
+        <div className="p-10 max-lg:p-8 max-md:p-6 max-sm:p-4 bg-white min-h-screen font-sans">
             <AnimatePresence mode="wait">
                 {view === 'list' ? (
                     <motion.div 
@@ -542,13 +542,13 @@ const UniversalGovernancePage = () => {
                         {/* Header Section */}
                         <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-8">
                             <div className="space-y-1">
-                                <div className="flex items-center gap-2 text-indigo-500 text-[10px] uppercase tracking-[0.3em] mb-2 font-black opacity-80">
+                                <div className="flex items-center gap-2 text-indigo-500 text-[10px] uppercase tracking-[0.3em] mb-2 font-bold opacity-80">
                                     <Users size={12} strokeWidth={3} /> Global Governance
                                 </div>
-                                <h1 className="text-4xl max-md:text-3xl font-black text-slate-900 tracking-tighter leading-none">
+                                <h1 className="text-3xl max-md:text-2xl font-bold text-slate-900 tracking-tight leading-none">
                                     System Control <span className="text-indigo-600">Matrix</span>
                                 </h1>
-                                <p className="text-xs text-slate-400 uppercase tracking-widest font-black opacity-60 mt-2">Institutional directives & multi-role compliance oversight</p>
+                                <p className="text-xs text-slate-400 uppercase tracking-widest font-bold opacity-60 mt-2">Institutional directives & multi-role compliance oversight</p>
                             </div>
 
                             <div className="flex items-center gap-3 self-end xl:self-auto">
@@ -562,8 +562,8 @@ const UniversalGovernancePage = () => {
                                 <div className="bg-emerald-50 text-emerald-700 px-6 py-3 rounded-2xl border border-emerald-100 flex items-center gap-4 shadow-sm">
                                     <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
                                     <div className="flex flex-col">
-                                        <span className="text-[0.6rem] font-black uppercase text-emerald-600 leading-none mb-1 tracking-widest">Live Registry</span>
-                                        <span className="text-sm font-black tracking-tight leading-none">{users.length} Active Accounts</span>
+                                        <span className="text-[0.6rem] font-bold uppercase text-emerald-600 leading-none mb-1 tracking-widest">Live Registry</span>
+                                        <span className="text-sm font-bold tracking-tight leading-none">{users.length} Active Accounts</span>
                                     </div>
                                 </div>
                             </div>
@@ -589,7 +589,7 @@ const UniversalGovernancePage = () => {
                                         <select 
                                             value={roleFilter}
                                             onChange={(e) => { setRoleFilter(e.target.value); setCurrentPage(1); }}
-                                            className="h-14 pl-11 pr-10 bg-slate-50/50 border border-slate-200 rounded-2xl outline-none focus:bg-white focus:border-indigo-500 transition-all text-sm font-bold text-slate-600 appearance-none cursor-pointer min-w-[150px]"
+                                            className="h-14 pl-11 pr-10 bg-white border border-slate-200 rounded-2xl outline-none focus:bg-white focus:border-indigo-500 transition-all text-sm font-bold text-slate-600 appearance-none cursor-pointer min-w-[150px]"
                                         >
                                             <option value="all">All Roles</option>
                                             {availableRoles.map(r => (
@@ -604,7 +604,7 @@ const UniversalGovernancePage = () => {
                                         <select 
                                             value={departmentFilter}
                                             onChange={(e) => { setDepartmentFilter(e.target.value); setCurrentPage(1); }}
-                                            className="h-14 pl-11 pr-10 bg-slate-50/50 border border-slate-200 rounded-2xl outline-none focus:bg-white focus:border-indigo-500 transition-all text-sm font-bold text-slate-600 appearance-none cursor-pointer min-w-[150px]"
+                                            className="h-14 pl-11 pr-10 bg-white border border-slate-200 rounded-2xl outline-none focus:bg-white focus:border-indigo-500 transition-all text-sm font-bold text-slate-600 appearance-none cursor-pointer min-w-[150px]"
                                         >
                                             <option value="all">All Departments</option>
                                             {departments.map(d => <option key={d} value={d}>{d}</option>)}

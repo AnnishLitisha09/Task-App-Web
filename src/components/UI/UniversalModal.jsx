@@ -76,8 +76,8 @@ const UniversalModal = ({
                                     <Icon size={28} />
                                 </div>
                                 <div className="flex flex-col">
-                                    <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${theme.color} opacity-80 mb-1`}>{type} Action</span>
-                                    <h3 className="text-xl font-black text-slate-900 tracking-tight leading-none">{title}</h3>
+                                    <span className={`text-[10px] font-bold uppercase tracking-widest ${theme.color} opacity-80 mb-1`}>{type} Action</span>
+                                    <h3 className="text-xl font-bold text-slate-900 tracking-tight leading-none">{title}</h3>
                                 </div>
                             </div>
                             <button 
@@ -104,14 +104,14 @@ const UniversalModal = ({
                         <div className="p-8 pt-4 flex gap-4">
                             <button
                                 onClick={onClose}
-                                className="flex-1 px-6 py-4 rounded-2xl border border-slate-100 text-slate-500 font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 transition-all active:scale-95"
+                                className="flex-1 px-6 py-4 rounded-2xl border border-slate-100 text-slate-500 font-bold text-[10px] uppercase tracking-widest hover:bg-slate-50 transition-all active:scale-95"
                             >
                                 {cancelText}
                             </button>
                             <button
                                 onClick={onConfirm}
                                 disabled={isLoading}
-                                className={`flex-1 px-6 py-4 rounded-2xl ${theme.btn} text-white font-black text-[10px] uppercase tracking-widest shadow-xl transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2`}
+                                className={`flex-1 px-6 py-4 rounded-2xl ${theme.btn} text-white font-bold text-[10px] uppercase tracking-widest shadow-xl transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2`}
                             >
                                 {isLoading ? (
                                     <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />

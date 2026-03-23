@@ -154,13 +154,13 @@ const TasksPage = () => {
 
     return (
         <motion.div
-            className="p-10 max-lg:p-8 max-md:p-6 max-sm:p-4 w-full bg-[#fcfcfd] min-h-screen font-sans"
+            className="p-10 max-lg:p-8 max-md:p-6 max-sm:p-4 w-full bg-white min-h-screen font-sans"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
         >
             <div className="mb-10 max-md:mb-8">
-                <h1 className="text-3xl max-md:text-2xl font-black text-slate-900 tracking-tight">Directives & Governance</h1>
-                <p className="text-xs text-slate-400 mt-1 uppercase tracking-[0.2em] font-black opacity-70">Operational Command & Task Verification System</p>
+                <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Directives & Governance</h1>
+                <p className="text-xs text-slate-400 mt-1.5 uppercase tracking-widest font-bold opacity-70">Operational Command & Task Verification System</p>
             </div>
 
             {/* Stats Grid */}
@@ -172,8 +172,8 @@ const TasksPage = () => {
                             <stat.icon size={28} strokeWidth={2.5} className="max-sm:w-6 max-sm:h-6" />
                         </div>
                         <div className="flex-1">
-                            <span className="block text-[0.65rem] font-black text-slate-400 uppercase tracking-[0.15em] mb-1">{stat.label}</span>
-                            <h3 className="text-2xl max-sm:text-xl font-black text-slate-900 tracking-tighter leading-none">{stat.value}</h3>
+                            <span className="block text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest mb-1">{stat.label}</span>
+                            <h3 className="text-xl font-bold text-slate-900 tracking-tight leading-none">{stat.value}</h3>
                         </div>
                     </motion.div>
                 ))}
@@ -190,14 +190,14 @@ const TasksPage = () => {
                 <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center">
                     <div className="flex gap-3 items-stretch">
                         <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} 
-                            className="bg-white border-2 border-slate-100 rounded-[18px] px-5 py-3 text-xs font-black uppercase tracking-wider text-slate-600 focus:border-indigo-400 focus:outline-none transition-all cursor-pointer min-w-[140px] shadow-sm appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M5%207.5L10%2012.5L15%207.5%22%20stroke%3D%22%2394a3b8%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E')] bg-size-[20px_20px] bg-position-[right_12px_center] bg-no-repeat">
+                            className="bg-white border-2 border-slate-100 rounded-[18px] px-5 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 focus:border-indigo-400 focus:outline-none transition-all cursor-pointer min-w-[140px] shadow-sm appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M5%207.5L10%2012.5L15%207.5%22%20stroke%3D%22%2394a3b8%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E')] bg-size-[20px_20px] bg-position-[right_12px_center] bg-no-repeat">
                             <option value="all">Statuses</option>
                             <option value="Active">Active</option>
                             <option value="Review">In Review</option>
                             <option value="Completed">Success</option>
                         </select>
                         <select value={priorityFilter} onChange={(e) => setPriorityFilter(e.target.value)} 
-                            className="bg-white border-2 border-slate-100 rounded-[18px] px-5 py-3 text-xs font-black uppercase tracking-wider text-slate-600 focus:border-indigo-400 focus:outline-none transition-all cursor-pointer min-w-[140px] shadow-sm appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M5%207.5L10%2012.5L15%207.5%22%20stroke%3D%22%2394a3b8%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E')] bg-size-[20px_20px] bg-position-[right_12px_center] bg-no-repeat">
+                            className="bg-white border-2 border-slate-100 rounded-[18px] px-5 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 focus:border-indigo-400 focus:outline-none transition-all cursor-pointer min-w-[140px] shadow-sm appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M5%207.5L10%2012.5L15%207.5%22%20stroke%3D%22%2394a3b8%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E')] bg-size-[20px_20px] bg-position-[right_12px_center] bg-no-repeat">
                             <option value="all">Priorities</option>
                             <option value="Critical">Critical</option>
                             <option value="High">Priority</option>
@@ -211,7 +211,7 @@ const TasksPage = () => {
                             <button className={`p-2.5 rounded-[13px] border-none cursor-pointer flex transition-all ${viewMode === 'grid' ? 'bg-white text-indigo-600 shadow-md' : 'bg-transparent text-slate-400 hover:text-slate-600'}`} onClick={() => setViewMode('grid')}><LayoutGrid size={20} strokeWidth={2.5} /></button>
                             <button className={`p-2.5 rounded-[13px] border-none cursor-pointer flex transition-all ${viewMode === 'table' ? 'bg-white text-indigo-600 shadow-md' : 'bg-transparent text-slate-400 hover:text-slate-600'}`} onClick={() => setViewMode('table')}><List size={20} strokeWidth={2.5} /></button>
                         </div>
-                        <button className="flex-1 sm:flex-none flex items-center justify-center gap-3 bg-slate-900 hover:bg-indigo-600 text-white px-8 py-4 rounded-[22px] text-xs font-black uppercase tracking-[0.2em] shadow-xl transition-all active:scale-95 border-none cursor-pointer" onClick={() => setIsCreating(true)}>
+                        <button className="flex-1 sm:flex-none flex items-center justify-center gap-3 bg-slate-900 hover:bg-indigo-600 text-white px-8 py-4 rounded-[22px] text-xs font-bold uppercase tracking-widest shadow-xl transition-all active:scale-95 border-none cursor-pointer" onClick={() => setIsCreating(true)}>
                             <Plus size={20} strokeWidth={3} />
                             <span>Issue New Directive</span>
                         </button>
@@ -257,7 +257,7 @@ const TasksPage = () => {
                             </div>
                             <div className="border-t border-slate-100 pt-5 flex justify-between items-center">
                                 <span className="text-[0.8rem] font-bold text-slate-800">{getAssigneeCount(task)} Assignees</span>
-                                <span className="bg-sky-50 text-sky-900 px-2.5 py-1 rounded-lg text-[0.8rem] font-extrabold">{task.score} pts</span>
+                                <span className="bg-sky-50 text-sky-900 px-2.5 py-1 rounded-lg text-[0.8rem] font-bold">{task.score} pts</span>
                             </div>
                         </motion.div>
                     ))}

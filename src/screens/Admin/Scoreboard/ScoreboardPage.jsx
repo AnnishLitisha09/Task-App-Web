@@ -108,15 +108,15 @@ const ScoreboardPage = () => {
     const paginatedData = filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
     return (
-        <div className="h-full flex flex-col bg-[#fcfcfd] overflow-hidden font-sans text-slate-600">
+        <div className="h-full flex flex-col bg-white overflow-hidden font-sans text-slate-600">
             {/* --- HEADER SECTION --- */}
             <div className="flex-none px-10 max-lg:px-8 max-md:px-6 max-sm:px-4 pt-10 pb-6 bg-white border-b border-slate-100">
                 <header className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-8 mb-4">
                     <div className="space-y-1">
-                        <div className="flex items-center gap-2 text-indigo-500 text-[10px] uppercase tracking-[0.3em] mb-2 font-black opacity-80">
+                        <div className="flex items-center gap-2 text-indigo-500 text-[10px] uppercase tracking-[0.3em] mb-2 font-bold opacity-80">
                             <Calendar size={12} strokeWidth={3} /> Academic Inception 2026
                         </div>
-                        <h1 className="text-4xl max-md:text-3xl font-black text-slate-900 tracking-tighter leading-none">
+                        <h1 className="text-3xl max-md:text-2xl font-bold text-slate-900 tracking-tight leading-none">
                             Elite <span className="text-indigo-600">Scoreboard</span>
                         </h1>
                     </div>
@@ -125,14 +125,14 @@ const ScoreboardPage = () => {
                     <div className="bg-slate-50 p-1.5 rounded-[22px] border border-slate-100 shadow-inner flex gap-1.5 w-full xl:w-auto overflow-x-auto no-scrollbar">
                         <button
                             onClick={() => { setActiveTab('students'); setDeptFilter('All Departments'); setYearFilter('All Years'); }}
-                            className={`px-10 py-3 rounded-[18px] text-[10px] font-black uppercase tracking-[0.15em] transition-all flex-1 xl:flex-none flex items-center justify-center gap-3 ${activeTab === 'students' ? 'bg-white text-indigo-600 shadow-[0_10px_25px_-5px_rgba(99,102,241,0.2)] border border-indigo-50/50' : 'text-slate-400 hover:text-slate-600 active:scale-95'}`}
+                            className={`px-10 py-3 rounded-[18px] text-[10px] font-bold uppercase tracking-[0.15em] transition-all flex-1 xl:flex-none flex items-center justify-center gap-3 ${activeTab === 'students' ? 'bg-white text-indigo-600 shadow-[0_10px_25px_-5px_rgba(99,102,241,0.2)] border border-indigo-50/50' : 'text-slate-400 hover:text-slate-600 active:scale-95'}`}
                         >
                             <Users size={16} strokeWidth={2.5} />
                             Students
                         </button>
                         <button
                             onClick={() => { setActiveTab('faculty'); setDeptFilter('All Departments'); }}
-                            className={`px-10 py-3 rounded-[18px] text-[10px] font-black uppercase tracking-[0.15em] transition-all flex-1 xl:flex-none flex items-center justify-center gap-3 ${activeTab === 'faculty' ? 'bg-white text-indigo-600 shadow-[0_10px_25px_-5px_rgba(99,102,241,0.2)] border border-indigo-50/50' : 'text-slate-400 hover:text-slate-600 active:scale-95'}`}
+                            className={`px-10 py-3 rounded-[18px] text-[10px] font-bold uppercase tracking-[0.15em] transition-all flex-1 xl:flex-none flex items-center justify-center gap-3 ${activeTab === 'faculty' ? 'bg-white text-indigo-600 shadow-[0_10px_25px_-5px_rgba(99,102,241,0.2)] border border-indigo-50/50' : 'text-slate-400 hover:text-slate-600 active:scale-95'}`}
                         >
                             <Trophy size={16} strokeWidth={2.5} />
                             Faculty Members
@@ -162,7 +162,7 @@ const ScoreboardPage = () => {
 
                             <div className="flex gap-3 max-sm:grid max-sm:grid-cols-2">
                                 <select
-                                    className="px-5 py-3.5 bg-slate-50 border-2 border-slate-50 rounded-[18px] text-[10px] font-black uppercase tracking-wider text-slate-600 focus:border-indigo-400 focus:outline-none transition-all cursor-pointer min-w-[160px] shadow-sm appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M5%207.5L10%2012.5L15%207.5%22%20stroke%3D%22%2394a3b8%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E')] bg-size-[20px_20px] bg-position-[right_12px_center] bg-no-repeat"
+                                    className="px-5 py-3.5 bg-slate-50 border-2 border-slate-50 rounded-[18px] text-[10px] font-bold uppercase tracking-wider text-slate-600 focus:border-indigo-400 focus:outline-none transition-all cursor-pointer min-w-[160px] shadow-sm appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M5%207.5L10%2012.5L15%207.5%22%20stroke%3D%22%2394a3b8%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E')] bg-size-[20px_20px] bg-position-[right_12px_center] bg-no-repeat"
                                     value={deptFilter}
                                     onChange={(e) => setDeptFilter(e.target.value)}
                                 >
@@ -172,7 +172,7 @@ const ScoreboardPage = () => {
 
                                 {activeTab === 'students' && (
                                     <select
-                                        className="px-5 py-3.5 bg-slate-50 border-2 border-slate-50 rounded-[18px] text-[10px] font-black uppercase tracking-wider text-slate-600 focus:border-indigo-400 focus:outline-none transition-all cursor-pointer min-w-[120px] shadow-sm appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M5%207.5L10%2012.5L15%207.5%22%20stroke%3D%22%2394a3b8%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E')] bg-size-[20px_20px] bg-position-[right_12px_center] bg-no-repeat"
+                                        className="px-5 py-3.5 bg-slate-50 border-2 border-slate-50 rounded-[18px] text-[10px] font-bold uppercase tracking-wider text-slate-600 focus:border-indigo-400 focus:outline-none transition-all cursor-pointer min-w-[120px] shadow-sm appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M5%207.5L10%2012.5L15%207.5%22%20stroke%3D%22%2394a3b8%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E')] bg-size-[20px_20px] bg-position-[right_12px_center] bg-no-repeat"
                                         value={yearFilter}
                                         onChange={(e) => setYearFilter(e.target.value)}
                                     >
@@ -189,7 +189,7 @@ const ScoreboardPage = () => {
                         {/* Table Body */}
                         <div className="flex-1 overflow-x-auto relative custom-scrollbar bg-white">
                             <div className="min-w-[900px]">
-                                <div className="sticky top-0 bg-white/95 backdrop-blur-md z-10 grid grid-cols-12 px-8 py-4 text-[10px] uppercase tracking-[0.2em] font-black text-slate-400 border-b border-slate-50 shadow-sm">
+                                <div className="sticky top-0 bg-white/95 backdrop-blur-md z-10 grid grid-cols-12 px-8 py-4 text-[10px] uppercase tracking-widest font-bold text-slate-400 border-b border-slate-50 shadow-sm">
                                     <div className="col-span-1">Rank</div>
                                     <div className="col-span-4">Candidate Profile</div>
                                     <div className="col-span-3">Core Department</div>
@@ -207,32 +207,32 @@ const ScoreboardPage = () => {
                                                 animate={{ opacity: 1, x: 0 }}
                                                 exit={{ opacity: 0, x: 10 }}
                                                 transition={{ duration: 0.3 }}
-                                                className="grid grid-cols-12 items-center px-8 py-4 hover:bg-slate-50/50 transition-all group cursor-default"
+                                                className="grid grid-cols-12 items-center px-8 py-4 hover:bg-white transition-all group cursor-default"
                                             >
                                                 <div className="col-span-1">
                                                     <RankBadge rank={user.rank} />
                                                 </div>
                                                 <div className="col-span-4 flex items-center gap-4">
-                                                    <div className={`w-10 h-10 rounded-2xl flex items-center justify-center text-xs font-black text-white shadow-xl rotate-3 group-hover:rotate-0 transition-transform ${user.rank === 1 ? 'bg-linear-to-br from-yellow-300 to-yellow-500' :
+                                                    <div className={`w-10 h-10 rounded-2xl flex items-center justify-center text-xs font-bold text-white shadow-xl rotate-3 group-hover:rotate-0 transition-transform ${user.rank === 1 ? 'bg-linear-to-br from-yellow-300 to-yellow-500' :
                                                         user.rank === 2 ? 'bg-linear-to-br from-slate-200 to-slate-400' :
                                                             user.rank === 3 ? 'bg-linear-to-br from-orange-200 to-orange-400' : 'bg-linear-to-br from-indigo-50 to-indigo-100 text-indigo-500 shadow-none'
                                                         }`}>
                                                         {user.avatar}
                                                     </div>
                                                     <div>
-                                                        <div className="text-sm font-black text-slate-900 leading-none mb-1 uppercase tracking-tight">{user.name}</div>
+                                                        <div className="text-sm font-bold text-slate-900 leading-none mb-1 uppercase tracking-tight">{user.name}</div>
                                                         <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{activeTab === 'students' ? `${user.year}${['st', 'nd', 'rd', 'th'][(user.year - 1) % 10] || 'th'} Batch` : (user.type || 'Council Member')}</div>
                                                     </div>
                                                 </div>
                                                 <div className="col-span-3">
-                                                    <span className="bg-slate-50 text-slate-600 px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-tight border border-slate-100">{user.department}</span>
+                                                    <span className="bg-slate-50 text-slate-600 px-3 py-1.5 rounded-xl text-[9px] font-bold uppercase tracking-tight border border-slate-100">{user.department}</span>
                                                 </div>
                                                 <div className="col-span-2 text-center">
-                                                    <div className="text-xs font-black text-slate-900">+{user.score}</div>
-                                                    <div className="text-[9px] text-rose-500 font-black opacity-60">-{user.penalty} PEN</div>
+                                                    <div className="text-xs font-bold text-slate-900">+{user.score}</div>
+                                                    <div className="text-[9px] text-rose-500 font-bold opacity-60">-{user.penalty} PEN</div>
                                                 </div>
                                                 <div className="col-span-2 text-right">
-                                                    <span className="text-lg font-black text-indigo-600 tracking-tighter">{user.total_score}</span>
+                                                    <span className="text-lg font-bold text-indigo-600 tracking-tighter">{user.total_score}</span>
                                                 </div>
                                             </motion.div>
                                         ))}
@@ -242,7 +242,7 @@ const ScoreboardPage = () => {
                                             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-50 mb-4">
                                                 <Users size={24} className="text-slate-300" />
                                             </div>
-                                            <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest leading-relaxed">No Data Detected in Current Sector</h3>
+                                            <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest leading-relaxed">No Data Detected in Current Sector</h3>
                                         </div>
                                     )}
                                 </div>
@@ -269,7 +269,7 @@ const ScoreboardPage = () => {
                         <div className="bg-white rounded-[40px] border border-slate-100 shadow-[0_25px_70px_-20px_rgba(99,102,241,0.1)] p-8 relative overflow-hidden group">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50/30 rounded-full blur-3xl -mr-16 -mt-16 transition-all group-hover:bg-indigo-100/40" />
                             
-                            <h2 className="text-xl font-black text-slate-900 mb-10 flex items-center justify-between uppercase tracking-tight">
+                            <h2 className="text-xl font-bold text-slate-900 mb-10 flex items-center justify-between uppercase tracking-tight">
                                 <span>Hall of Valor</span>
                                 <Crown size={22} className="text-yellow-500 animate-pulse" />
                             </h2>

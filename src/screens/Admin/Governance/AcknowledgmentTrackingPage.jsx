@@ -116,17 +116,17 @@ const AcknowledgmentTrackingPage = () => {
     };
 
     return (
-        <div className="p-10 max-lg:p-8 max-md:p-6 max-sm:p-4 bg-[#fcfcfd] min-h-screen font-sans flex flex-col gap-10 max-md:gap-8">
+        <div className="p-10 max-lg:p-8 max-md:p-6 max-sm:p-4 bg-white min-h-screen font-sans flex flex-col gap-10 max-md:gap-8">
             {/* Header Section */}
             <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-8">
                 <div className="space-y-1">
-                    <div className="flex items-center gap-2 text-indigo-500 text-[10px] uppercase tracking-[0.3em] mb-2 font-black opacity-80">
+                    <div className="flex items-center gap-2 text-indigo-500 text-[10px] uppercase tracking-[0.3em] mb-2 font-bold opacity-80">
                         <CheckCircle2 size={12} strokeWidth={3} /> Compliance Monitoring
                     </div>
-                    <h1 className="text-4xl max-md:text-3xl font-black text-slate-900 tracking-tighter leading-none">
+                    <h1 className="text-3xl max-md:text-2xl font-bold text-slate-900 tracking-tight leading-none">
                         Acknowledgment <span className="text-indigo-600">Matrix</span>
                     </h1>
-                    <p className="text-xs text-slate-400 uppercase tracking-widest font-black opacity-60 mt-2">Daily awareness protocols & personnel tracking</p>
+                    <p className="text-xs text-slate-400 uppercase tracking-widest font-bold opacity-60 mt-2">Daily awareness protocols & personnel tracking</p>
                 </div>
 
                 <div className="flex items-center gap-3 self-end xl:self-auto">
@@ -143,7 +143,7 @@ const AcknowledgmentTrackingPage = () => {
                             type="date"
                             value={selectedDate}
                             onChange={(e) => setSelectedDate(e.target.value)}
-                            className="text-sm font-black text-slate-700 bg-transparent border-none outline-none cursor-pointer"
+                            className="text-sm font-bold text-slate-700 bg-transparent border-none outline-none cursor-pointer"
                         />
                     </div>
                 </div>
@@ -198,7 +198,7 @@ const AcknowledgmentTrackingPage = () => {
                         <div className="min-w-0">
                             <span className="block text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest mb-1 truncate">{m.title}</span>
                             <div className="flex flex-col">
-                                <span className="text-2xl font-black text-slate-900 leading-none mb-1">{m.value}</span>
+                                <span className="text-2xl max-md:text-xl font-bold text-slate-900 leading-none mb-1">{m.value}</span>
                                 <span className="text-[0.7rem] text-slate-500 font-medium truncate">{m.sub}</span>
                             </div>
                         </div>
@@ -277,7 +277,7 @@ const AcknowledgmentTrackingPage = () => {
                                             key={`${user.user_id}-${i}`}
                                             initial={{ opacity: 0 }}
                                             animate={{ opacity: 1 }}
-                                            className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors"
+                                            className="border-b border-slate-50 hover:bg-white transition-colors"
                                         >
                                             <td className="px-8 py-5">
                                                 <div className="flex items-center gap-4">
@@ -301,7 +301,7 @@ const AcknowledgmentTrackingPage = () => {
                                             <td className="px-8 py-5">
                                                 <div className="flex flex-col">
                                                     <span 
-                                                        className="inline-flex items-center px-2.5 py-1 rounded-full text-[0.6rem] font-black uppercase tracking-wider w-fit"
+                                                        className="inline-flex items-center px-2.5 py-1 rounded-full text-[0.6rem] font-bold uppercase tracking-wider w-fit"
                                                         style={{ background: statusStyle.bg, color: statusStyle.text }}
                                                     >
                                                         {statusStyle.label}
