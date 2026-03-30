@@ -159,7 +159,7 @@ const TasksPage = () => {
             animate={{ opacity: 1 }}
         >
             <div className="mb-10 max-md:mb-8">
-                <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Directives & Governance</h1>
+                <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Directives & <span className="text-indigo-600">Governance</span></h1>
                 <p className="text-xs text-slate-400 mt-1.5 uppercase tracking-widest font-bold opacity-70">Operational Command & Task Verification System</p>
             </div>
 

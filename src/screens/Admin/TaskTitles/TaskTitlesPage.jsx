@@ -102,7 +102,7 @@ const TaskTitlesPage = () => {
     return (
         <motion.div className="p-10 max-lg:p-8 max-md:p-6 max-sm:p-4 h-full overflow-y-auto bg-white min-h-screen font-sans" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <div className="mb-10 max-md:mb-8">
-                <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Task Dictionary & Registry</h1>
+                <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Task Dictionary & <span className="text-indigo-600">Registry</span></h1>
                 <p className="text-xs text-slate-400 mt-1.5 uppercase tracking-widest font-bold opacity-70">Cataloging & Protocol Naming Conventions</p>
             </div>
 

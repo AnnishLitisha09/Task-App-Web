@@ -307,8 +307,8 @@ const ResourcesPage = () => {
             <div className="flex-none px-10 max-lg:px-8 max-md:px-6 max-sm:px-4 pt-8 pb-6 bg-white border-b border-slate-100">
                 <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-10">
                     <div className="space-y-1">
-                        <h1 className="text-3xl max-md:text-2xl font-black text-slate-900 tracking-tight">Resource Management</h1>
-                        <p className="text-[10px] sm:text-xs text-slate-400 uppercase tracking-[0.2em] font-black opacity-70">Strategic Asset Governance & Infrastructure Logic</p>
+                        <h1 className="text-3xl max-md:text-2xl font-bold text-slate-900 tracking-tight">Resource <span className="text-indigo-600">Management</span></h1>
+                        <p className="text-[10px] sm:text-xs text-slate-400 uppercase tracking-[0.2em] font-bold opacity-70">Strategic Asset Governance & Infrastructure Logic</p>
                     </div>
                     
                     <div className="flex bg-slate-50 p-1.5 rounded-[22px] border border-slate-100 shadow-inner w-full lg:w-auto overflow-x-auto no-scrollbar pb-1.5 lg:pb-1.5">

@@ -105,7 +105,7 @@ const CouponsPage = () => {
                         <Ticket size={26} strokeWidth={2.5} />
                     </div>
                     <div>
-                        <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Reward Protocols</h1>
+                        <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Reward <span className="text-indigo-600">Protocols</span></h1>
                         <p className="text-xs text-slate-400 mt-1 uppercase tracking-widest font-bold opacity-70">
                             Coupon Generation &amp; Redemption
                         </p>
