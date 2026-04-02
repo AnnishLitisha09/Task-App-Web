@@ -4,7 +4,6 @@ import { MapPin, Box, UserCheck, Plus, Search, Edit2, UserPlus, Trash2, LayoutGr
 import api from '../../../utils/api';
 import VenueModal from '../../../components/UI/VenueModal/VenueModal';
 import DeleteConfirmModal from '../../../components/UI/DeleteConfirmModal/DeleteConfirmModal';
-import Pagination from '../../../components/UI/Pagination/Pagination';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -38,9 +37,6 @@ const InfrastructurePage = () => {
     const [isBulkUploading, setIsBulkUploading] = useState(false);
     const bulkInputRef = useRef(null);
 
-    // Pagination State
-    const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage, setItemsPerPage] = useState(10);
 
     useEffect(() => { fetchVenues(); }, []);
 
@@ -54,8 +50,6 @@ const InfrastructurePage = () => {
         finally { setIsLoading(false); }
     };
 
-    // Reset pagination on search change
-    useEffect(() => { setCurrentPage(1); }, [searchTerm]);
 
     const handleCreate = () => { setSelectedVenue(null); setModalMode('create'); setIsModalOpen(true); };
     const handleEdit = (venue) => { setSelectedVenue(venue); setModalMode('edit'); setIsModalOpen(true); };
@@ -93,10 +87,6 @@ const InfrastructurePage = () => {
         (v.venue_type || v.type || '').toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const indexOfLastItem = currentPage * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const paginatedVenues = filteredVenues.slice(indexOfFirstItem, indexOfLastItem);
-    const totalPages = Math.ceil(filteredVenues.length / itemsPerPage);
 
     const stats = [
         { label: 'Total Venues', value: venues.length, icon: MapPin, color: '#6366f1' },
@@ -247,7 +237,7 @@ const InfrastructurePage = () => {
                             Restoring Inventory State...
                         </p>
                     </div>
-                ) : paginatedVenues.length === 0 ? (
+                ) : filteredVenues.length === 0 ? (
                     <div className="py-16 sm:py-24 flex flex-col items-center justify-center gap-6 bg-white rounded-3xl border border-dashed border-slate-200">
                         <div className="w-16 h-16 sm:w-20 sm:h-20 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-200">
                             <MapPin size={36} strokeWidth={1} />
@@ -260,7 +250,7 @@ const InfrastructurePage = () => {
                 ) : viewMode === 'grid' ? (
                     /* ── Grid View ── */
                     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-6 lg:gap-8">
-                        {paginatedVenues.map((v, idx) => {
+                        {filteredVenues.map((v, idx) => {
                             const hasIncharge = v.incharge?.name || v.owner_name;
                             return (
                                 <motion.div
@@ -371,7 +361,7 @@ const InfrastructurePage = () => {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-50">
-                                    {paginatedVenues.map((v, idx) => (
+                                    {filteredVenues.map((v, idx) => (
                                         <tr key={v.id || idx} className="hover:bg-indigo-50/20 transition-all duration-300 group">
                                             <td className="px-5 lg:px-8 py-4 lg:py-6">
                                                 <div className="flex items-center gap-4">
@@ -427,18 +417,6 @@ const InfrastructurePage = () => {
                     </div>
                 )}
 
-                {/* ── Pagination ── */}
-                <div className="mt-8 lg:mt-12 mb-4">
-                    <Pagination
-                        currentPage={currentPage}
-                        totalPages={totalPages}
-                        onPageChange={setCurrentPage}
-                        itemsPerPage={itemsPerPage}
-                        onItemsPerPageChange={setItemsPerPage}
-                        totalItems={filteredVenues.length}
-                        showingCount={paginatedVenues.length}
-                    />
-                </div>
             </div>
 
             {/* Modals */}

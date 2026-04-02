@@ -7,7 +7,6 @@ import {
 import api from '../../../utils/api';
 import DepartmentModal from '../../../components/UI/DepartmentModal/DepartmentModal';
 import DeleteConfirmModal from '../../../components/UI/DeleteConfirmModal/DeleteConfirmModal';
-import Pagination from '../../../components/UI/Pagination/Pagination';
 
 const DepartmentsPage = () => {
     const [departments, setDepartments] = useState([]);
@@ -19,9 +18,6 @@ const DepartmentsPage = () => {
     const [modalMode, setModalMode] = useState('create');
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
-    // Pagination State
-    const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage, setItemsPerPage] = useState(10);
 
     useEffect(() => { fetchDepartments(); }, []);
 
@@ -65,8 +61,6 @@ const DepartmentsPage = () => {
         (dept.hod_name || dept.hod?.name || '').toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const paginatedDepartments = filteredDepartments.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-    const totalPages = Math.ceil(filteredDepartments.length / itemsPerPage);
 
     const stats = [
         { label: 'Total Units', value: departments.length, icon: Building2, color: 'indigo', subtitle: 'Constituent Divs' },
@@ -206,7 +200,7 @@ const DepartmentsPage = () => {
             ) : viewMode === 'grid' ? (
                 /* ── Grid View — responsive card grid ── */
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-6 lg:gap-8">
-                    {paginatedDepartments.map((dept, idx) => (
+                    {filteredDepartments.map((dept, idx) => (
                         <motion.div
                             key={dept.id || idx}
                             initial={{ opacity: 0, scale: 0.95 }}
@@ -310,7 +304,7 @@ const DepartmentsPage = () => {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-50">
-                                {paginatedDepartments.map((dept, idx) => (
+                                {filteredDepartments.map((dept, idx) => (
                                     <tr key={dept.id || idx} className="hover:bg-indigo-50/20 transition-all duration-300 group">
                                         {/* Division name */}
                                         <td className="px-5 lg:px-8 py-4 lg:py-6">
@@ -395,18 +389,6 @@ const DepartmentsPage = () => {
                 </div>
             )}
 
-            {/* ── Pagination ── */}
-            <div className="mt-8 lg:mt-10">
-                <Pagination
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    onPageChange={setCurrentPage}
-                    itemsPerPage={itemsPerPage}
-                    onItemsPerPageChange={setItemsPerPage}
-                    totalItems={filteredDepartments.length}
-                    showingCount={paginatedDepartments.length}
-                />
-            </div>
 
             <DepartmentModal
                 isOpen={isModalOpen}

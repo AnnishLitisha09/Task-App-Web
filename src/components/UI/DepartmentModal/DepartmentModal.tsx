@@ -39,9 +39,13 @@ const DepartmentModal: React.FC<DepartmentModalProps> = ({ isOpen, onClose, dept
     const fetchFaculty = async () => {
         setIsFacultyLoading(true);
         try {
-            const response = await api('/users/hods');
-            const hodsList = Array.isArray(response) ? response : (response.hods || []);
-            setFacultyList(hodsList.map((h: any) => ({ id: h.id || h.user_id, name: h.name || 'Unknown HOD', reg_no: h.department_name || 'HOD' })));
+            const response = await api('/users/hod-candidates');
+            const hodsList = Array.isArray(response) ? response : [];
+            setFacultyList(hodsList.map((h: any) => ({ 
+                id: h.user_id, 
+                name: h.name || 'Unknown User', 
+                reg_no: h.sub_role || h.category || 'HOD' 
+            })));
         } catch (err) { console.error(err); }
         finally { setIsFacultyLoading(false); }
     };

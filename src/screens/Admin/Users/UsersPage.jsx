@@ -10,7 +10,6 @@ import {
     Edit3, UserMinus, Users, UserCircle, ShieldCheck, ChevronDown, Upload, CheckCircle2,
     LayoutGrid, List
 } from 'lucide-react';
-import Pagination from '../../../components/UI/Pagination/Pagination';
 
 const UsersPage = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -45,9 +44,6 @@ const UsersPage = () => {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    // Pagination State
-    const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage, setItemsPerPage] = useState(10);
 
     React.useEffect(() => {
         const fetchResources = async () => {
@@ -77,10 +73,6 @@ const UsersPage = () => {
         fetchResources(); fetchUsers();
     }, []);
 
-    // Reset pagination on filter change
-    React.useEffect(() => {
-        setCurrentPage(1);
-    }, [searchTerm, activeTab, statusFilter, deptFilter]);
 
     const stats = [
         { label: 'Total Users', value: apiCounts?.total_active_users?.toString() || usersList.length.toString(), icon: Users, color: '#6366f1' },
@@ -98,11 +90,6 @@ const UsersPage = () => {
         return matchesCategory && matchesStatus && matchesDept && matchesSearch;
     });
 
-    // Paginated Users
-    const indexOfLastItem = currentPage * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const paginatedUsers = filteredUsers.slice(indexOfFirstItem, indexOfLastItem);
-    const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
 
     const isFiltered = activeTab !== 'all' || statusFilter !== 'all' || deptFilter !== 'all' || searchTerm !== '';
 
@@ -320,7 +307,7 @@ const UsersPage = () => {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {paginatedUsers.map((user) => (
+                                            {filteredUsers.map((user) => (
                                                 <tr key={user.id || Math.random()} className="hover:bg-slate-50/50 transition-colors">
                                                     <td className="px-4 py-3 border-b border-slate-100 text-[0.85rem] text-slate-700 align-middle">
                                                         <div className="flex items-center gap-3">
@@ -366,21 +353,12 @@ const UsersPage = () => {
                             </div>
                         ) : (
                             <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-6">
-                                {paginatedUsers.map((user) => (
+                                {filteredUsers.map((user) => (
                                     <CardView key={user.id || Math.random()} user={user} handleView={handleView} handleEdit={handleEdit} handleDeleteClick={handleDeleteClick} getCatBadgeClass={getCatBadgeClass} />
                                 ))}
                             </div>
                         )}
 
-                        <Pagination
-                            currentPage={currentPage}
-                            totalPages={totalPages}
-                            onPageChange={setCurrentPage}
-                            itemsPerPage={itemsPerPage}
-                            onItemsPerPageChange={setItemsPerPage}
-                            totalItems={filteredUsers.length}
-                            showingCount={paginatedUsers.length}
-                        />
 
                         {filteredUsers.length === 0 && (
                             <div className="bg-white rounded-[20px] border border-slate-200 py-12 text-center text-slate-500 font-semibold shadow-[0_4px_6px_-1px_rgba(0,0,0,0.05)]">

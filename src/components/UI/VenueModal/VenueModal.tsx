@@ -56,9 +56,14 @@ const VenueModal: React.FC<VenueModalProps> = ({ isOpen, onClose, venueData, mod
     const fetchFaculty = async () => {
         setIsFacultyLoading(true);
         try {
-            const response = await api('/users/incharges');
-            const incList = Array.isArray(response) ? response : (response.incharges || []);
-            setFacultyList(incList.map((i: any) => ({ id: i.id || i.user_id, name: i.name || 'Unknown User', reg_no: i.venue_name || 'Incharge', role: i.role || 'Incharge' })));
+            const response = await api('/users/incharge-candidates');
+            const incList = Array.isArray(response) ? response : [];
+            setFacultyList(incList.map((i: any) => ({ 
+                id: i.user_id, 
+                name: i.name || 'Unknown User', 
+                reg_no: i.sub_role || i.category || 'Incharge', 
+                role: i.role_name || i.category || 'Incharge' 
+            })));
         } catch (err) { console.error(err); }
         finally { setIsFacultyLoading(false); }
     };
