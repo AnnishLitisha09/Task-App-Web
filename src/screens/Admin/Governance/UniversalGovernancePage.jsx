@@ -71,6 +71,19 @@ const UserCard = ({ user, onClick }) => {
             </div>
             
             <h3 className="text-sm font-bold text-slate-800 mb-1 group-hover:text-indigo-600 transition-colors">{user.name}</h3>
+            
+            <div className="flex flex-wrap gap-1.5 mb-3">
+                {user.role_assignments?.map((ra, idx) => (
+                    <span 
+                        key={idx}
+                        className="text-[0.6rem] font-bold px-2 py-0.5 rounded-md bg-slate-100 text-slate-500 uppercase tracking-tighter"
+                        title={ra.venue ? `Managed Venue: ${ra.venue}` : ra.department ? `Department: ${ra.department}` : ''}
+                    >
+                        {ra.role} {ra.venue ? `(${ra.venue})` : ''}
+                    </span>
+                ))}
+            </div>
+
             <p className="text-[0.75rem] text-slate-500 mb-4 flex items-center gap-1.5">
                 <Mail size={12} className="text-slate-400" /> {user.email || 'No Email'}
             </p>
@@ -265,12 +278,13 @@ const UserTaskControl = ({ user, onBack, onAssign, onView, onUpdateStatus }) => 
     const [tasks, setTasks] = useState([]);
     const [loading, setLoading] = useState(true);
     const [stats, setStats] = useState({ active: 0, pending: 0, completed: 0 });
+    const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
 
     const fetchUserTasks = useCallback(async () => {
         if (!user?.user_id) return;
         setLoading(true);
         try {
-            const response = await api(`/tasks/assigned-to/${user.user_id}`);
+            const response = await api(`/tasks/assigned-to/${user.user_id}?date=${selectedDate}`);
             const taskList = response.items || (Array.isArray(response) ? response : []);
             setTasks(taskList);
             
@@ -287,7 +301,7 @@ const UserTaskControl = ({ user, onBack, onAssign, onView, onUpdateStatus }) => 
         } finally {
             setLoading(false);
         }
-    }, [user.user_id]);
+    }, [user.user_id, selectedDate]);
 
     useEffect(() => {
         fetchUserTasks();
@@ -310,12 +324,23 @@ const UserTaskControl = ({ user, onBack, onAssign, onView, onUpdateStatus }) => 
                         </p>
                     </div>
                 </div>
-                <button 
-                    onClick={() => onAssign(user)}
-                    className="flex items-center gap-2 bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-bold border-none cursor-pointer shadow-lg shadow-indigo-200 hover:bg-indigo-700 hover:-translate-y-0.5 transition-all"
-                >
-                    <Plus size={18} /> Assign Directives
-                </button>
+                <div className="flex items-center gap-3">
+                    <div className="relative">
+                        <Calendar size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                        <input 
+                            type="date"
+                            value={selectedDate}
+                            onChange={(e) => setSelectedDate(e.target.value)}
+                            className="h-11 pl-11 pr-4 bg-slate-100 border border-transparent rounded-xl outline-none focus:bg-white focus:border-indigo-500 transition-all text-sm font-bold text-slate-600 cursor-pointer"
+                        />
+                    </div>
+                    <button 
+                        onClick={() => onAssign(user)}
+                        className="flex items-center gap-2 bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-bold border-none cursor-pointer shadow-lg shadow-indigo-200 hover:bg-indigo-700 hover:-translate-y-0.5 transition-all"
+                    >
+                        <Plus size={18} /> Assign Directives
+                    </button>
+                </div>
             </div>
 
             {/* Performance Summary */}
@@ -342,7 +367,10 @@ const UserTaskControl = ({ user, onBack, onAssign, onView, onUpdateStatus }) => 
                     <h3 className="text-sm font-bold text-slate-800 m-0 flex items-center gap-2">
                         <Clipboard size={16} className="text-indigo-500" /> Managed Directives
                     </h3>
-                    <span className="text-[0.7rem] px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded-full font-bold uppercase">{tasks.length} total</span>
+                    <div className="flex items-center gap-4">
+                        <span className="text-[0.7rem] px-2 py-0.5 bg-slate-100 text-slate-500 rounded-full font-bold uppercase">{selectedDate}</span>
+                        <span className="text-[0.7rem] px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded-full font-bold uppercase">{tasks.length} total</span>
+                    </div>
                 </div>
 
                 <div className="p-2">
@@ -353,13 +381,8 @@ const UserTaskControl = ({ user, onBack, onAssign, onView, onUpdateStatus }) => 
                     ) : tasks.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-20 text-slate-400">
                             <Clipboard size={48} strokeWidth={1} className="mb-4 opacity-20" />
-                            <p className="font-medium">No tasks assigned to this user</p>
-                            <button 
-                                onClick={() => onAssign(user)}
-                                className="mt-4 text-indigo-600 font-bold text-sm bg-transparent border-none cursor-pointer hover:underline"
-                            >
-                                Assign their first task
-                            </button>
+                            <p className="font-bold text-slate-500">No tasks found for this student on this date</p>
+                            <p className="text-xs mt-1">Assignments are managed in the control matrix.</p>
                         </div>
                     ) : (
                         <div className="flex flex-col gap-2">
@@ -381,7 +404,14 @@ const UserTaskControl = ({ user, onBack, onAssign, onView, onUpdateStatus }) => 
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex items-center gap-2 mb-0.5">
                                                     <h4 className="text-sm font-bold text-slate-800 m-0 truncate">{task.title || task.Task?.title}</h4>
-                                                    <span className="text-[0.65rem] font-bold px-2 py-0.5 rounded-full" style={{ background: priority.bg, color: priority.text }}>{task.priority || 'Low'}</span>
+                                                    <div className="flex items-center gap-1.5">
+                                                        <span className="text-[0.65rem] font-bold px-2 py-0.5 rounded-full" style={{ background: priority.bg, color: priority.text }}>{task.priority || 'Low'}</span>
+                                                        {task.role_context && (
+                                                            <span className="text-[0.6rem] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 uppercase tracking-tighter">
+                                                                {task.role_context}
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                 </div>
                                                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
                                                     <span className="flex items-center gap-1"><MapPin size={12} /> {task.location || 'N/A'}</span>
@@ -437,6 +467,7 @@ const UniversalGovernancePage = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [departmentFilter, setDepartmentFilter] = useState('all');
     const [roleFilter, setRoleFilter] = useState('all');
+    const [venueFilter, setVenueFilter] = useState('all');
     
     // Pagination
     const [currentPage, setCurrentPage] = useState(1);
@@ -454,6 +485,7 @@ const UniversalGovernancePage = () => {
                 return {
                     user_id: u.user_id,
                     role: u.role,
+                    role_assignments: u.role_assignments || [],
                     ...info
                 };
             });
@@ -475,12 +507,14 @@ const UniversalGovernancePage = () => {
                              (u.email || '').toLowerCase().includes(searchQuery.toLowerCase());
         const matchesDept = departmentFilter === 'all' || u.department_name === departmentFilter;
         const matchesRole = roleFilter === 'all' || u.role === roleFilter;
-        return matchesSearch && matchesDept && matchesRole;
+        const matchesVenue = venueFilter === 'all' || (u.role_assignments || []).some(ra => ra.venue === venueFilter);
+        return matchesSearch && matchesDept && matchesRole && matchesVenue;
     });
 
     const paginatedUsers = filteredUsers.slice((currentPage - 1) * pageSize, currentPage * pageSize);
     const departments = [...new Set(users.map(u => u.department_name))].filter(Boolean);
     const availableRoles = [...new Set(users.map(u => u.role))].filter(Boolean);
+    const availableVenues = [...new Set(users.flatMap(u => (u.role_assignments || []).map(ra => ra.venue)))].filter(Boolean);
 
     const handleUserClick = (user) => {
         setSelectedUser(user);
@@ -489,13 +523,9 @@ const UniversalGovernancePage = () => {
 
 
 
-    const handleAssignTask = async (user) => {
-        setAlertConfig({
-            isOpen: true,
-            title: "Navigating to Matrix",
-            description: `Redirecting to assignment matrix for ${user.name}. Please wait for session synchronization.`,
-            type: "info"
-        });
+    const handleAssignTask = (user) => {
+        // Placeholder for matrix navigation - removing the alert as requested
+        console.log(`Assignment matrix requested for ${user.name}`);
     };
 
     const handleUpdateAssignmentStatus = async (task, newStatus, onComplete) => {
@@ -611,6 +641,19 @@ const UniversalGovernancePage = () => {
                                         </select>
                                         <ChevronRight size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 rotate-90 pointer-events-none" />
                                     </div>
+
+                                    <div className="relative">
+                                        <MapPin size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                                        <select 
+                                            value={venueFilter}
+                                            onChange={(e) => { setVenueFilter(e.target.value); setCurrentPage(1); }}
+                                            className="h-14 pl-11 pr-10 bg-white border border-slate-200 rounded-2xl outline-none focus:bg-white focus:border-indigo-500 transition-all text-sm font-bold text-slate-600 appearance-none cursor-pointer min-w-[150px]"
+                                        >
+                                            <option value="all">Every Venue</option>
+                                            {availableVenues.map(v => <option key={v} value={v}>{v}</option>)}
+                                        </select>
+                                        <ChevronRight size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 rotate-90 pointer-events-none" />
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -630,7 +673,7 @@ const UniversalGovernancePage = () => {
                                 <h3 className="text-lg font-bold text-slate-800 m-0">No matching accounts found</h3>
                                 <p className="text-slate-500 mt-2 max-w-[300px] text-center">Try adjusting your filters or search terms.</p>
                                 <button 
-                                    onClick={() => { setSearchQuery(''); setDepartmentFilter('all'); setRoleFilter('all'); }}
+                                    onClick={() => { setSearchQuery(''); setDepartmentFilter('all'); setRoleFilter('all'); setVenueFilter('all'); }}
                                     className="mt-6 font-bold text-indigo-600 bg-indigo-50 px-6 py-2.5 rounded-xl border-none cursor-pointer hover:bg-indigo-100 transition-all"
                                 >
                                     Reset All Controls
