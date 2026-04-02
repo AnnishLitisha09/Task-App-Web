@@ -18,7 +18,7 @@ const CouponsPage = () => {
     const [showToast, setShowToast] = useState(false);
     const [toastType, setToastType] = useState('success');
     const [toastMsg, setToastMsg] = useState('');
-    const [formData, setFormData] = useState({ name: '', validity: '', total_count: '', points: '' });
+    const [formData, setFormData] = useState({ name: '', validity: '', total_count: '', points: '', status: 'active' });
     const [viewMode, setViewMode] = useState('table');
 
     // Pagination State
@@ -48,8 +48,18 @@ const CouponsPage = () => {
         setToastType(type); setToastMsg(msg); setShowToast(true);
         setTimeout(() => setShowToast(false), 4000);
     };
-    const handleCreateNew = () => { setFormData({ name: '', validity: '', total_count: '', points: '' }); setSelectedCoupon(null); setIsModalOpen(true); };
-    const handleEdit = (c) => { setFormData({ name: c.name, validity: c.validity?.split('T')[0] || c.validity, total_count: c.total_count, points: c.points }); setSelectedCoupon(c); setIsModalOpen(true); };
+    const handleCreateNew = () => { setFormData({ name: '', validity: '', total_count: '', points: '', status: 'active' }); setSelectedCoupon(null); setIsModalOpen(true); };
+    const handleEdit = (c) => { 
+        setFormData({ 
+            name: c.name, 
+            validity: c.validity?.split('T')[0] || c.validity, 
+            total_count: c.total_count, 
+            points: c.points,
+            status: c.status || 'active'
+        }); 
+        setSelectedCoupon(c); 
+        setIsModalOpen(true); 
+    };
     const handleDeleteClick = (c) => { setSelectedCoupon(c); setIsDeleteOpen(true); };
     const handleDeleteConfirm = async () => {
         if (!selectedCoupon) return;
@@ -61,17 +71,27 @@ const CouponsPage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault(); setIsSubmitting(true);
         try {
-            const payload = { ...formData, total_count: parseInt(formData.total_count), points: parseInt(formData.points) };
+            const payload = { 
+                ...formData, 
+                total_count: parseInt(formData.total_count), 
+                points: parseInt(formData.points) 
+            };
+            
             if (selectedCoupon) {
                 const r = await api(`/coupons/${selectedCoupon.id}`, { method: 'PUT', body: payload });
-                setCoupons(prev => prev.map(c => c.id === selectedCoupon.id ? r : c));
+                const updatedCoupon = r.coupon || r;
+                setCoupons(prev => prev.map(c => c.id === selectedCoupon.id ? updatedCoupon : c));
                 triggerToast('success', 'Coupon updated!');
             } else {
                 const r = await api('/coupons', { method: 'POST', body: payload });
-                setCoupons(prev => [r, ...prev]);
+                const newCoupon = r.coupon || r;
+                setCoupons(prev => [newCoupon, ...prev]);
                 triggerToast('success', 'Coupon created!');
             }
-            setFormData({ name: '', validity: '', total_count: '', points: '' }); setIsModalOpen(false); setSelectedCoupon(null);
+            setFormData({ name: '', validity: '', total_count: '', points: '', status: 'active' }); 
+            setIsModalOpen(false); 
+            setSelectedCoupon(null);
+            fetchCoupons(); // Refetch to sync stats
         } catch (err) { triggerToast('error', err.message || 'Failed to process coupon'); }
         finally { setIsSubmitting(false); }
     };
@@ -146,6 +166,7 @@ const CouponsPage = () => {
                 {[
                     { icon: Gift, label: 'Total Registry', val: coupons.length, color: '#6366f1' },
                     { icon: Sparkles, label: 'Active State', val: couponStats.active_coupons, color: '#10b981' },
+                    { icon: AlertCircle, label: 'Inactive State', val: couponStats.inactive_coupons, color: '#ef4444' },
                     { icon: TrendingUp, label: 'Circulation', val: couponStats.total_issued, color: '#f59e0b' }
                 ].map((s, i) => (
                     <div
@@ -217,9 +238,18 @@ const CouponsPage = () => {
                                 </div>
                                 <span
                                     className="px-2.5 py-1 rounded-lg text-[0.7rem] font-bold uppercase"
-                                    style={{ backgroundColor: `${THEME_COLOR}20`, color: THEME_COLOR }}
+                                    style={{ 
+                                        backgroundColor: coupon.status === 'active' 
+                                            ? (coupon.remaining_count > 0 ? `${THEME_COLOR}20` : '#fef3c7') 
+                                            : '#f1f5f9',
+                                        color: coupon.status === 'active' 
+                                            ? (coupon.remaining_count > 0 ? THEME_COLOR : '#d97706') 
+                                            : '#64748b'
+                                    }}
                                 >
-                                    {coupon.remaining_count > 0 ? 'Active' : 'Depleted'}
+                                    {coupon.status === 'active' 
+                                        ? (coupon.remaining_count > 0 ? 'Active' : 'Depleted') 
+                                        : 'Inactive'}
                                 </span>
                             </div>
 
@@ -291,8 +321,14 @@ const CouponsPage = () => {
                                                     <div className="text-sm font-bold text-slate-800 truncate max-w-[140px] sm:max-w-none">
                                                         {coupon.name}
                                                     </div>
-                                                    <div className="text-[10px] text-slate-400 uppercase tracking-wide">
-                                                        {coupon.remaining_count > 0 ? 'Active' : 'Depleted'}
+                                                    <div className={`text-[10px] uppercase tracking-wide font-bold ${
+                                                        coupon.status === 'active' 
+                                                            ? (coupon.remaining_count > 0 ? 'text-emerald-500' : 'text-amber-500') 
+                                                            : 'text-slate-400'
+                                                    }`}>
+                                                        {coupon.status === 'active' 
+                                                            ? (coupon.remaining_count > 0 ? 'Active' : 'Depleted') 
+                                                            : 'Inactive'}
                                                     </div>
                                                 </div>
                                             </div>
@@ -394,6 +430,19 @@ const CouponsPage = () => {
                                 <div>
                                     <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5">Score Needed</label>
                                     <input type="number" name="points" value={formData.points} onChange={handleInputChange} placeholder="500" min="0" required className={inputCls} />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5">Coupon Status</label>
+                                    <select 
+                                        name="status" 
+                                        value={formData.status} 
+                                        onChange={handleInputChange} 
+                                        required 
+                                        className={inputCls}
+                                    >
+                                        <option value="active">Active</option>
+                                        <option value="inactive">Inactive</option>
+                                    </select>
                                 </div>
                                 <div className="flex justify-end gap-3 pt-2">
                                     <button type="button" className="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-semibold text-sm" onClick={() => setIsModalOpen(false)}>
