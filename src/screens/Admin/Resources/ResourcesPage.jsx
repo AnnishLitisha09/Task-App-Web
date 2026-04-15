@@ -4,7 +4,7 @@ import {
     Search, Plus, Box, User, Monitor,
     LayoutGrid, List, MoreVertical, Edit2, UserPlus, 
     CheckCircle2, Clock, XCircle, MapPin, Cpu, ArrowRightLeft, 
-    Save, X, Settings2, Info, AlertTriangle, Hammer, Wrench, Layers, Activity, Check, Upload
+    Save, X, Settings2, Info, AlertTriangle, Hammer, Wrench, Layers, Activity, Check, Upload, FileText
 } from 'lucide-react';
 import api from '../../../utils/api';
 import ResourceModal from '../../../components/UI/ResourceModal/ResourceModal';
@@ -55,6 +55,8 @@ const ResourcesPage = () => {
     const [alertConfig, setAlertConfig] = useState({ isOpen: false, title: '', description: '', type: 'info' });
     const [bulkResult, setBulkResult] = useState(null);
     const [isBulkUploading, setIsBulkUploading] = useState(false);
+    const [fromDate, setFromDate] = useState(new Date(new Date().setDate(new Date().getDate() - 90)).toISOString().split('T')[0]);
+    const [toDate, setToDate] = useState(new Date().toISOString().split('T')[0]);
     const bulkInputRef = useRef(null);
 
     // Pagination State
@@ -286,6 +288,23 @@ const ResourcesPage = () => {
         }
     };
 
+    const handleDownloadReport = async () => {
+        try {
+            const blob = await api(`resources/export?from=${fromDate}&to=${toDate}`);
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `resource_utilization_${new Date().toISOString().split('T')[0]}.xlsx`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        } catch (err) {
+            console.error('Download failed:', err);
+            alert('Failed to download resource report: ' + err.message);
+        }
+    };
+
     const getVenueCount = (v) => {
         const raw = v.total_resource_count ?? v.systems_count ?? v.resource_count ?? v.count ?? 0;
         return parseInt(raw) || 0;
@@ -371,6 +390,28 @@ const ResourcesPage = () => {
                                 >
                                     <Upload size={18} strokeWidth={2.5} />
                                     <span>{isBulkUploading ? 'Syncing…' : 'Batch Sync'}</span>
+                                </button>
+                                <div className="hidden sm:flex items-center gap-2 bg-slate-50 p-1.5 rounded-xl border border-slate-200">
+                                    <input 
+                                        type="date" 
+                                        value={fromDate} 
+                                        onChange={(e) => setFromDate(e.target.value)}
+                                        className="bg-transparent border-none text-[10px] font-bold text-slate-600 outline-none"
+                                    />
+                                    <span className="text-[10px] font-bold text-slate-400">TO</span>
+                                    <input 
+                                        type="date" 
+                                        value={toDate} 
+                                        onChange={(e) => setToDate(e.target.value)}
+                                        className="bg-transparent border-none text-[10px] font-bold text-slate-600 outline-none"
+                                    />
+                                </div>
+                                <button
+                                    onClick={handleDownloadReport}
+                                    className="flex items-center justify-center gap-2 bg-white border border-slate-200 text-emerald-600 px-4 py-2.5 rounded-xl font-bold text-[10px] uppercase tracking-wider hover:bg-emerald-50 hover:border-emerald-300 transition-all active:scale-95 shadow-sm whitespace-nowrap"
+                                >
+                                    <FileText size={15} className="shrink-0" />
+                                    <span className="hidden sm:inline">Export Report</span>
                                 </button>
                                 <button
                                     onClick={handleCreate}

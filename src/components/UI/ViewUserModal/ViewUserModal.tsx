@@ -51,9 +51,13 @@ const ViewUserModal: React.FC<ViewUserModalProps> = ({ isOpen, onClose, user, on
                                 </div>
                                 <div>
                                     <h2 className="text-lg font-bold text-slate-900">{userName}</h2>
-                                    <span className={`text-[0.7rem] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${roleBadgeColors[userRole] || 'bg-slate-100 text-slate-600'}`}>
-                                        {userRole}
-                                    </span>
+                                    <div className="flex flex-wrap gap-1 mt-1">
+                                        {(user.all_roles || [userRole]).map((role: string, idx: number) => (
+                                            <span key={idx} className={`text-[0.65rem] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${roleBadgeColors[role.toLowerCase()] || 'bg-slate-100 text-slate-600'}`}>
+                                                {role}
+                                            </span>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
                             <button className="w-8 h-8 flex items-center justify-center text-slate-400 hover:bg-slate-100 rounded-lg transition-all" onClick={onClose}>
@@ -76,6 +80,18 @@ const ViewUserModal: React.FC<ViewUserModalProps> = ({ isOpen, onClose, user, on
                                 {renderDetail(MapPin, "Scope", user.scope)}
                                 {user.venue && renderDetail(MapPin, "Target Venue", user.venue)}
                             </>)}
+
+                            {/* All Roles Section */}
+                            <div className="mt-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                <span className="text-[0.7rem] font-bold text-slate-400 uppercase tracking-widest block mb-2">Effective Privileges</span>
+                                <div className="flex flex-wrap gap-2">
+                                    {(user.all_roles || [userRole]).map((role: string, idx: number) => (
+                                        <span key={idx} className={`px-3 py-1 rounded-lg text-[0.75rem] font-bold capitalize shadow-sm ${roleBadgeColors[role.toLowerCase()] || 'bg-white text-slate-600 border border-slate-200'}`}>
+                                            {role}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
 
                             {/* Stats */}
                             <div className="grid grid-cols-3 gap-3 mt-2">

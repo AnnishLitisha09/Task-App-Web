@@ -5,6 +5,7 @@ import api from '../../../utils/api';
 import CreateUserModal from '../../../components/UI/CreateUserModal/CreateUserModal';
 import DeleteConfirmModal from '../../../components/UI/DeleteConfirmModal/DeleteConfirmModal';
 import ViewUserModal from '../../../components/UI/ViewUserModal/ViewUserModal';
+import RevokeRoleModal from '../../../components/UI/RevokeRoleModal';
 import {
     Search, UserPlus, Eye,
     Edit3, UserMinus, Users, UserCircle, ShieldCheck, ChevronDown, Upload, CheckCircle2,
@@ -23,6 +24,7 @@ const UsersPage = () => {
     const [selectedUser, setSelectedUser] = useState(null);
     const [isViewOpen, setIsViewOpen] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+    const [isRevokeOpen, setIsRevokeOpen] = useState(false);
     const [showToast, setShowToast] = useState(false);
     const [toastMsg, setToastMsg] = useState('');
     const [usersList, setUsersList] = useState([]);
@@ -61,7 +63,20 @@ const UsersPage = () => {
                 if (response?.users) {
                     const mappedUsers = response.users.map(u => {
                         const info = u.student_info || u.faculty_info || u.staff_info || u.role_user_info || {};
-                        return { ...u, ...info, name: info.name || (u.role === 'admin' ? 'Admin' : 'Unknown'), email: info.email || 'N/A', dept: info.department_name || (u.role_assignments?.[0]?.department) || 'N/A', regNo: info.reg_no || 'N/A', score: parseFloat(info.score || 0), penalty: parseFloat(info.penalty || 0), year: info.year || 'N/A', designation: info.designation || 'N/A' };
+                        return { 
+                            ...u, 
+                            ...info, 
+                            id: u.user_id,     // backend returns user_id, not id
+                            all_roles: u.all_roles || [u.role],
+                            name: info.name || (u.role === 'admin' ? 'Admin' : 'Unknown'), 
+                            email: info.email || 'N/A', 
+                            dept: info.department_name || (u.role_assignments?.[0]?.department) || 'N/A', 
+                            regNo: info.reg_no || 'N/A', 
+                            score: parseFloat(info.score || 0), 
+                            penalty: parseFloat(info.penalty || 0), 
+                            year: info.year || 'N/A', 
+                            designation: info.designation || 'N/A' 
+                        };
                     });
                     setUsersList(mappedUsers);
                 }
@@ -97,6 +112,7 @@ const UsersPage = () => {
     const handleCreateNew = () => { setIsEditMode(false); setSelectedUser(null); setIsModalOpen(true); };
     const handleView = (user) => { setSelectedUser(user); setIsViewOpen(true); };
     const handleEdit = (user) => { setIsEditMode(true); setSelectedUser(user); setIsModalOpen(true); };
+    const handleRevokeClick = (user) => { setSelectedUser(user); setIsRevokeOpen(true); };
     const handleDeleteClick = (user) => { setSelectedUser(user); setIsDeleteOpen(true); };
     const handleDeleteConfirm = () => { setUsersList(prev => prev.filter(u => u.id !== selectedUser.id)); setSelectedUser(null); setIsDeleteOpen(false); };
 
@@ -318,10 +334,23 @@ const UsersPage = () => {
                                                             </div>
                                                         </div>
                                                     </td>
-                                                    <td className="px-4 py-3 border-b border-slate-100 text-[0.85rem] text-slate-700 align-middle">
-                                                        <span className={`px-2.5 py-1 rounded-md text-[0.75rem] font-bold capitalize ${getCatBadgeClass(user.role)}`}>
-                                                            {user.role || 'student'}
-                                                        </span>
+                                                     <td className="px-4 py-3 border-b border-slate-100 text-[0.85rem] text-slate-700 align-middle">
+                                                        <div 
+                                                            className="flex flex-wrap gap-1 cursor-pointer hover:opacity-80 transition-opacity"
+                                                            onClick={(e) => { e.stopPropagation(); handleRevokeClick(user); }}
+                                                            title="Click to manage roles"
+                                                        >
+                                                            {user.all_roles?.slice(0, 2).map((role, idx) => (
+                                                                <span key={idx} className={`px-2 py-0.5 rounded-md text-[0.65rem] font-bold capitalize ${getCatBadgeClass(role)}`}>
+                                                                    {role}
+                                                                </span>
+                                                            ))}
+                                                            {user.all_roles?.length > 2 && (
+                                                                <span className="px-2 py-0.5 rounded-md text-[0.65rem] font-bold bg-slate-100 text-slate-500">
+                                                                    +{user.all_roles.length - 2}
+                                                                </span>
+                                                            )}
+                                                        </div>
                                                     </td>
                                                     <td className="px-4 py-3 border-b border-slate-100 text-[0.85rem] text-slate-700 align-middle">{user.dept || 'N/A'}</td>
                                                     <td className="px-4 py-3 border-b border-slate-100 text-[0.85rem] text-slate-700 align-middle">
@@ -379,6 +408,15 @@ const UsersPage = () => {
                 }}
             />
             <ViewUserModal isOpen={isViewOpen} onClose={() => setIsViewOpen(false)} user={selectedUser} onEdit={handleEdit} />
+            <RevokeRoleModal isOpen={isRevokeOpen} onClose={() => setIsRevokeOpen(false)} user={selectedUser} 
+                onSuccess={(updatedUser) => {
+                    setToastMsg('Role revoked successfully!');
+                    setShowToast(true); setTimeout(() => setShowToast(false), 3000);
+                    // Refresh users
+                    setUsersList(prev => prev.map(u => u.id === updatedUser.id ? { ...u, all_roles: updatedUser.all_roles, role: updatedUser.role } : u));
+                    setIsRevokeOpen(false);
+                }}
+            />
 
             {selectedUser && (
                 <DeleteConfirmModal isOpen={isDeleteOpen} onClose={() => setIsDeleteOpen(false)} userName={selectedUser.name} onConfirm={handleDeleteConfirm} title="Delete User?" confirmText="Delete User" />
@@ -414,9 +452,22 @@ const CardView = ({ user, handleView, handleEdit, handleDeleteClick, getCatBadge
                     <span className="text-xs text-slate-500">{user.email || 'N/A'}</span>
                 </div>
             </div>
-            <span className={`px-2 py-0.5 rounded-lg text-[0.65rem] font-bold capitalize ${getCatBadgeClass(user.role)}`}>
-                {user.role || 'student'}
-            </span>
+            <div 
+                className="flex flex-wrap gap-1 justify-end max-w-[50%] cursor-pointer hover:opacity-80 transition-opacity"
+                onClick={(e) => { e.stopPropagation(); handleRevokeClick(user); }}
+                title="Click to manage roles"
+            >
+                {user.all_roles?.slice(0, 2).map((role, idx) => (
+                    <span key={idx} className={`px-2 py-0.5 rounded-lg text-[0.6rem] font-bold capitalize ${getCatBadgeClass(role)}`}>
+                        {role}
+                    </span>
+                ))}
+                {user.all_roles?.length > 2 && (
+                    <span className="px-2 py-0.5 rounded-lg text-[0.6rem] font-bold bg-slate-100 text-slate-500">
+                        +{user.all_roles.length - 2}
+                    </span>
+                )}
+            </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4 mb-4">

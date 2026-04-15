@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, Box, UserCheck, Plus, Search, Edit2, UserPlus, Trash2, LayoutGrid, List, CheckCircle2, XCircle, Clock, Upload, X, AlertCircle } from 'lucide-react';
+import { MapPin, Box, UserCheck, Plus, Search, Edit2, UserPlus, Trash2, LayoutGrid, List, CheckCircle2, XCircle, Clock, Upload, X, AlertCircle, FileText } from 'lucide-react';
 import api from '../../../utils/api';
 import VenueModal from '../../../components/UI/VenueModal/VenueModal';
 import DeleteConfirmModal from '../../../components/UI/DeleteConfirmModal/DeleteConfirmModal';
@@ -35,6 +35,8 @@ const InfrastructurePage = () => {
     const [modalMode, setModalMode] = useState('create');
     const [bulkResult, setBulkResult] = useState(null);
     const [isBulkUploading, setIsBulkUploading] = useState(false);
+    const [fromDate, setFromDate] = useState(new Date(new Date().setDate(new Date().getDate() - 90)).toISOString().split('T')[0]);
+    const [toDate, setToDate] = useState(new Date().toISOString().split('T')[0]);
     const bulkInputRef = useRef(null);
 
 
@@ -60,6 +62,26 @@ const InfrastructurePage = () => {
         try { await api(`/resources/venues/${selectedVenue.id}`, { method: 'DELETE' }); setVenues(prev => prev.filter(v => v.id !== selectedVenue.id)); }
         catch (err) { console.error(err); }
         finally { setIsDeleteOpen(false); setSelectedVenue(null); }
+    };
+
+    const handleDownloadReport = async (venue_id = null) => {
+        try {
+            let endpoint = `resources/venues/usage-report?from=${fromDate}&to=${toDate}`;
+            if (venue_id) endpoint += `&venue_id=${venue_id}`;
+            const blob = await api(endpoint);
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            const filename = venue_id ? `venue_${venue_id}_report` : 'venue_aggregate_report';
+            a.download = `${filename}_${new Date().toISOString().split('T')[0]}.xlsx`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        } catch (err) {
+            console.error('Download failed:', err);
+            alert('Failed to download report: ' + err.message);
+        }
     };
 
     const handleBulkUpload = async (e) => {
@@ -186,6 +208,31 @@ const InfrastructurePage = () => {
                                 <Upload size={14} className="shrink-0" />
                                 <span className="hidden sm:inline">Bulk</span>
                             </button>
+                            
+                            <div className="hidden sm:flex items-center gap-2 bg-slate-50 p-1.5 rounded-xl border border-slate-200">
+                                <input 
+                                    type="date" 
+                                    value={fromDate} 
+                                    onChange={(e) => setFromDate(e.target.value)}
+                                    className="bg-transparent border-none text-[10px] font-bold text-slate-600 outline-none"
+                                />
+                                <span className="text-[10px] font-bold text-slate-400">TO</span>
+                                <input 
+                                    type="date" 
+                                    value={toDate} 
+                                    onChange={(e) => setToDate(e.target.value)}
+                                    className="bg-transparent border-none text-[10px] font-bold text-slate-600 outline-none"
+                                />
+                            </div>
+
+                            <button
+                                onClick={() => handleDownloadReport()}
+                                className="flex items-center justify-center gap-2 bg-white border border-slate-200 text-indigo-600 px-4 py-2.5 rounded-xl font-bold text-[10px] uppercase tracking-wider hover:bg-indigo-50 hover:border-indigo-300 transition-all active:scale-95 shadow-sm whitespace-nowrap"
+                            >
+                                <FileText size={15} className="shrink-0" />
+                                <span className="hidden sm:inline text-indigo-600">Export</span>
+                            </button>
+
                             <button
                                 className="flex items-center justify-center gap-2 bg-slate-900 border-none text-white px-4 py-2.5 rounded-xl font-bold text-[10px] uppercase tracking-wider hover:bg-indigo-600 transition-all shadow-sm active:scale-95 whitespace-nowrap"
                                 onClick={handleCreate}
@@ -282,14 +329,21 @@ const InfrastructurePage = () => {
                                         {/* Action buttons on image — always visible */}
                                         <div className="absolute top-3 right-3 flex gap-2">
                                             <button
-                                                className="w-9 h-9 bg-white text-slate-600 rounded-xl flex items-center justify-center shadow-xl border-none cursor-pointer hover:bg-slate-900 hover:text-white transition-colors"
+                                                className="w-9 h-10 bg-white text-indigo-600 rounded-xl flex items-center justify-center shadow-xl border-none cursor-pointer hover:bg-slate-900 hover:text-white transition-colors"
+                                                onClick={(e) => { e.stopPropagation(); handleDownloadReport(v.venue_id); }}
+                                                title="Export This Venue"
+                                            >
+                                                <FileText size={15} />
+                                            </button>
+                                            <button
+                                                className="w-9 h-10 bg-white text-slate-600 rounded-xl flex items-center justify-center shadow-xl border-none cursor-pointer hover:bg-slate-900 hover:text-white transition-colors"
                                                 onClick={(e) => { e.stopPropagation(); handleEdit(v); }}
                                                 title="Edit"
                                             >
                                                 <Edit2 size={15} />
                                             </button>
                                             <button
-                                                className="w-9 h-9 bg-white text-rose-500 rounded-xl flex items-center justify-center shadow-xl border-none cursor-pointer hover:bg-rose-500 hover:text-white transition-colors"
+                                                className="w-9 h-10 bg-white text-rose-500 rounded-xl flex items-center justify-center shadow-xl border-none cursor-pointer hover:bg-rose-500 hover:text-white transition-colors"
                                                 onClick={(e) => { e.stopPropagation(); handleDeleteClick(v); }}
                                                 title="Delete"
                                             >

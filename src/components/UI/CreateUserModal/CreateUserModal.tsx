@@ -41,6 +41,10 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
     const [roleName, setRoleName] = useState('');
     const [scopeName, setScopeName] = useState('');
     const [facultyType, setFacultyType] = useState('Professor');
+    const [allRoles, setAllRoles] = useState<string[]>([]);
+    const [roleAssignments, setRoleAssignments] = useState<any[]>([]);
+    const [profilesToRemove, setProfilesToRemove] = useState<string[]>([]);
+    const [assignmentsToRemove, setAssignmentsToRemove] = useState<any[]>([]);
 
     // Auto-map scope when roleName changes
     const ROLE_SCOPE_MAP: Record<string, string> = {
@@ -113,6 +117,11 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
             if (userData.faculty_info?.name || userData.advisor_name) {
                 setAdvisorSearch(`${userData.faculty_info?.name || userData.advisor_name} (${userData.faculty_id})`);
             }
+
+            setAllRoles(userData.all_roles || []);
+            setRoleAssignments(userData.role_assignments || []);
+            setProfilesToRemove([]);
+            setAssignmentsToRemove([]);
         } else if (!isOpen) {
             resetForm();
         }
@@ -140,6 +149,13 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
     const handleFinalize = async () => {
         setIsLoading(true);
         setError('');
+
+        // STRICT PARSING: Helper for optional ID fields
+        const parseId = (val: any) => {
+            if (val === '' || val === null || val === undefined) return null;
+            const num = Number(val);
+            return isNaN(num) ? null : num;
+        };
 
         // Dept only required for student, faculty, AND role-user when role is HOD
         const isDepartmentRequired = ['student', 'faculty'].includes(category) || (category === 'role-user' && roleName === 'HOD');
@@ -170,18 +186,48 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
         }
 
         try {
+            if (isEdit && userData) {
+                // Use the new Unified Role Management API for edits
+                const payload: any = {
+                    primary_role: category
+                };
+
+                if (profilesToRemove.length > 0) {
+                    payload.remove_profile = profilesToRemove[0]; // Logic for one at a time from UI
+                }
+
+                // Prepare assignments to add (only if not already in roleAssignments)
+                if (category === 'role-user' && roleName) {
+                    payload.add_assignments = [{
+                        role: roleName,
+                        scope: scopeName,
+                        department_id: roleName === 'HOD' ? parseId(deptId) : null,
+                        venue_id: ['INCHARGE', 'LIBRARY_INCHARGE'].includes(roleName) ? parseId(venueId) : null
+                    }];
+                }
+
+                if (assignmentsToRemove.length > 0) {
+                    payload.remove_assignments = assignmentsToRemove.map(a => ({
+                        role: a.role,
+                        assignment_id: a.assignment_id || a.id
+                    }));
+                }
+
+                const result = await api(`/users/${userData.id}/roles`, {
+                    method: 'PUT',
+                    body: payload
+                });
+
+                if (onSuccess) onSuccess(result.user);
+                onClose();
+                return;
+            }
+
             let endpoint = '';
             let payload: any = {
                 name: fullName,
                 email: email,
                 category: category
-            };
-
-            // STRICT PARSING: Ensure we only send numbers to the backend for ID fields
-            const parseId = (val: any) => {
-                if (val === '' || val === null || val === undefined) return null;
-                const num = Number(val);
-                return isNaN(num) ? null : num;
             };
 
             const parsedDeptId = parseId(deptId);
@@ -227,13 +273,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                     break;
                 case 'role-user':
                     endpoint = '/users/role-user';
-                    payload = {
-                        ...payload,
-                        roleName: roleName,
-                        scope: scopeName,
-                        department_id: roleName === 'HOD' ? parsedDeptId : null,
-                        venue_id: (roleName === 'INCHARGE' || roleName === 'LIBRARY_INCHARGE') ? parsedVenueId : null
-                    };
+                    payload = { ...payload, roleName, scope: scopeName, department_id: roleName === 'HOD' ? parsedDeptId : null, venue_id: (roleName === 'INCHARGE' || roleName === 'LIBRARY_INCHARGE') ? parsedVenueId : null };
                     break;
                 default:
                     throw new Error('Please select a valid category');
@@ -454,6 +494,54 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                                     <option value="infrastructure">🏢 Infrastructure — Access to venues/facilities</option>
                                 </select>
                                 <p className="text-[0.7rem] text-slate-400 mt-1">Auto-set based on role. You can override if needed.</p>
+                            </div>
+                        )}
+                        {/* Role Management section for Edits */}
+                        {isEdit && (
+                            <div className="md:col-span-2 mt-6 border-t border-slate-100 pt-6">
+                                <label className="text-[0.75rem] font-bold text-slate-400 uppercase tracking-widest block mb-4">
+                                    Current Active Roles
+                                </label>
+                                <div className="flex flex-wrap gap-2 mb-4">
+                                    {allRoles.map((role, idx) => {
+                                        const isMainProfile = ['student', 'faculty', 'staff'].includes(role.toLowerCase());
+                                        const isRemoving = profilesToRemove.includes(role.toLowerCase());
+                                        const assignment = roleAssignments.find(a => a.role === role);
+                                        const isRemovingAssignment = assignment && assignmentsToRemove.some(ar => ar.role === role);
+
+                                        return (
+                                            <div 
+                                                key={idx} 
+                                                className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border transition-all ${
+                                                    (isRemoving || isRemovingAssignment) 
+                                                        ? 'bg-rose-50 border-rose-200 text-rose-500 opacity-60' 
+                                                        : 'bg-indigo-50 border-indigo-100 text-indigo-700'
+                                                }`}
+                                            >
+                                                <span className="text-[0.8rem] font-bold capitalize">{role}</span>
+                                                <button 
+                                                    onClick={() => {
+                                                        if (isMainProfile) {
+                                                            if (isRemoving) setProfilesToRemove(prev => prev.filter(p => p !== role.toLowerCase()));
+                                                            else setProfilesToRemove([role.toLowerCase()]); // Allow removing primary profile
+                                                        } else if (assignment) {
+                                                            if (isRemovingAssignment) setAssignmentsToRemove(prev => prev.filter(a => a.role !== role));
+                                                            else setAssignmentsToRemove(prev => [...prev, assignment]);
+                                                        }
+                                                    }}
+                                                    className="p-1 hover:bg-rose-100 rounded-full text-rose-400 border-none bg-transparent cursor-pointer"
+                                                    title={isRemoving || isRemovingAssignment ? "Keep role" : "Remove role"}
+                                                >
+                                                    <X size={14} />
+                                                </button>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                                <p className="text-[0.7rem] text-slate-400 italic">
+                                    Tip: To promote an authority (like HOD) to be the main role, remove their primary profile (like Faculty). 
+                                    The system will automatically adjust their primary account status.
+                                </p>
                             </div>
                         )}
                     </div>

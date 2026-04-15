@@ -10,6 +10,8 @@ import api from '../../../utils/api';
 const AdminDashboard = () => {
     const [counts, setCounts] = useState({ students: 0, faculty: 0, staff: 0, role_users: 0, active_tasks: 0 });
     const [isLoading, setIsLoading] = useState(true);
+    const [fromDate, setFromDate] = useState(new Date(new Date().setDate(new Date().getDate() - 90)).toISOString().split('T')[0]);
+    const [toDate, setToDate] = useState(new Date().toISOString().split('T')[0]);
 
     useEffect(() => { fetchStats(); }, []);
 
@@ -34,30 +36,22 @@ const AdminDashboard = () => {
 
     const handleDownloadReport = async (type: 'venue' | 'resource') => {
         try {
-            const endpoint = type === 'venue' ? '/resources/venues/export' : '/resources/export';
-            const response = await api(endpoint, {
-                method: 'GET',
-                responseType: 'blob' // We will assume the frontend `api` handles blob or we fetch it natively if needed.
-            });
+            const endpoint = type === 'venue' 
+                ? `/resources/venues/usage-report?from=${fromDate}&to=${toDate}` 
+                : `/resources/export?from=${fromDate}&to=${toDate}`;
+            const blob = await api(endpoint);
 
-            // Note: Since standard api wrapper might not support blob easily, using fetch directly:
-            const token = localStorage.getItem('token');
-            const res = await fetch(`http://localhost:5000/api${endpoint}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            const blob = await res.blob();
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `admin_${type}_utilisation_${Date.now()}.xlsx`;
+            a.download = `admin_${type}_utilisation_${new Date().toISOString().split('T')[0]}.xlsx`;
             document.body.appendChild(a);
             a.click();
             window.URL.revokeObjectURL(url);
             document.body.removeChild(a);
         } catch (error) {
             console.error(`Failed to download ${type} report:`, error);
+            alert(`Failed to download ${type} report. Please try again.`);
         }
     };
 
@@ -99,13 +93,30 @@ const AdminDashboard = () => {
             {/* System Reports Panel */}
             <section className="bg-white rounded-[24px] border border-slate-200 grow flex flex-col overflow-hidden shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
                 <div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-white max-sm:px-5 max-sm:py-5">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 bg-indigo-50 text-indigo-500 rounded-lg">
-                            <ShieldAlert size={20} />
+                    <div className="flex items-center gap-6">
+                        <div className="flex items-center gap-2 bg-slate-50 p-2 rounded-xl border border-slate-100">
+                            <input 
+                                type="date" 
+                                value={fromDate} 
+                                onChange={(e) => setFromDate(e.target.value)}
+                                className="bg-transparent border-none text-[10px] font-bold text-slate-600 outline-none cursor-pointer"
+                            />
+                            <span className="text-[10px] font-bold text-slate-300">TO</span>
+                            <input 
+                                type="date" 
+                                value={toDate} 
+                                onChange={(e) => setToDate(e.target.value)}
+                                className="bg-transparent border-none text-[10px] font-bold text-slate-600 outline-none cursor-pointer"
+                            />
                         </div>
-                        <div>
-                            <h2 className="text-[1.25rem] font-extrabold text-slate-900 m-0 max-sm:text-base">System Reports & Analytics</h2>
-                            <p className="text-xs text-slate-500 mt-1 max-sm:hidden">Download comprehensive administrative data and utilisation logs.</p>
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-indigo-50 text-indigo-500 rounded-lg">
+                                <ShieldAlert size={20} />
+                            </div>
+                            <div>
+                                <h2 className="text-[1.25rem] font-extrabold text-slate-900 m-0 max-sm:text-base">System Reports & Analytics</h2>
+                                <p className="text-xs text-slate-500 mt-1 max-sm:hidden">Download comprehensive administrative data.</p>
+                            </div>
                         </div>
                     </div>
                 </div>

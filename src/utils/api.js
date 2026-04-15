@@ -43,6 +43,14 @@ const api = async (endpoint, options = {}) => {
         throw new Error(errorData.message || `Request failed with status ${response.status}`);
     }
 
+    const contentType = response.headers.get('Content-Type');
+    if (contentType && (
+        contentType.includes('spreadsheetml.sheet') || 
+        contentType.includes('application/octet-stream')
+    )) {
+        return response.blob();
+    }
+
     return response.json();
 };
 
