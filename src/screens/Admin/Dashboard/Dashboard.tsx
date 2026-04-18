@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import {
     Users, ShieldCheck, Clock, AlertTriangle,
     MapPin, ArrowUpRight, ShieldAlert, UserCircle, Building2,
-    CheckCircle2
+    CheckCircle2, Activity
 } from 'lucide-react';
 import api from '../../../utils/api';
 
@@ -61,7 +61,7 @@ const AdminDashboard = () => {
             <header className="flex justify-between items-start mb-10 max-md:mb-8 max-sm:mb-6 max-md:flex-col max-md:gap-4 max-md:items-stretch">
                 <div className="min-w-0">
                     <h1 className="text-[2rem] font-extrabold text-slate-900 m-0 tracking-[-0.5px] max-md:text-[1.75rem] max-sm:text-[1.5rem] truncate">Dashboard Overview</h1>
-                    <p className="text-slate-500 mt-1.5 text-base max-sm:text-sm">Welcome to the <strong>AdminSphere</strong> Institutional Portal</p>
+                    <p className="text-slate-500 mt-1.5 text-base max-sm:text-sm">Welcome to the <strong>Task Sync</strong> Institutional Portal</p>
                 </div>
                 <div className="flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-700 rounded-full text-[0.75rem] font-bold border border-emerald-100 shadow-sm w-fit">
                     <CheckCircle2 size={16} />
@@ -154,6 +154,27 @@ const AdminDashboard = () => {
                             >
                                 <ArrowUpRight size={16} />
                                 Download .xlsx
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Live Tracker Entry Card */}
+                    <div className="group border border-slate-200 rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center gap-5 hover:border-indigo-500 transition-all shadow-sm bg-white hover:shadow-md col-span-2 max-lg:col-span-1">
+                        <div className="w-14 h-14 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center shrink-0 group-hover:bg-amber-600 group-hover:text-white transition-colors">
+                            <Activity size={28} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                                <h3 className="text-lg font-bold text-slate-900 max-sm:text-base">Operational Live Stream</h3>
+                                <span className="bg-amber-100 text-amber-700 text-[10px] font-black px-2 py-0.5 rounded-md uppercase animate-pulse">Live</span>
+                            </div>
+                            <p className="text-sm text-slate-500 mt-1 mb-4 max-sm:text-xs">Real-time title-wise task monitoring. Observe all activities unfolding across the organization date-wise.</p>
+                            <button
+                                onClick={() => (window as any).adminSetActiveTab?.('Live Tracking')}
+                                className="flex items-center gap-2 bg-slate-900 text-white border-none px-6 py-3 rounded-xl text-sm font-bold hover:bg-indigo-600 transition-all active:scale-95 shadow-sm"
+                            >
+                                <Activity size={16} />
+                                Open Tracker
                             </button>
                         </div>
                     </div>

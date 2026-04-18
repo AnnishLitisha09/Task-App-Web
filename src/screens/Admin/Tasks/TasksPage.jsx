@@ -4,7 +4,7 @@ import {
     Search, Plus, MoreVertical,
     MapPin, Calendar, CheckCircle2,
     Clock, AlertCircle, QrCode, Camera,
-    FileText, Edit3, Trash2, Eye, LayoutGrid, List
+    FileText, Edit3, Trash2, Eye, LayoutGrid, List, Activity
 } from 'lucide-react';
 import TaskDetails from './TaskDetails';
 import CreateTask from './CreateTask';
@@ -112,9 +112,12 @@ const TasksPage = () => {
     };
 
     const getTaskMethods = (task) => {
-        // Backend might have closure_ids or completionMethods array
-        // For now, return a placeholder or map if available
-        return ['QR Scan', 'Photo']; 
+        const methods = [];
+        const closureIds = task.closure_ids || [];
+        if (closureIds.includes(1)) methods.push('OTP Verify');
+        if (closureIds.includes(2)) methods.push('Photo Upload');
+        if (closureIds.includes(3)) methods.push('QR Scan');
+        return methods;
     };
 
     const getPriorityColor = (priority) => {
@@ -211,6 +214,10 @@ const TasksPage = () => {
                             <button className={`p-2.5 rounded-[13px] border-none cursor-pointer flex transition-all ${viewMode === 'grid' ? 'bg-white text-indigo-600 shadow-md' : 'bg-transparent text-slate-400 hover:text-slate-600'}`} onClick={() => setViewMode('grid')}><LayoutGrid size={20} strokeWidth={2.5} /></button>
                             <button className={`p-2.5 rounded-[13px] border-none cursor-pointer flex transition-all ${viewMode === 'table' ? 'bg-white text-indigo-600 shadow-md' : 'bg-transparent text-slate-400 hover:text-slate-600'}`} onClick={() => setViewMode('table')}><List size={20} strokeWidth={2.5} /></button>
                         </div>
+                        <button className="flex-1 sm:flex-none flex items-center justify-center gap-3 border-2 border-indigo-500 text-indigo-600 bg-white px-8 py-4 rounded-[22px] text-xs font-bold uppercase tracking-widest shadow-sm hover:bg-indigo-50 transition-all active:scale-95 cursor-pointer" onClick={() => (window.adminSetActiveTab ? window.adminSetActiveTab('Live Tracking') : alert('Please use the sidebar to access Live Tracking'))}>
+                            <Activity size={20} strokeWidth={2.5} />
+                            <span>Live Tracker</span>
+                        </button>
                         <button className="flex-1 sm:flex-none flex items-center justify-center gap-3 bg-slate-900 hover:bg-indigo-600 text-white px-8 py-4 rounded-[22px] text-xs font-bold uppercase tracking-widest shadow-xl transition-all active:scale-95 border-none cursor-pointer" onClick={() => setIsCreating(true)}>
                             <Plus size={20} strokeWidth={3} />
                             <span>Issue New Directive</span>
