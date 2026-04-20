@@ -52,6 +52,8 @@ const CreateTask = ({ onCancel, onSuccess }) => {
         endDate: new Date().toISOString().split('T')[0],
         startTime: '09:00', endTime: '17:00',
         time_quota_hours: 2.5,
+        maxSlots: 5,
+        recurrenceType: 'Daily',
         task_title_id: '',
         is_faculty: false, faculty_ids: [],
         is_mandatory_flag: false
@@ -195,13 +197,23 @@ const CreateTask = ({ onCancel, onSuccess }) => {
                 task_type_data.start_date = taskData.selectedDate;
                 task_type_data.end_date = taskData.selectedDate;
                 task_type_data.start_time = `${taskData.startTime}:00`;
-                task_type_data.end_time = taskData.taskCategory === 'Self Log' ? `${taskData.endTime}:00` : null;
-                task_type_data.time_quota_hours = taskData.time_quota_hours;
-            } else {
+                task_type_data.end_time = `${taskData.endTime}:00`;
+            } else if (taskData.taskType === 'Bidding Task') {
+                task_type_data.start_date = taskData.selectedDate;
+                task_type_data.end_date = taskData.selectedDate;
+                task_type_data.start_time = `${taskData.startTime}:00`;
+                task_type_data.end_time = `${taskData.endTime}:00`;
+                task_type_data.max_acceptances = taskData.maxSlots || 5;
+            } else if (taskData.taskType === 'Recurring Task') {
                 task_type_data.start_date = taskData.startDate;
                 task_type_data.end_date = taskData.endDate;
                 task_type_data.start_time = `${taskData.startTime}:00`;
-                task_type_data.end_time = taskData.taskCategory === 'Self Log' ? `${taskData.endTime}:00` : null;
+                task_type_data.end_time = `${taskData.endTime}:00`;
+                task_type_data.recurrence = (taskData.recurrenceType || 'Daily').toLowerCase();
+            } else {
+                // Long Task - date only
+                task_type_data.start_date = taskData.startDate;
+                task_type_data.end_date = taskData.endDate;
                 task_type_data.time_quota_hours = taskData.time_quota_hours;
             }
 
@@ -317,7 +329,9 @@ const CreateTask = ({ onCancel, onSuccess }) => {
             {!taskData.isPackageTask && (
                 <div className="border-t border-dashed border-slate-200 pt-4">
                     <p className="text-[0.7rem] font-extrabold text-slate-400 uppercase tracking-[0.08em] mb-4">Time Configuration</p>
-                    {taskData.taskType === 'Fixed Time Task' ? (
+
+                    {/* Fixed Time Task */}
+                    {taskData.taskType === 'Fixed Time Task' && (
                         <div className="space-y-4">
                             <div><label className={labelCls}>Select Date</label>
                                 <div className="relative"><Calendar size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -326,23 +340,67 @@ const CreateTask = ({ onCancel, onSuccess }) => {
                                 <div><label className={labelCls}>Start Time</label>
                                     <div className="relative"><Clock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                                         <input type="time" className={`${inputCls} pl-10`} value={taskData.startTime} onChange={(e) => hi('startTime', e.target.value)} /></div></div>
-                                {taskData.taskCategory === 'Self Log' ? (
-                                    <div><label className={labelCls}>End Time</label>
-                                        <div className="relative"><Clock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                                            <input type="time" className={`${inputCls} pl-10`} value={taskData.endTime} onChange={(e) => hi('endTime', e.target.value)} /></div></div>
-                                ) : (
-                                    <div><label className={labelCls}>Duration (Hours)</label>
-                                        <div className="relative"><Clock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                                            <input type="number" step="0.5" className={`${inputCls} pl-10`} value={taskData.time_quota_hours} onChange={(e) => hi('time_quota_hours', parseFloat(e.target.value))} /></div></div>
-                                )}
-                            </div></div>
-                    ) : (
+                                <div><label className={labelCls}>End Time</label>
+                                    <div className="relative"><Clock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                                        <input type="time" className={`${inputCls} pl-10`} value={taskData.endTime} onChange={(e) => hi('endTime', e.target.value)} /></div></div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Bidding Task */}
+                    {taskData.taskType === 'Bidding Task' && (
+                        <div className="space-y-4">
+                            <div><label className={labelCls}>Select Date</label>
+                                <div className="relative"><Calendar size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                                    <input type="date" className={`${inputCls} pl-10`} value={taskData.selectedDate} onChange={(e) => hi('selectedDate', e.target.value)} /></div></div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div><label className={labelCls}>Start Time</label>
+                                    <div className="relative"><Clock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                                        <input type="time" className={`${inputCls} pl-10`} value={taskData.startTime} onChange={(e) => hi('startTime', e.target.value)} /></div></div>
+                                <div><label className={labelCls}>End Time</label>
+                                    <div className="relative"><Clock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                                        <input type="time" className={`${inputCls} pl-10`} value={taskData.endTime} onChange={(e) => hi('endTime', e.target.value)} /></div></div>
+                            </div>
+                            <div><label className={labelCls}>Available Slots</label>
+                                <div className="relative"><Clock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                                    <input type="number" min="1" className={`${inputCls} pl-10`} value={taskData.maxSlots} onChange={(e) => hi('maxSlots', parseInt(e.target.value) || 5)} /></div></div>
+                        </div>
+                    )}
+
+                    {/* Recurring Task */}
+                    {taskData.taskType === 'Recurring Task' && (
+                        <div className="space-y-4">
+                            <div><label className={labelCls}>Recurrence</label>
+                                <select className={selectCls} value={taskData.recurrenceType} onChange={(e) => hi('recurrenceType', e.target.value)}>
+                                    {['Daily', 'Weekly', 'Monthly'].map(r => <option key={r}>{r}</option>)}
+                                </select></div>
+                            <div className="grid grid-cols-2 gap-4">
+                                {[{ label: 'Valid From', key: 'startDate' }, { label: 'Valid Until', key: 'endDate' }].map(({ label, key }) => (
+                                    <div key={key}><label className={labelCls}>{label}</label>
+                                        <div className="relative"><Calendar size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                                            <input type="date" className={`${inputCls} pl-10`} value={taskData[key]} onChange={(e) => hi(key, e.target.value)} /></div></div>
+                                ))}
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div><label className={labelCls}>Start Time</label>
+                                    <div className="relative"><Clock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                                        <input type="time" className={`${inputCls} pl-10`} value={taskData.startTime} onChange={(e) => hi('startTime', e.target.value)} /></div></div>
+                                <div><label className={labelCls}>End Time</label>
+                                    <div className="relative"><Clock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                                        <input type="time" className={`${inputCls} pl-10`} value={taskData.endTime} onChange={(e) => hi('endTime', e.target.value)} /></div></div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Long Task - date only */}
+                    {taskData.taskType === 'Long Task' && (
                         <div className="grid grid-cols-2 gap-4">
                             {[{ label: 'Valid From', key: 'startDate' }, { label: 'Valid Until', key: 'endDate' }].map(({ label, key }) => (
                                 <div key={key}><label className={labelCls}>{label}</label>
                                     <div className="relative"><Calendar size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                                         <input type="date" className={`${inputCls} pl-10`} value={taskData[key]} onChange={(e) => hi(key, e.target.value)} /></div></div>
-                            ))}</div>
+                            ))}
+                        </div>
                     )}
                 </div>
             )}
@@ -404,8 +462,8 @@ const CreateTask = ({ onCancel, onSuccess }) => {
                     </div>
 
                     <div className="border-t border-dashed border-slate-200 pt-4"><p className="text-[0.7rem] font-extrabold text-slate-400 uppercase tracking-[0.08em] mb-4">Governance</p>
-                        <ToggleRow label="Is Faculty Managed" desc="Assign a faculty member in charge" checked={taskData.isFaculty} onChange={(e) => hi('isFaculty', e.target.checked)} />
-                        {taskData.isFaculty && (
+                        <ToggleRow label="Is Faculty Managed" desc="Assign a faculty member in charge" checked={taskData.is_faculty} onChange={(e) => hi('is_faculty', e.target.checked)} />
+                        {taskData.is_faculty && (
                             <div className="mt-3">
                                 <div onClick={() => { setPickerTarget('faculty_ids'); setShowUserPicker(true); }} className="flex items-center gap-3 p-4 border rounded-2xl bg-slate-50 cursor-pointer hover:border-indigo-300 hover:bg-indigo-50/50 transition-all border border-slate-200">
                                     <div className="w-10 h-10 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center">

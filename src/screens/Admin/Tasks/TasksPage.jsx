@@ -28,7 +28,9 @@ const TasksPage = () => {
         try {
             // Fetch tasks created by this admin
             const response = await api(`tasks/created-by/${adminId}`);
-            setTasks(response.items || []);
+            // The backend returns an array directly, so we need to handle it properly
+            const fetchedTasks = Array.isArray(response) ? response : (response.items || []);
+            setTasks(fetchedTasks);
         } catch (err) {
             console.error("Failed to fetch tasks:", err);
         } finally {
@@ -57,15 +59,15 @@ const TasksPage = () => {
     };
 
     const filteredTasks = tasks.filter(task => {
-        const matchesSearch = task.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        const matchesSearch = (task.title || '').toLowerCase().includes(searchQuery.toLowerCase()) || 
                              (task.category && task.category.toLowerCase().includes(searchQuery.toLowerCase()));
         
-        let taskStatus = 'Active';
-        if (task.is_completed) taskStatus = 'Completed';
-        else if (task.is_approved === false) taskStatus = 'Review';
+        const taskStatus = getTaskStatus(task);
 
         const matchesStatus = statusFilter === 'all' || taskStatus === statusFilter;
-        const matchesPriority = priorityFilter === 'all' || task.priority === priorityFilter;
+        // Handle priority case-insensitivity since DB might return 'medium' and filter is 'Medium'
+        const normalizedPriority = task.priority ? task.priority.charAt(0).toUpperCase() + task.priority.slice(1).toLowerCase() : '';
+        const matchesPriority = priorityFilter === 'all' || normalizedPriority === priorityFilter;
         return matchesSearch && matchesStatus && matchesPriority;
     });
 
@@ -82,26 +84,27 @@ const TasksPage = () => {
 
     const stats = [
         { label: 'Total Directives', value: tasks.length.toString(), icon: FileText, color: '#6366f1' },
-        { label: 'Active', value: tasks.filter(t => t.status === 'Active').length.toString(), icon: Clock, color: '#3b82f6' },
-        { label: 'In Review', value: tasks.filter(t => t.status === 'Review').length.toString(), icon: AlertCircle, color: '#f59e0b' },
-        { label: 'Completed', value: tasks.filter(t => t.status === 'Completed').length.toString(), icon: CheckCircle2, color: '#10b981' },
+        { label: 'Active', value: tasks.filter(t => getTaskStatus(t) === 'Active').length.toString(), icon: Clock, color: '#3b82f6' },
+        { label: 'In Review', value: tasks.filter(t => getTaskStatus(t) === 'Review').length.toString(), icon: AlertCircle, color: '#f59e0b' },
+        { label: 'Completed', value: tasks.filter(t => getTaskStatus(t) === 'Completed').length.toString(), icon: CheckCircle2, color: '#10b981' },
     ];
 
     if (selectedTask) {
         return <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}><TaskDetails task={selectedTask} onBack={() => setSelectedTask(null)} /></motion.div>;
     }
 
-    const getTaskStatus = (task) => {
-        if (task.is_completed) return 'Completed';
-        if (task.is_approved === false) return 'Review';
+    function getTaskStatus(task) {
+        if (task.status === 'Completed' || task.status === 'completed' || task.is_completed) return 'Completed';
+        if (task.status === 'Inactive') return 'Inactive';
+        if (task.status === 'Review' || task.is_approved === false) return 'Review';
         return 'Active';
-    };
+    }
 
-    const getTaskDate = (task) => {
+    function getTaskDate(task) {
         if (!task.TaskType) return 'N/A';
         const data = task.TaskType;
         return data.start_date || 'Ongoing';
-    };
+    }
 
     const getTaskLocation = (task) => {
         return task.Venue ? task.Venue.name : (task.venue_id ? `Venue #${task.venue_id}` : 'Remote');
@@ -117,7 +120,7 @@ const TasksPage = () => {
         return ['QR Scan', 'Photo']; 
     };
 
-    const getPriorityColor = (priority) => {
+    function getPriorityColor(priority) {
         switch (priority) {
             case 'Critical': return '#ef4444';
             case 'High': return '#f59e0b';
@@ -125,16 +128,16 @@ const TasksPage = () => {
             case 'Low': return '#64748b';
             default: return '#94a3b8';
         }
-    };
+    }
 
-    const getStatusColor = (status) => {
+    function getStatusColor(status) {
         switch (status) {
             case 'Completed': return '#10b981';
             case 'Review': return '#f59e0b';
             case 'Active': return '#3b82f6';
             default: return '#64748b';
         }
-    };
+    }
 
     const getMethodIcon = (method) => {
         if (method === 'QR Scan') return <QrCode size={14} className="text-indigo-500" />;
