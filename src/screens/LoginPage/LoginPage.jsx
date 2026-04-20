@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { GoogleLogin } from '@react-oauth/google';
-import { Mail, Lock, AlertCircle, Eye, EyeOff, Bolt, Loader2 } from 'lucide-react';
+import { Mail, Lock, AlertCircle, Eye, EyeOff, Loader2 } from 'lucide-react';
 import api from '../../utils/api';
 
 /* ─── colour tokens (matching index.css :root vars) ─── */
@@ -202,23 +202,21 @@ const LoginPage = ({ onLoginSuccess }) => {
             >
                 {/* logo-section */}
                 <motion.div className="flex justify-center" variants={itemVariants}>
-                    {/* logo-box: 80×80, white bg, rounded-3xl, border, subtle shadow */}
                     <div
                         className="flex items-center justify-center bg-white rounded-3xl border"
                         style={{
                             width: '80px', height: '80px',
                             borderColor: '#e2e8f0',
-                            boxShadow: '0 10px 20px rgba(0,0,0,0.05)'
+                            boxShadow: '0 10px 20px rgba(0,0,0,0.05)',
+                            overflow: 'hidden'
                         }}
                     >
-                        {/* logo-icon: primary colour */}
-                        <Bolt size={42} style={{ color: '#2d62ed' }} />
+                        <img src="/logo.png" alt="Task Sync" style={{ width: '64px', height: '64px', objectFit: 'contain' }} />
                     </div>
                 </motion.div>
 
                 {/* header-section */}
                 <motion.div className="text-center" variants={itemVariants}>
-                    {/* admin-badge */}
                     <div
                         className="inline-block px-3 py-1 rounded-full text-[11px] font-bold tracking-[1.2px] uppercase mb-3"
                         style={{
@@ -231,12 +229,12 @@ const LoginPage = ({ onLoginSuccess }) => {
                     </div>
                     <h1
                         className="font-extrabold tracking-tight mb-2"
-                        style={{ fontSize: '32px', color: '#1a1c1e' }}
+                        style={{ fontSize: '31px', color: '#1a1c1e' }}
                     >
-                        Welcome Back
+                        Task Sync
                     </h1>
-                    <p style={{ color: '#42474e', fontSize: '16px' }}>
-                        Enter your credentials to access the command center
+                    <p style={{ color: '#42474e', fontSize: '15px' }}>
+                        The Unified Workspace Management System
                     </p>
                 </motion.div>
 

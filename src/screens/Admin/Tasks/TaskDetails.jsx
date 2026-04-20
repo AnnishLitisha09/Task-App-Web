@@ -57,6 +57,21 @@ const TaskDetails = ({ task: initialTask, onBack }) => {
     };
 
     const isFullyAuthorized = task.is_approved === true || task.status === 'Completed';
+    const isDeadlineOver = (t) => {
+        if (t.is_completed || t.status === 'Completed') return false;
+        if (!t.TaskType || (!t.TaskType.end_date && !t.TaskType.startDate)) return false;
+        
+        const dateStr = t.TaskType.end_date || t.TaskType.startDate;
+        const timeStr = t.TaskType.end_time || '23:59:59';
+        
+        try {
+            const deadline = new Date(dateStr.split('T')[0] + 'T' + timeStr);
+            return new Date() > deadline;
+        } catch (e) {
+            return false;
+        }
+    };
+    const isExpired = isDeadlineOver(task);
 
     const getPriorityColor = (p) => ({ Critical: '#ef4444', High: '#f59e0b', Medium: '#6366f1', Low: '#10b981' }[p] || '#64748b');
     const getMethodIcon = (m) => ({ 'QR Scan': <QrCode size={16} />, 'Photo': <Camera size={16} />, 'Doc Upload': <FileText size={16} /> }[m] || <CheckCircle2 size={16} />);
@@ -94,9 +109,12 @@ const TaskDetails = ({ task: initialTask, onBack }) => {
             </div>
 
             {/* Status Banner */}
-            <div className={`flex items-center gap-3 px-6 py-4 rounded-xl font-semibold text-[0.9rem] tracking-[0.5px] mb-8 ${getTaskStatus(task) === 'Completed' ? 'bg-green-50 text-green-800 border-[1.5px] border-green-300' : 'bg-amber-50 text-amber-800 border-[1.5px] border-amber-200'}`}>
-                {getTaskStatus(task) === 'Completed' ? <CheckCircle2 size={20} /> : <AlertCircle size={20} />}
-                <span>{getTaskStatus(task).toUpperCase()} {isFullyAuthorized ? '(FULLY AUTHORIZED)' : '(PENDING AUTHORIZATION)'}</span>
+            <div className={`flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-full font-bold text-[0.85rem] tracking-[0.5px] mb-10 border transition-all ${getTaskStatus(task) === 'Completed' ? 'bg-emerald-50 text-emerald-700 border-emerald-200 shadow-sm' : isExpired ? 'bg-slate-50 text-slate-500 border-slate-200 opacity-80' : 'bg-amber-50 text-amber-700 border-amber-200'}`}>
+                {getTaskStatus(task) === 'Completed' ? <CheckCircle2 size={18} /> : isExpired ? <Clock size={18} /> : <AlertCircle size={18} />}
+                <span>
+                    {isExpired ? 'TASK DEADLINE PASSED' : getTaskStatus(task).toUpperCase()} 
+                    {!isExpired && (isFullyAuthorized ? ' (AUTHORIZED)' : ' (PENDING APPROVAL)')}
+                </span>
             </div>
 
             {/* Main Content */}
@@ -141,13 +159,22 @@ const TaskDetails = ({ task: initialTask, onBack }) => {
                         <div className="bg-white p-7 rounded-2xl border-[1.5px] border-slate-200">
                             <h2 className="text-[1.1rem] font-extrabold text-slate-900 m-0 mb-5">Execution Proof Requirements</h2>
                             <div className="flex flex-col gap-3">
-                                {['OTP Verify', 'Photo Upload'].map((method, i) => (
-                                    <div key={i} className="flex items-center gap-3 p-3.5 bg-slate-50 rounded-xl border border-slate-200">
-                                        <div className="w-9 h-9 rounded-[10px] bg-white border-[1.5px] border-slate-200 flex items-center justify-center text-indigo-500">{getMethodIcon(method)}</div>
-                                        <span className="flex-1 font-bold text-slate-600 text-[0.9rem]">{method}</span>
-                                        <span className="px-2.5 py-1 bg-amber-100 text-amber-800 rounded-md text-[0.7rem] font-extrabold tracking-[0.5px]">MANDATORY</span>
-                                    </div>
-                                ))}
+                                {(() => {
+                                    const methods = [];
+                                    const closureIds = task.closure_ids || [];
+                                    if (closureIds.includes(1)) methods.push('OTP Verify');
+                                    if (closureIds.includes(2)) methods.push('Photo Upload');
+                                    if (closureIds.includes(3)) methods.push('QR Scan');
+                                    if (methods.length === 0) return <div className="text-slate-400 text-sm italic">No special proof required.</div>;
+                                    
+                                    return methods.map((method, i) => (
+                                        <div key={i} className="flex items-center gap-3 p-3.5 bg-slate-50 rounded-xl border border-slate-200">
+                                            <div className="w-9 h-9 rounded-[10px] bg-white border-[1.5px] border-slate-200 flex items-center justify-center text-indigo-500">{getMethodIcon(method)}</div>
+                                            <span className="flex-1 font-bold text-slate-600 text-[0.9rem]">{method}</span>
+                                            <span className="px-2.5 py-1 bg-amber-100 text-amber-800 rounded-md text-[0.7rem] font-extrabold tracking-[0.5px]">MANDATORY</span>
+                                        </div>
+                                    ));
+                                })()}
                             </div>
                         </div>
 

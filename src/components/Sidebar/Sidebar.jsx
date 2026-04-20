@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import {
     LayoutDashboard, Users, ShieldCheck, Building2,
     MapPin, Box, ClipboardList, Trophy, Ticket,
-    CheckSquare, LogOut, ChevronRight, ShieldAlert, BellDot
+    CheckSquare, LogOut, ChevronRight, ShieldAlert, BellDot, Activity
 } from 'lucide-react';
 
 const navGroups = [
@@ -15,6 +15,7 @@ const navGroups = [
             { id: 'infrastructure', icon: MapPin,      label: 'Infrastructure' },
             { id: 'resources',  icon: Box,             label: 'Resources' },
             { id: 'tasks',      icon: ClipboardList,   label: 'Directives' },
+            { id: 'tracking',   icon: Activity,        label: 'Live Tracking' },
             { id: 'task-titles',icon: CheckSquare,     label: 'Task Titles' },
             { id: 'scoreboard', icon: Trophy,          label: 'Scoreboard' },
             { id: 'coupons',    icon: Ticket,          label: 'Coupons' },
@@ -49,12 +50,12 @@ const Sidebar = ({ onLogout, isOpen, onClose, activeTab, setActiveTab, userTitle
                 {/* Header */}
                 <div className="px-6 py-8 mb-2 max-md:py-6">
                     <div className="flex items-center gap-3">
-                        <div className="w-[42px] h-[42px] bg-indigo-500 text-white rounded-xl flex items-center justify-center shadow-[0_8px_16px_-4px_rgba(99,102,241,0.4)] shrink-0">
-                            <ShieldCheck size={24} strokeWidth={2.5} />
+                        <div className="w-[42px] h-[42px] bg-white rounded-xl flex items-center justify-center shadow-sm overflow-hidden shrink-0 border border-slate-100">
+                             <img src="/logo.png" alt="Task Sync" className="w-[34px] h-[34px] object-contain" />
                         </div>
                         <div className="min-w-0">
-                            <span className="text-lg font-bold text-slate-900 tracking-tight block max-md:text-base truncate">AdminSphere</span>
-                            <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.5px] block truncate">Management Suite</span>
+                            <span className="text-lg font-bold text-slate-900 tracking-tight block max-md:text-base truncate">Task Sync</span>
+                            <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.5px] block truncate">Unified Workspace</span>
                         </div>
                     </div>
                 </div>

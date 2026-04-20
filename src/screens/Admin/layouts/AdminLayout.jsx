@@ -9,6 +9,7 @@ import ScoreboardPage from '../Scoreboard/ScoreboardPage';
 import ResourcesPage from '../Resources/ResourcesPage';
 import CoupenPage from '../Coupons/CouponsPage';
 import TaskTitlesPage from '../TaskTitles/TaskTitlesPage';
+import TaskTitleTracker from '../Tasks/TaskTitleTracker';
 
 import AcknowledgmentTrackingPage from '../Governance/AcknowledgmentTrackingPage';
 import UniversalGovernancePage from '../Governance/UniversalGovernancePage';
@@ -44,6 +45,11 @@ const AdminLayout = ({ user: initialUser, onLogout }) => {
     const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
     const closeSidebar = () => setIsSidebarOpen(false);
 
+    useEffect(() => {
+        window.adminSetActiveTab = setActiveTab;
+        return () => { delete window.adminSetActiveTab; };
+    }, []);
+
     const displayName = user.name || user.title || 'Admin User';
 
     const renderContent = () => {
@@ -53,6 +59,7 @@ const AdminLayout = ({ user: initialUser, onLogout }) => {
             case 'Departments': return <DepartmentsPage />;
             case 'Infrastructure': return <InfrastructurePage />;
             case 'Directives': return <TasksPage />;
+            case 'Live Tracking': return <TaskTitleTracker />;
             case 'Task Titles': return <TaskTitlesPage />;
             case 'Scoreboard': return <ScoreboardPage />;
             case 'Resources': return <ResourcesPage />;

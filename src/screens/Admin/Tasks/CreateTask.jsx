@@ -40,13 +40,14 @@ const CreateTask = ({ onCancel, onSuccess }) => {
     const [excelFile, setExcelFile] = useState(null);
     const [taskData, setTaskData] = useState({
         taskCategory: 'Directive Task', 
-        title: '', description: '', priority: 'Medium',
+        title: '', description: '', priority: 'Medium', category: 'Academic',
         taskType: 'Fixed Time Task', ownerId: null, assigneeIds: [],
         venue_id: '',
         score: 100, penaltyRule: { penaltyValue: 5 },
         subTasks: [], requiresApproval: false, approver_id: null,
         isPackageTask: false, allowPause: false,
         is_document: true, requiredDocuments: [],
+        completionMethods: ['OTP Verify'],
         selectedDate: new Date().toISOString().split('T')[0],
         startDate: new Date().toISOString().split('T')[0],
         endDate: new Date().toISOString().split('T')[0],
@@ -219,7 +220,7 @@ const CreateTask = ({ onCancel, onSuccess }) => {
 
             const payload = {
                 title: taskData.title,
-                category: 'Others', // Hardcoded as category is not needed on UI
+                category: taskData.category,
                 description: taskData.description,
                 priority: taskData.priority,
                 is_package: taskData.isPackageTask,
@@ -237,7 +238,12 @@ const CreateTask = ({ onCancel, onSuccess }) => {
                 is_faculty: taskData.is_faculty,
                 faculty_ids: taskData.faculty_ids,
                 is_mandatory: taskData.is_mandatory_flag,
-                closure_ids: [1]
+                closure_ids: taskData.completionMethods.map(m => {
+                    if (m === 'OTP Verify') return 1;
+                    if (m === 'Photo Upload') return 2;
+                    if (m === 'QR Scan') return 3;
+                    return 1;
+                })
             };
 
             if (taskData.isPackageTask) {
@@ -285,6 +291,14 @@ const CreateTask = ({ onCancel, onSuccess }) => {
                 <select className={selectCls} value={taskData.taskCategory} onChange={(e) => hi('taskCategory', e.target.value)}>
                     <option>Directive Task</option>
                     <option>Self Log</option>
+                </select>
+            </div>
+            <div><label className={labelCls}>TASK CLASSIFICATION / CATEGORY</label>
+                <select className={selectCls} value={taskData.category} onChange={(e) => hi('category', e.target.value)}>
+                    <option>Academic</option>
+                    <option>Administrative</option>
+                    <option>Compliance</option>
+                    <option>Others</option>
                 </select>
             </div>
             <div><label className={labelCls}>{taskData.taskCategory === 'Self Log' ? 'ACTIVITY TITLE' : 'TASK TITLE'}</label>
@@ -538,8 +552,28 @@ const CreateTask = ({ onCancel, onSuccess }) => {
                 </div>
                 
                 <div className="bg-slate-50 border border-slate-100 rounded-2xl px-4 pb-1">
+                    <p className="text-[0.65rem] font-extrabold text-slate-400 uppercase tracking-widest pt-4 mb-1 px-0">Task Flags</p>
                     {[{ key: 'is_document', label: 'Mandatory Documentation', desc: 'Requires proof uploads' }, { key: 'is_mandatory_flag', label: 'Is Mandatory Task?', desc: 'Required activity for all assignees' }].map(item => (
                         <ToggleRow key={item.key} label={item.label} desc={item.desc} checked={taskData[item.key]} onChange={(e) => hi(item.key, e.target.checked)} />))}
+                </div>
+
+                <div className="bg-slate-50 border border-slate-100 rounded-2xl px-4 pb-1">
+                     <p className="text-[0.65rem] font-extrabold text-slate-400 uppercase tracking-widest pt-4 mb-1 px-0">Closure Rules</p>
+                     {['OTP Verify', 'Photo Upload', 'QR Scan'].map(method => (
+                         <ToggleRow 
+                            key={method} 
+                            label={method} 
+                            desc={method === 'OTP Verify' ? 'Verify completion via One-Time Password' : method === 'Photo Upload' ? 'Require a photo for task completion' : 'Require scanning a location/task QR'} 
+                            checked={taskData.completionMethods.includes(method)} 
+                            onChange={(e) => {
+                                const checked = e.target.checked;
+                                hi('completionMethods', checked 
+                                    ? [...taskData.completionMethods, method]
+                                    : taskData.completionMethods.filter(m => m !== method)
+                                );
+                            }} 
+                        />
+                     ))}
                 </div>
             </div>
         );
