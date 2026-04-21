@@ -114,7 +114,21 @@ const UsersPage = () => {
     const handleEdit = (user) => { setIsEditMode(true); setSelectedUser(user); setIsModalOpen(true); };
     const handleRevokeClick = (user) => { setSelectedUser(user); setIsRevokeOpen(true); };
     const handleDeleteClick = (user) => { setSelectedUser(user); setIsDeleteOpen(true); };
-    const handleDeleteConfirm = () => { setUsersList(prev => prev.filter(u => u.id !== selectedUser.id)); setSelectedUser(null); setIsDeleteOpen(false); };
+    const handleDeleteConfirm = async () => {
+        try {
+            await api(`/users/${selectedUser.id}`, { method: 'DELETE' });
+            setUsersList(prev => prev.filter(u => u.id !== selectedUser.id));
+            setToastMsg('User deleted successfully!');
+            setShowToast(true); setTimeout(() => setShowToast(false), 3000);
+        } catch (error) {
+            console.error('Failed to delete user:', error);
+            setToastMsg('Failed to delete user: ' + (error.message || 'Unknown error'));
+            setShowToast(true); setTimeout(() => setShowToast(false), 3000);
+        } finally {
+            setSelectedUser(null);
+            setIsDeleteOpen(false);
+        }
+    };
 
     const handleBulkUpload = async (event) => {
         const file = event.target.files[0];

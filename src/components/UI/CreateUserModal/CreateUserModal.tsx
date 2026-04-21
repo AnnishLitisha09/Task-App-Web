@@ -189,7 +189,16 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
             if (isEdit && userData) {
                 // Use the new Unified Role Management API for edits
                 const payload: any = {
-                    primary_role: category
+                    primary_role: category,
+                    name: fullName,
+                    reg_no: regNo,
+                    department_id: parseId(deptId),
+                    year: parseId(year),
+                    cgpa: cgpa !== '' ? Number(cgpa) : undefined,
+                    credit_score: score !== '' ? Number(score) : undefined,
+                    faculty_id: parseId(facultyId),
+                    faculty_type: facultyType,
+                    designation: designation
                 };
 
                 if (profilesToRemove.length > 0) {
